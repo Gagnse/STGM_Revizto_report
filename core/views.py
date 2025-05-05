@@ -21,17 +21,26 @@ def home_view(request):
 def get_search_results(request):
     """
     API endpoint to get search results for the dropdown
-    This is just a placeholder that returns mock data
+    Searches projects by title
     """
     query = request.GET.get('query', '')
+    print(f"[DEBUG] Search request received with query: '{query}'")
 
-    # Mock search results
-    results = [
-        {'id': 1, 'text': f'Result for {query} - Item 1'},
-        {'id': 2, 'text': f'Result for {query} - Item 2'},
-        {'id': 3, 'text': f'Result for {query} - Item 3'}
-    ]
+    # Get matching projects from the API
+    projects = ReviztoService.search_projects(query)
 
+    # Convert to serializable format for the dropdown
+    results = []
+    for project in projects:
+        project_id = project.id
+        project_name = project.name
+        print(f"[DEBUG] Adding result: ID={project_id}, Name={project_name}")
+        results.append({
+            'id': project_id,
+            'text': project_name
+        })
+
+    print(f"[DEBUG] Returning {len(results)} search results")
     return JsonResponse({'results': results})
 
 

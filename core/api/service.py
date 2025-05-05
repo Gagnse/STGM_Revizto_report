@@ -200,4 +200,30 @@ class ReviztoService:
             logger.error(f"Failed to get user {user_id}: {e}")
             return None
 
-    # Add more service methods based on your needs
+    @classmethod
+    def search_projects(cls, query):
+        """Search for projects by title."""
+        print(f"[DEBUG] Starting search for projects with query: {query}")
+        try:
+            # Get all projects
+            projects = cls.get_projects()
+            print(f"[DEBUG] Found {len(projects)} projects to search through")
+
+            # Filter projects by title containing the query (case insensitive)
+            if query:
+                filtered_projects = []
+                for project in projects:
+                    project_title = project.name.lower()
+                    if query.lower() in project_title:
+                        print(f"[DEBUG] Match found: {project.name}")
+                        filtered_projects.append(project)
+
+                print(f"[DEBUG] Search returned {len(filtered_projects)} results")
+                return filtered_projects
+
+            return projects
+        except Exception as e:
+            import traceback
+            print(f"[DEBUG] Failed to search projects: {e}")
+            print(f"[DEBUG] Exception traceback: {traceback.format_exc()}")
+            return []

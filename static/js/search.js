@@ -26,36 +26,31 @@ class SearchAutocomplete {
 
     performSearch() {
         const query = this.searchInput.value.trim();
+        console.log("Searching for:", query);
 
         if (query.length < 2) {
             this.hideDropdown();
             return;
         }
 
-        // In a real application, this would be an API call
-        // For now, we'll simulate results
-        this.fetchResults(query)
-            .then(results => {
-                this.results = results;
+        // Call the real API endpoint
+        fetch(`/api/search/?query=${encodeURIComponent(query)}`)
+            .then(response => {
+                console.log("Search response status:", response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log("Search results:", data);
+                this.results = data.results || [];
+                this.renderResults();
+                this.showDropdown();
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+                this.results = [];
                 this.renderResults();
                 this.showDropdown();
             });
-    }
-
-    fetchResults(query) {
-        // This would be replaced with a real API call in production
-        return new Promise(resolve => {
-            // Simulate network delay
-            setTimeout(() => {
-                // Mock results
-                const mockResults = [
-                    { id: 1, text: `Result for ${query} - Item 1` },
-                    { id: 2, text: `Result for ${query} - Item 2` },
-                    { id: 3, text: `Result for ${query} - Item 3` }
-                ];
-                resolve(mockResults);
-            }, 200);
-        });
     }
 
     renderResults() {
@@ -65,7 +60,7 @@ class SearchAutocomplete {
         if (this.results.length === 0) {
             const noResults = document.createElement('div');
             noResults.className = 'p-4 text-sm text-gray-500';
-            noResults.textContent = 'No results found';
+            noResults.textContent = 'No projects found';
             this.dropdown.appendChild(noResults);
             return;
         }
@@ -77,7 +72,7 @@ class SearchAutocomplete {
         this.results.forEach(result => {
             const li = document.createElement('li');
             const a = document.createElement('a');
-            a.href = '#'; // Would be a real URL in production
+            a.href = '#'; // We'll handle navigation via JavaScript
             a.className = 'block px-4 py-2 hover:bg-gray-100';
             a.textContent = result.text;
             a.dataset.id = result.id;
@@ -95,12 +90,12 @@ class SearchAutocomplete {
     }
 
     selectResult(result) {
-        // Handle selection
+        // Handle selection - load issues for the selected project
         this.searchInput.value = result.text;
         this.hideDropdown();
 
-        // You could trigger additional actions here
-        console.log('Selected:', result);
+        // Load issues for the selected project
+        loadIssues(result.id);
     }
 
     showDropdown() {

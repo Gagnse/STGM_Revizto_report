@@ -10,10 +10,6 @@ class ApiModel:
         """
         self._data = data or {}
 
-        # Set attributes from data
-        for key, value in self._data.items():
-            setattr(self, key, value)
-
     @property
     def raw_data(self):
         """Get the raw data dictionary."""
