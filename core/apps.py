@@ -1,5 +1,4 @@
 from django.apps import AppConfig
-from django.conf import settings
 
 
 class CoreConfig(AppConfig):
@@ -9,15 +8,31 @@ class CoreConfig(AppConfig):
     def ready(self):
         """
         Initialize the Revizto API when the app starts.
-
-        This will use the tokens from settings.py.
         """
-        from .api.client import ReviztoAPI
+        import os
+        import sys
 
-        # Get tokens from settings
-        access_token = getattr(settings, 'REVIZTO_ACCESS_TOKEN', None)
-        refresh_token = getattr(settings, 'REVIZTO_REFRESH_TOKEN', None)
+        # Avoid running this during migrations or when collecting static files
+        if 'runserver' not in sys.argv and 'manage.py' not in sys.argv:
+            return
 
-        if access_token and refresh_token:
-            # Initialize the API client with tokens
-            ReviztoAPI.initialize(access_token, refresh_token)
+        # Also avoid running in auto-reload cycles
+        if os.environ.get('RUN_MAIN') != 'true' and 'runserver' in sys.argv:
+            return
+
+        try:
+            from django.conf import settings
+            from .api.client import ReviztoAPI
+
+            # Get tokens from settings
+            access_token = getattr(settings, 'REVIZTO_ACCESS_TOKEN', None)
+            refresh_token = getattr(settings, 'REVIZTO_REFRESH_TOKEN', None)
+
+            if access_token and refresh_token:
+                # Initialize the API client with tokens
+                ReviztoAPI.initialize(access_token, refresh_token)
+                print("Revizto API client initialized")
+            else:
+                print("Warning: Revizto API tokens not configured in settings")
+        except Exception as e:
+            print(f"Error initializing Revizto API client: {e}")
