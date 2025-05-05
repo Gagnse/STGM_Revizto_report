@@ -1,6 +1,271 @@
 <main class="flex-grow container mx-auto px-4 py-8">
-    <div class="bg-white p-6 rounded-lg shadow-md">
-        <h1 class="text-2xl font-bold text-gray-800 mb-4">Main Content Area</h1>
-        <p class="text-gray-600">This is the main content area of your application. You can add your specific content here.</p>
+    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-4">Revizto Projects</h1>
+
+        {% if projects %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for project in projects %}
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+                        <h2 class="text-lg font-semibold text-gray-800">{{ project.name }}</h2>
+
+                        {% if project.description %}
+                            <p class="text-gray-600 text-sm mt-2">{{ project.description }}</p>
+                        {% endif %}
+
+                        <div class="mt-4">
+                            <button
+                                class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                onclick="loadIssues({{ project.id }})"
+                            >
+                                View Issues
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <p class="text-yellow-700">No projects found. Please check your API connection.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Issues container (hidden by default) -->
+    <div id="issues-container" class="bg-white p-6 rounded-lg shadow-md hidden">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold text-gray-800" id="issues-title">Issues</h2>
+            <button
+                class="text-gray-600 hover:text-gray-800"
+                onclick="hideIssues()"
+            >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Filter controls -->
+        <div class="mb-4 flex space-x-2">
+            <button
+                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                onclick="filterIssues('all')"
+            >
+                All
+            </button>
+            <button
+                class="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 text-sm"
+                onclick="filterIssues('open')"
+            >
+                Open
+            </button>
+            <button
+                class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm"
+                onclick="filterIssues('closed')"
+            >
+                Closed
+            </button>
+        </div>
+
+        <div id="issues-list" class="space-y-4">
+            <!-- Issues will be loaded here dynamically -->
+            <div class="text-gray-600 text-center py-8">
+                Select a project to view issues
+            </div>
+        </div>
+    </div>
+
+    <!-- Issue details modal (hidden by default) -->
+    <div id="issue-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-start">
+                    <h3 class="text-xl font-bold text-gray-800" id="modal-title">Issue Details</h3>
+                    <button
+                        class="text-gray-600 hover:text-gray-800"
+                        onclick="closeModal()"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="modal-content" class="mt-4">
+                    <!-- Issue details will be loaded here dynamically -->
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <button
+                        class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
+                        onclick="closeModal()"
+                    >
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </main>
+
+<script>
+    // Current project ID
+    let currentProjectId = null;
+
+    // Load issues for a project
+    function loadIssues(projectId) {
+        currentProjectId = projectId;
+
+        // Show issues container
+        document.getElementById('issues-container').classList.remove('hidden');
+
+        // Update title
+        document.getElementById('issues-title').textContent = 'Loading issues...';
+
+        // Clear previous issues
+        document.getElementById('issues-list').innerHTML = '<div class="text-center py-4"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div></div>';
+
+        // Fetch issues from the API
+        fetch(`/api/projects/${projectId}/issues/`)
+            .then(response => response.json())
+            .then(data => {
+                // Update title
+                document.getElementById('issues-title').textContent = `Project Issues (${data.issues.length})`;
+
+                // Render issues
+                renderIssues(data.issues);
+            })
+            .catch(error => {
+                document.getElementById('issues-list').innerHTML = `<div class="text-red-600 text-center py-4">Failed to load issues: ${error.message}</div>`;
+            });
+    }
+
+    // Render issues list
+    function renderIssues(issues) {
+        const issuesList = document.getElementById('issues-list');
+
+        if (issues.length === 0) {
+            issuesList.innerHTML = '<div class="text-gray-600 text-center py-4">No issues found for this project</div>';
+            return;
+        }
+
+        let html = '';
+
+        issues.forEach(issue => {
+            // Determine status color
+            let statusColor = 'bg-gray-100 text-gray-800';
+            if (issue.status === 'open') {
+                statusColor = 'bg-yellow-100 text-yellow-800';
+            } else if (issue.status === 'closed') {
+                statusColor = 'bg-green-100 text-green-800';
+            }
+
+            html += `
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow issue-item" data-status="${issue.status || 'unknown'}">
+                    <div class="flex justify-between items-start">
+                        <h3 class="text-lg font-semibold text-gray-800">${issue.title || 'Untitled Issue'}</h3>
+                        <span class="px-2 py-1 rounded-full text-xs ${statusColor}">${issue.status || 'Unknown'}</span>
+                    </div>
+
+                    <p class="text-gray-600 text-sm mt-2 line-clamp-2">${issue.description || 'No description'}</p>
+
+                    <div class="mt-4 flex justify-between items-center">
+                        <span class="text-gray-500 text-xs">ID: ${issue.id}</span>
+                        <button
+                            class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                            onclick="viewIssueDetails(${currentProjectId}, ${issue.id})"
+                        >
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+
+        issuesList.innerHTML = html;
+    }
+
+    // Filter issues by status
+    function filterIssues(status) {
+        const issues = document.querySelectorAll('.issue-item');
+
+        issues.forEach(issue => {
+            if (status === 'all' || issue.dataset.status === status) {
+                issue.classList.remove('hidden');
+            } else {
+                issue.classList.add('hidden');
+            }
+        });
+    }
+
+    // Hide issues container
+    function hideIssues() {
+        document.getElementById('issues-container').classList.add('hidden');
+        currentProjectId = null;
+    }
+
+    // View issue details
+    function viewIssueDetails(projectId, issueId) {
+        // Show modal
+        document.getElementById('issue-modal').classList.remove('hidden');
+
+        // Show loading
+        document.getElementById('modal-content').innerHTML = '<div class="text-center py-4"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div></div>';
+
+        // Fetch issue details from the API
+        fetch(`/api/projects/${projectId}/issues/${issueId}/`)
+            .then(response => response.json())
+            .then(issue => {
+                // Update modal title
+                document.getElementById('modal-title').textContent = issue.title || 'Issue Details';
+
+                // Format created date
+                const createdDate = issue.created_at ? new Date(issue.created_at).toLocaleDateString() : 'Unknown';
+
+                // Render issue details
+                let html = `
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500">Status</h4>
+                            <p class="text-gray-800">${issue.status || 'Unknown'}</p>
+                        </div>
+
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500">Created</h4>
+                            <p class="text-gray-800">${createdDate}</p>
+                        </div>
+
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500">Description</h4>
+                            <p class="text-gray-800">${issue.description || 'No description'}</p>
+                        </div>
+                `;
+
+                // Add assignee if available
+                if (issue.assignee) {
+                    html += `
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500">Assigned To</h4>
+                            <p class="text-gray-800">${issue.assignee.name || issue.assignee}</p>
+                        </div>
+                    `;
+                }
+
+                html += '</div>';
+
+                document.getElementById('modal-content').innerHTML = html;
+            })
+            .catch(error => {
+                document.getElementById('modal-content').innerHTML = `<div class="text-red-600">Failed to load issue details: ${error.message}</div>`;
+            });
+    }
+
+    // Close modal
+    function closeModal() {
+        document.getElementById('issue-modal').classList.add('hidden');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('issue-modal').addEventListener('click', function(event) {
+        if (event.target === this) {
+            closeModal();
+        }
+    });
+</script>
