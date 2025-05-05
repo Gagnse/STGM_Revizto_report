@@ -1,26 +1,8 @@
-// Load HTML components
+// Modified main.js - removed unnecessary component loading
 document.addEventListener('DOMContentLoaded', function() {
-    loadComponent('navbar-container', 'navbar.html');
-    loadComponent('main-container', 'main.html');
-    loadComponent('footer-container', 'footer.html');
+    // Initialize search dropdown functionality
+    initializeSearchDropdown();
 });
-
-// Function to load HTML components
-function loadComponent(containerId, componentUrl) {
-    fetch(componentUrl)
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById(containerId).innerHTML = html;
-
-            // Initialize components after loading
-            if (componentUrl === 'navbar.html') {
-                initializeSearchDropdown();
-            }
-        })
-        .catch(error => {
-            console.error(`Error loading ${componentUrl}:`, error);
-        });
-}
 
 // Initialize search dropdown functionality
 function initializeSearchDropdown() {
