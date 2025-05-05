@@ -22,7 +22,45 @@ class ApiModel:
 
 class Project(ApiModel):
     """Represents a Revizto project."""
-    pass
+
+    @property
+    def id(self):
+        """Get the project ID."""
+        return self._data.get('id')
+
+    @property
+    def name(self):
+        """Get the project name/title."""
+        # Try 'title' first (from your sample), then fall back to 'name'
+        return self._data.get('title', self._data.get('name', 'Untitled Project'))
+
+    @property
+    def description(self):
+        """Get the project description."""
+        return self._data.get('description', '')
+
+    @property
+    def created_at(self):
+        """Get project creation date."""
+        return self._data.get('created', '')
+
+    @property
+    def updated_at(self):
+        """Get project update date."""
+        return self._data.get('updated', '')
+
+    @property
+    def owner(self):
+        """Get project owner info."""
+        owner_data = self._data.get('owner', {})
+        if isinstance(owner_data, dict):
+            return owner_data.get('fullname', 'Unknown')
+        return 'Unknown'
+
+    @property
+    def preview_url(self):
+        """Get project preview image URL."""
+        return self._data.get('preview', '')
 
 
 class Issue(ApiModel):

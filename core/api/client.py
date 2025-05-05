@@ -14,7 +14,7 @@ class ReviztoAPI:
     # Configure with your region
     REGION = "canada"
     BASE_URL = f"https://api.{REGION}.revizto.com/v5/"
-
+    LICENCE_UUID = settings.REVIZTO_LICENCE_UUID
     # Store tokens as class variables
     ACCESS_TOKEN = None
     REFRESH_TOKEN = None
@@ -134,25 +134,50 @@ class ReviztoAPI:
             Exception: If the request fails
         """
         if not cls.ensure_token_valid():
+            print(f"[DEBUG] Failed to obtain valid token for endpoint: {endpoint}")
             raise Exception("Failed to obtain valid token")
 
         url = f"{cls.BASE_URL}{endpoint}"
+        print(f"[DEBUG] Making API request to: {url}")
+        print(f"[DEBUG] With params: {params}")
+
         try:
+            print(f"[DEBUG] Request headers: {cls.get_headers()}")
             response = requests.get(url, headers=cls.get_headers(), params=params)
+
+            print(f"[DEBUG] Response status code: {response.status_code}")
+
+            # Print a sample of the response text
+            response_preview = response.text[:200] if response.text else "Empty response"
+            print(f"[DEBUG] Response preview: {response_preview}...")
 
             # Handle 401 or 403 (token expired or invalid)
             if response.status_code in (401, 403) or "-206" in response.text:
+                print(f"[DEBUG] Token expired or invalid. Attempting refresh...")
                 # Try to refresh the token and retry the request
                 if cls.refresh_token():
+                    print(f"[DEBUG] Token refreshed. Retrying request...")
                     # Retry with new token
                     response = requests.get(url, headers=cls.get_headers(), params=params)
+                    print(f"[DEBUG] Retry response status: {response.status_code}")
                 else:
+                    print(f"[DEBUG] Token refresh failed.")
                     raise Exception("Token refresh failed")
 
+            print(f"[DEBUG] Final response status: {response.status_code}")
             response.raise_for_status()
-            return response.json()
+            json_response = response.json()
+
+            if isinstance(json_response, dict):
+                print(f"[DEBUG] JSON response keys: {list(json_response.keys())}")
+            else:
+                print(f"[DEBUG] JSON response type: {type(json_response)}")
+
+            return json_response
         except Exception as e:
-            logger.error(f"API GET request failed: {e}")
+            import traceback
+            print(f"[DEBUG] API GET request failed: {e}")
+            print(f"[DEBUG] Error traceback: {traceback.format_exc()}")
             raise
 
     @classmethod

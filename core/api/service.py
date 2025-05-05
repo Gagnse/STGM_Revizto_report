@@ -23,15 +23,128 @@ class ReviztoService:
             logger.error(f"Failed to get projects: {e}")
             return []
 
+    # 1. Update the ReviztoAPI.get method in core/api/client.py
+    # Add this replacement for the get method
+
     @classmethod
-    def get_project(cls, project_id):
-        """Get a specific project by ID."""
+    def get(cls, endpoint, params=None):
+        """
+        Make a GET request to the API.
+
+        Args:
+            endpoint (str): API endpoint
+            params (dict, optional): Query parameters
+
+        Returns:
+            dict: Response data
+
+        Raises:
+            Exception: If the request fails
+        """
+        if not cls.ensure_token_valid():
+            print(f"[DEBUG] Failed to obtain valid token for endpoint: {endpoint}")
+            raise Exception("Failed to obtain valid token")
+
+        url = f"{cls.BASE_URL}{endpoint}"
+        print(f"[DEBUG] Making API request to: {url}")
+        print(f"[DEBUG] With params: {params}")
+
         try:
-            data = ReviztoAPI.get(f"projects/{project_id}")
-            return Project(data)
+            print(f"[DEBUG] Request headers: {cls.get_headers()}")
+            response = requests.get(url, headers=cls.get_headers(), params=params)
+
+            print(f"[DEBUG] Response status code: {response.status_code}")
+            print(f"[DEBUG] Response headers: {response.headers}")
+
+            # Print a sample of the response text
+            print(f"[DEBUG] Response preview: {response.text[:200]}...")
+
+            # Handle 401 or 403 (token expired or invalid)
+            if response.status_code in (401, 403) or "-206" in response.text:
+                print(f"[DEBUG] Token expired or invalid. Attempting refresh...")
+                # Try to refresh the token and retry the request
+                if cls.refresh_token():
+                    print(f"[DEBUG] Token refreshed. Retrying request...")
+                    # Retry with new token
+                    response = requests.get(url, headers=cls.get_headers(), params=params)
+                    print(f"[DEBUG] Retry response status: {response.status_code}")
+                else:
+                    print(f"[DEBUG] Token refresh failed.")
+                    raise Exception("Token refresh failed")
+
+            print(f"[DEBUG] Final response status: {response.status_code}")
+            response.raise_for_status()
+            json_response = response.json()
+            print(
+                f"[DEBUG] JSON response keys: {list(json_response.keys()) if isinstance(json_response, dict) else 'Not a dict'}")
+            return json_response
         except Exception as e:
-            logger.error(f"Failed to get project {project_id}: {e}")
-            return None
+            import traceback
+            print(f"[DEBUG] API GET request failed: {e}")
+            print(f"[DEBUG] Error traceback: {traceback.format_exc()}")
+            raise
+
+    # 2. Update the get_projects method in core/api/service.py
+
+    @classmethod
+    def get_projects(cls):
+        """Get a list of all projects."""
+        print("\n[DEBUG] ==== STARTING GET_PROJECTS ====")
+        try:
+            if not ReviztoAPI.LICENCE_UUID:
+                print("[DEBUG] REVIZTO_LICENCE_UUID is not set in settings")
+                return []
+
+            print(f"[DEBUG] Using license UUID: {ReviztoAPI.LICENCE_UUID}")
+
+            # Use the correct endpoint that's working
+            endpoint = f"license/{ReviztoAPI.LICENCE_UUID}/projects"
+            print(f"[DEBUG] Using endpoint: {endpoint}")
+
+            try:
+                data = ReviztoAPI.get(endpoint)
+                print("[DEBUG] API request successful")
+            except Exception as e:
+                print(f"[DEBUG] API request failed with exception: {e}")
+                return []
+
+            print(f"[DEBUG] Response data type: {type(data)}")
+
+            # Extract projects from the specific response format
+            projects = []
+
+            if isinstance(data, dict):
+                print(f"[DEBUG] Response keys: {list(data.keys())}")
+
+                # Check if we have data key and it contains entities
+                if 'data' in data and isinstance(data['data'], dict):
+                    data_obj = data['data']
+                    print(f"[DEBUG] Data object keys: {list(data_obj.keys())}")
+
+                    # Check for entities key which should contain projects
+                    if 'entities' in data_obj and isinstance(data_obj['entities'], list):
+                        entities = data_obj['entities']
+                        print(f"[DEBUG] Found {len(entities)} entities")
+
+                        # Process each entity as a project
+                        for entity in entities:
+                            if isinstance(entity, dict):
+                                print(f"[DEBUG] Processing entity with keys: {list(entity.keys())[:5]}...")
+                                projects.append(Project(entity))
+
+                                # Debug the first project
+                                if len(projects) == 1:
+                                    project_id = entity.get('id', 'unknown')
+                                    project_title = entity.get('title', entity.get('name', 'Untitled'))
+                                    print(f"[DEBUG] First project: ID={project_id}, Title={project_title}")
+
+            print(f"[DEBUG] Found {len(projects)} projects")
+            return projects
+        except Exception as e:
+            import traceback
+            print(f"[DEBUG] Failed to get projects: {e}")
+            print(f"[DEBUG] Exception traceback: {traceback.format_exc()}")
+            return []
 
     @classmethod
     def get_issues(cls, project_id, status=None):
