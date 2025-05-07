@@ -3,6 +3,8 @@ from django.http import JsonResponse
 from .api.service import ReviztoService
 import json
 import logging
+from datetime import datetime
+from .models import ProjectData
 
 # Set up logger
 logger = logging.getLogger(__name__)
@@ -12,13 +14,6 @@ def home_view(request):
     """
     View for the home page that renders the index.html template
     """
-    # Debug session state
-    logger.info("Session ID: %s", request.session.session_key)
-    logger.info("Session keys: %s", list(request.session.keys()))
-
-    print(f"[DEBUG] Session ID: {request.session.session_key}")
-    print(f"[DEBUG] Session keys: {list(request.session.keys())}")
-
     # Get projects from the API
     projects = ReviztoService.get_projects()
 
@@ -42,11 +37,6 @@ def get_search_results(request):
     # Get matching projects from the API
     projects = ReviztoService.search_projects(query)
 
-    # Debug session state
-    print(f"[DEBUG] Session ID: {request.session.session_key}")
-    print(f"[DEBUG] Session keys: {list(request.session.keys())}")
-    logger.info("Session keys during search: %s", list(request.session.keys()))
-
     # Convert to serializable format for the dropdown
     results = []
     for project in projects:
@@ -54,9 +44,8 @@ def get_search_results(request):
         project_name = project.name
         print(f"[DEBUG] Adding result: ID={project_id}, Name={project_name}")
 
-        # Check if this project has saved data in the session
-        project_session_key = f"project_{project_id}_data"
-        has_saved_data = project_session_key in request.session
+        # Check if this project has saved data in the database
+        has_saved_data = ProjectData.objects.filter(id=project_id).exists()
 
         print(f"[DEBUG] Project {project_id} has saved data: {has_saved_data}")
 
@@ -100,7 +89,7 @@ def get_issue_details(request, project_id, issue_id):
 
 def save_project_data(request, project_id):
     """
-    API endpoint to save project form data to session
+    API endpoint to save project form data to database
     """
     if request.method != 'POST':
         logger.warning("Save project data called with non-POST method: %s", request.method)
@@ -112,38 +101,72 @@ def save_project_data(request, project_id):
 
         # Debug request and data
         print(f"[DEBUG] Saving data for project {project_id}")
-        print(f"[DEBUG] Session ID: {request.session.session_key}")
-        print(f"[DEBUG] CSRF Token: {request.META.get('CSRF_COOKIE', 'Not found')}")
         print(f"[DEBUG] Data keys: {list(data.keys())}")
 
-        logger.info("Saving data for project %s with session ID %s",
-                    project_id, request.session.session_key)
+        # Format dates if they exist
+        report_date = None
+        if data.get('reportDate'):
+            try:
+                report_date = datetime.strptime(data['reportDate'], '%Y-%m-%d')
+            except ValueError:
+                # Try alternative format
+                try:
+                    report_date = datetime.strptime(data['reportDate'], '%Y-%m-%dT%H:%M:%S.%fZ')
+                except ValueError:
+                    logger.warning(f"Could not parse report date: {data['reportDate']}")
 
-        # Ensure a session exists
-        if not request.session.session_key:
-            request.session.create()
-            print(f"[DEBUG] Created new session with ID: {request.session.session_key}")
-            logger.info("Created new session with ID: %s", request.session.session_key)
+        visit_date = None
+        if data.get('visitDate'):
+            try:
+                visit_date = datetime.strptime(data['visitDate'], '%Y-%m-%d')
+            except ValueError:
+                # Try alternative format
+                try:
+                    visit_date = datetime.strptime(data['visitDate'], '%Y-%m-%dT%H:%M:%S.%fZ')
+                except ValueError:
+                    logger.warning(f"Could not parse visit date: {data['visitDate']}")
 
-        # Store in session with project-specific key
-        session_key = f"project_{project_id}_data"
-        request.session[session_key] = data
+        # Try to get existing project data or create new entry
+        project_data, created = ProjectData.objects.get_or_create(
+            id=project_id,
+            defaults={
+                'noDossier': data.get('architectFile', ''),
+                'noProjet': data.get('projectName', ''),
+                'maitreOuvragge': data.get('projectOwner', ''),
+                'entrepreneur': data.get('contractor', ''),
+                'noVisite': data.get('visitNumber', ''),
+                'visitePar': data.get('visitBy', ''),
+                'dateVisite': visit_date,
+                'presence': data.get('inPresenceOf', ''),
+                'rapportDate': report_date,
+                'description': data.get('description', ''),
+                'distribution': data.get('distribution', ''),
+                'image': data.get('imageUrl', '')
+            }
+        )
 
-        # Force save the session
-        request.session.modified = True
+        if not created:
+            # Update existing project data
+            project_data.noDossier = data.get('architectFile', '')
+            project_data.noProjet = data.get('projectName', '')
+            project_data.maitreOuvragge = data.get('projectOwner', '')
+            project_data.entrepreneur = data.get('contractor', '')
+            project_data.noVisite = data.get('visitNumber', '')
+            project_data.visitePar = data.get('visitBy', '')
+            project_data.dateVisite = visit_date
+            project_data.presence = data.get('inPresenceOf', '')
+            project_data.rapportDate = report_date
+            project_data.description = data.get('description', '')
+            project_data.distribution = data.get('distribution', '')
+            project_data.image = data.get('imageUrl', '')
+            project_data.save()
 
-        # Debug session after save
-        print(f"[DEBUG] Session keys after save: {list(request.session.keys())}")
-        print(f"[DEBUG] Project data saved to session with key: {session_key}")
-
-        logger.info("Project %s data saved to session. Keys: %s",
-                    project_id, list(request.session.keys()))
+        logger.info("Project %s data saved to database. Created: %s", project_id, created)
 
         return JsonResponse({
             'success': True,
-            'message': 'Data saved successfully',
-            'sessionId': request.session.session_key,
-            'sessionKeys': list(request.session.keys())
+            'message': 'Data saved successfully to database',
+            'created': created
         })
 
     except json.JSONDecodeError as e:
@@ -161,95 +184,117 @@ def save_project_data(request, project_id):
 
 def load_project_data(request, project_id):
     """
-    API endpoint to load project form data from session
+    API endpoint to load project form data from database
     """
-    # Debug session state
+    # Debug state
     print(f"[DEBUG] Loading data for project {project_id}")
-    print(f"[DEBUG] Session ID: {request.session.session_key}")
-    print(f"[DEBUG] Session keys: {list(request.session.keys())}")
 
-    logger.info("Loading data for project %s. Session keys: %s",
-                project_id, list(request.session.keys()))
+    try:
+        # Try to get project data from database
+        project_exists = ProjectData.objects.filter(id=project_id).exists()
 
-    # Get project data from session
-    session_key = f"project_{project_id}_data"
-    has_data = session_key in request.session
+        if project_exists:
+            project_data = ProjectData.objects.get(id=project_id)
 
-    print(f"[DEBUG] Session key '{session_key}' exists: {has_data}")
+            # Format dates for JSON
+            report_date = ''
+            if project_data.rapportDate:
+                report_date = project_data.rapportDate.strftime('%Y-%m-%d')
 
-    if has_data:
-        project_data = request.session[session_key]
-        print(f"[DEBUG] Loaded project data with keys: {list(project_data.keys())}")
-        logger.info("Loaded project data for project %s", project_id)
-    else:
-        project_data = {}
-        print(f"[DEBUG] No saved data found for project {project_id}")
-        logger.info("No saved data found for project %s", project_id)
+            visit_date = ''
+            if project_data.dateVisite:
+                visit_date = project_data.dateVisite.strftime('%Y-%m-%d')
 
-    return JsonResponse({
-        'success': True,
-        'data': project_data,
-        'has_data': bool(project_data),
-        'session_debug': {
-            'sessionId': request.session.session_key,
-            'sessionKeys': list(request.session.keys())
-        }
-    })
+            # Convert to response format
+            data = {
+                'architectFile': project_data.noDossier or '',
+                'projectName': project_data.noProjet or '',
+                'projectOwner': project_data.maitreOuvragge or '',
+                'contractor': project_data.entrepreneur or '',
+                'visitNumber': project_data.noVisite or '',
+                'visitBy': project_data.visitePar or '',
+                'visitDate': visit_date,
+                'inPresenceOf': project_data.presence or '',
+                'reportDate': report_date,
+                'description': project_data.description or '',
+                'distribution': project_data.distribution or '',
+                'imageUrl': project_data.image or '',
+                'lastSaved': datetime.now().isoformat()
+            }
+
+            print(f"[DEBUG] Loaded project data with keys: {list(data.keys())}")
+            logger.info("Loaded project data for project %s", project_id)
+
+            return JsonResponse({
+                'success': True,
+                'data': data,
+                'has_data': True
+            })
+        else:
+            print(f"[DEBUG] No saved data found for project {project_id}")
+            logger.info("No saved data found for project %s", project_id)
+
+            return JsonResponse({
+                'success': True,
+                'data': {},
+                'has_data': False
+            })
+
+    except Exception as e:
+        error_msg = f"Error loading project data: {str(e)}"
+        print(f"[DEBUG] {error_msg}")
+        logger.error(error_msg, exc_info=True)
+        return JsonResponse({'error': str(e), 'success': False}, status=500)
 
 
 def clear_project_data(request, project_id):
     """
-    API endpoint to clear project form data from session
+    API endpoint to clear project form data from database
     """
     if request.method != 'POST':
         logger.warning("Clear project data called with non-POST method: %s", request.method)
         return JsonResponse({'error': 'Only POST method allowed'}, status=405)
 
-    # Debug session state
+    # Debug state
     print(f"[DEBUG] Clearing data for project {project_id}")
-    print(f"[DEBUG] Session ID: {request.session.session_key}")
-    print(f"[DEBUG] Session keys before clear: {list(request.session.keys())}")
 
-    logger.info("Clearing data for project %s. Session keys before: %s",
-                project_id, list(request.session.keys()))
+    try:
+        # Remove project data from database
+        deleted, _ = ProjectData.objects.filter(id=project_id).delete()
 
-    # Remove project data from session
-    session_key = f"project_{project_id}_data"
-    removed = False
+        if deleted:
+            print(f"[DEBUG] Removed data for project {project_id} from database")
+            logger.info("Removed data for project %s from database", project_id)
+            return JsonResponse({
+                'success': True,
+                'message': 'Data cleared successfully from database',
+                'removed': True
+            })
+        else:
+            print(f"[DEBUG] No data found for project {project_id} to clear")
+            logger.info("No data found for project %s to clear", project_id)
+            return JsonResponse({
+                'success': True,
+                'message': 'No data found to clear',
+                'removed': False
+            })
 
-    if session_key in request.session:
-        del request.session[session_key]
-        request.session.modified = True
-        removed = True
-        print(f"[DEBUG] Removed data for project {project_id} from session")
-        logger.info("Removed data for project %s from session", project_id)
-    else:
-        print(f"[DEBUG] No data found for project {project_id} to clear")
-        logger.info("No data found for project %s to clear", project_id)
-
-    # Debug session after clear
-    print(f"[DEBUG] Session keys after clear: {list(request.session.keys())}")
-
-    return JsonResponse({
-        'success': True,
-        'message': 'Data cleared successfully',
-        'removed': removed,
-        'sessionId': request.session.session_key,
-        'sessionKeys': list(request.session.keys())
-    })
+    except Exception as e:
+        error_msg = f"Error clearing project data: {str(e)}"
+        print(f"[DEBUG] {error_msg}")
+        logger.error(error_msg, exc_info=True)
+        return JsonResponse({'error': str(e), 'success': False}, status=500)
 
 
 def debug_session(request):
     """
-    Debug endpoint that uses print statements instead of database operations
+    Debug endpoint that returns basic debug info
     """
     print("\n=== DEBUG SESSION INFO ===")
     print(f"Session key: {request.session.session_key}")
-    print(f"Session items: {dict(request.session)}")
-    print(f"Session modified: {request.session.modified}")
     print("=========================\n")
 
     return JsonResponse({
         'success': True,
-        'message': 'Session debug info printed to console'
+        'message': 'Debug info printed to console'
     })
