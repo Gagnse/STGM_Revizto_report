@@ -241,22 +241,15 @@ def clear_project_data(request, project_id):
 
 def debug_session(request):
     """
-    Debug endpoint to view session information
+    Debug endpoint that uses print statements instead of database operations
     """
-    if not request.session.session_key:
-        request.session.create()
-
-    session_data = {
-        'session_key': request.session.session_key,
-        'session_items': {k: request.session[k] for k in request.session.keys()},
-        'cookie_age': request.session.get_expiry_age(),
-        'expire_date': request.session.get_expiry_date().isoformat()
-    }
-
-    print(f"[DEBUG] Session debug info: {session_data}")
-    logger.info("Session debug info: %s", session_data)
+    print("\n=== DEBUG SESSION INFO ===")
+    print(f"Session key: {request.session.session_key}")
+    print(f"Session items: {dict(request.session)}")
+    print(f"Session modified: {request.session.modified}")
+    print("=========================\n")
 
     return JsonResponse({
         'success': True,
-        'session_data': session_data
+        'message': 'Session debug info printed to console'
     })
