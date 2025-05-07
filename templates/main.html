@@ -1,11 +1,103 @@
 <main class="flex-grow container mx-auto px-4 py-8">
     <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-        <h1 class="text-2xl font-bold text-gray-800 mb-4">ACTIVE PROJECT NAME</h1>
+        <h1 id="active-project-title" class="text-2xl font-bold text-gray-800 mb-4">ACTIVE PROJECT NAME</h1>
 
         {% if projects %}
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">Project information</h2>
-            </div>
+                <!-- Project Information Section -->
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Project information</h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- First column of form fields -->
+                        <div class="space-y-4 grid grid-cols-1 md:grid-cols-2">
+
+                            <div>
+                                <label for="architect-file" class="block text-sm font-medium text-gray-700">Dossier Architecte</label>
+                                <input type="text" id="architect-file" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label for="project-name" class="block text-sm font-medium text-gray-700">Projet</label>
+                                <input type="text" id="project-name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label for="project-owner" class="block text-sm font-medium text-gray-700">Maitre de l'ouvrage</label>
+                                <input type="text" id="project-owner" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label for="contractor" class="block text-sm font-medium text-gray-700">Entrepreneur</label>
+                                <input type="text" id="contractor" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label for="visit-number" class="block text-sm font-medium text-gray-700">Visite no.</label>
+                                <input type="text" id="visit-number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label for="visit-by" class="block text-sm font-medium text-gray-700">Visite effectuée par</label>
+                                <input type="text" id="visit-by" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label for="in-presence-of" class="block text-sm font-medium text-gray-700">En présence de</label>
+                                <input type="text" id="in-presence-of" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+
+                             <div>
+                                <label for="visit-date" class="block text-sm font-medium text-gray-700">Le</label>
+                                <input type="date" id="visit-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+
+                             <div>
+                                <label for="report-date" class="block text-sm font-medium text-gray-700">Date du rapport</label>
+                                <input type="date" id="report-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+
+                        </div>
+
+
+                        <!-- Second column of form fields -->
+                        <div class="space-y-4">
+                            <!-- Project Image Upload at the top of second column -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Image du projet</label>
+                                <div class="mt-1">
+                                    <div id="project-image-preview" class="w-full h-60 bg-gray-100 flex items-center justify-center border border-gray-300 rounded-md overflow-hidden">
+                                        <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
+                                    <button type="button" id="upload-image-btn" class="mt-2 w-full bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                        Upload
+                                    </button>
+                                    <input type="file" id="project-image-upload" accept="image/*" class="hidden">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Project Description -->
+                    <div class="mt-4">
+                        <label for="project-description" class="block text-sm font-medium text-gray-700">Description du projet</label>
+                        <textarea id="project-description" rows="3" class=" resize-none mt-1 block w-full h-20  rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                    </div>
+
+                    <div>
+                        <label for="distribution" class="block text-sm font-medium text-gray-700">Distribution</label>
+                        <textarea type="text" id="distribution" class=" resize-none mt-1 h-60 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                    </div>
+
+                    <!-- Save Button -->
+                    <div class="mt-6">
+                        <button type="button" id="save-project-info" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                            Save Project Information
+                        </button>
+                    </div>
+                </div>
         {% else %}
             <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
                 <p class="text-yellow-700">No projects found. Please check your API connection.</p>
@@ -13,6 +105,7 @@
         {% endif %}
     </div>
 
+    <!-- Issues Section (placeholder for future development) -->
     <div class="bg-white p-6 rounded-lg shadow-md mb-6">
         {% if projects %}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -24,7 +117,8 @@
             </div>
         {% endif %}
     </div>
-    <!-- Issues container (hidden by default) -->
+
+    <!-- Issues container (hidden by default, kept for future development) -->
     <div id="issues-container" class="bg-white p-6 rounded-lg shadow-md hidden">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-bold text-gray-800" id="issues-title">Issues</h2>
@@ -68,7 +162,7 @@
         </div>
     </div>
 
-    <!-- Issue details modal (hidden by default) -->
+    <!-- Issue details modal (kept unchanged, for future development) -->
     <div id="issue-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div class="p-6">
@@ -103,6 +197,92 @@
     // Current project ID
     let currentProjectId = null;
 
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add event listener for image upload button
+        const uploadBtn = document.getElementById('upload-image-btn');
+        const fileInput = document.getElementById('project-image-upload');
+        const imagePreview = document.getElementById('project-image-preview');
+
+        if (uploadBtn && fileInput) {
+            uploadBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        // Clear previous content
+                        imagePreview.innerHTML = '';
+
+                        // Create and append image
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'w-full h-full object-cover';
+                        imagePreview.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // Add event listener for save button
+        const saveBtn = document.getElementById('save-project-info');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', saveProjectInformation);
+        }
+    });
+
+    // Function to save project information
+    function saveProjectInformation() {
+        // Get all form field values
+        const projectInfo = {
+            reportDate: document.getElementById('report-date').value,
+            projectName: document.getElementById('project-name').value,
+            projectOwner: document.getElementById('project-owner').value,
+            contractor: document.getElementById('contractor').value,
+            visitBy: document.getElementById('visit-by').value,
+            inPresenceOf: document.getElementById('in-presence-of').value,
+            visitDate: document.getElementById('visit-date').value,
+            visitNumber: document.getElementById('visit-number').value,
+            architectFile: document.getElementById('architect-file').value,
+            distribution: document.getElementById('distribution').value,
+            description: document.getElementById('project-description').value
+        };
+
+        // Get image if exists
+        const imagePreview = document.getElementById('project-image-preview');
+        const img = imagePreview.querySelector('img');
+        if (img) {
+            projectInfo.imageUrl = img.src;
+        }
+
+        // This would typically send the data to your backend
+        console.log('Saving project information:', projectInfo);
+
+        // For now, just show a success message
+        alert('Project information saved successfully!');
+
+        // You could add an API call here to save the data to your Django backend
+    }
+
+    // Update the search bar when a project is selected
+    function updateActiveProject(projectName) {
+        // Update the active project title
+        const projectTitle = document.getElementById('active-project-title');
+        if (projectTitle) {
+            projectTitle.textContent = projectName || 'ACTIVE PROJECT NAME';
+        }
+
+        // Optionally update the search input value too
+        const searchInput = document.getElementById('search-dropdown');
+        if (searchInput) {
+            searchInput.value = projectName || '';
+        }
+    }
+
+    // Below functions are kept for future issue functionality
     // Load issues for a project
     function loadIssues(projectId) {
         currentProjectId = projectId;
@@ -125,14 +305,21 @@
 
                 // Render issues
                 renderIssues(data.issues);
+
+                // Get the project name and update active project
+                const searchInput = document.getElementById('search-dropdown');
+                if (searchInput) {
+                    updateActiveProject(searchInput.value);
+                }
             })
             .catch(error => {
                 document.getElementById('issues-list').innerHTML = `<div class="text-red-600 text-center py-4">Failed to load issues: ${error.message}</div>`;
             });
     }
 
-    // Render issues list
+    // Remaining functions from original main.html are kept unchanged
     function renderIssues(issues) {
+        // Existing function, unchanged
         const issuesList = document.getElementById('issues-list');
 
         if (issues.length === 0) {
@@ -176,8 +363,8 @@
         issuesList.innerHTML = html;
     }
 
-    // Filter issues by status
     function filterIssues(status) {
+        // Existing function, unchanged
         const issues = document.querySelectorAll('.issue-item');
 
         issues.forEach(issue => {
@@ -189,14 +376,14 @@
         });
     }
 
-    // Hide issues container
     function hideIssues() {
+        // Existing function, unchanged
         document.getElementById('issues-container').classList.add('hidden');
         currentProjectId = null;
     }
 
-    // View issue details
     function viewIssueDetails(projectId, issueId) {
+        // Existing function, unchanged
         // Show modal
         document.getElementById('issue-modal').classList.remove('hidden');
 
@@ -251,8 +438,8 @@
             });
     }
 
-    // Close modal
     function closeModal() {
+        // Existing function, unchanged
         document.getElementById('issue-modal').classList.add('hidden');
     }
 

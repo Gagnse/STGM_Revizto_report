@@ -94,8 +94,28 @@ class SearchAutocomplete {
         this.searchInput.value = result.text;
         this.hideDropdown();
 
+        // Update active project name in the header
+        this.updateActiveProject(result.text, result.id);
+
         // Load issues for the selected project
         loadIssues(result.id);
+    }
+
+    // New method to update active project information
+    updateActiveProject(projectName, projectId) {
+        // Update the active project title
+        const projectTitle = document.getElementById('active-project-title');
+        if (projectTitle) {
+            projectTitle.textContent = projectName || 'ACTIVE PROJECT NAME';
+        }
+
+        // Store the current project ID
+        window.currentProjectId = projectId;
+
+        // Don't pre-fill the project name field since it's manually input
+        // and different from the API title
+
+        console.log(`Active project updated: ${projectName} (ID: ${projectId})`);
     }
 
     showDropdown() {
@@ -115,7 +135,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // (since it's loaded dynamically)
     const searchInitInterval = setInterval(() => {
         if (document.getElementById('search-dropdown')) {
-            new SearchAutocomplete('#search-dropdown', '#autocomplete-dropdown');
+            const searchAutoComplete = new SearchAutocomplete('#search-dropdown', '#autocomplete-dropdown');
+            window.searchAutoComplete = searchAutoComplete; // Make it globally accessible
             clearInterval(searchInitInterval);
         }
     }, 100);
