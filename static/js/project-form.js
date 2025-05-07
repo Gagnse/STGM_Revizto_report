@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Current active project ID
     window.activeProjectId = null;
+    console.log('[DEBUG] Initial window.activeProjectId set to:', window.activeProjectId);
 
     // Initialize form handlers
     initFormHandlers();
@@ -13,6 +14,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Check session status on load
     checkSessionStatus();
+
+    // Set up interval to monitor active project ID
+    setInterval(function() {
+        console.log('[DEBUG] Current window.activeProjectId:', window.activeProjectId);
+    }, 5000); // Log every 5 seconds
 });
 
 // Check current session status
@@ -42,6 +48,12 @@ function initFormHandlers() {
     if (saveBtn) {
         saveBtn.addEventListener('click', function() {
             console.log('[DEBUG] Save button clicked');
+            console.log('[DEBUG] Active project ID at save time:', window.activeProjectId);
+            console.log('[DEBUG] typeof activeProjectId:', typeof window.activeProjectId);
+
+            // Check global scope to make sure window.activeProjectId is accessible
+            console.log('[DEBUG] All properties of window related to project:',
+                Object.keys(window).filter(key => key.toLowerCase().includes('project')));
 
             if (!window.activeProjectId) {
                 console.error('[DEBUG] No active project selected');
@@ -60,6 +72,7 @@ function initFormHandlers() {
     if (clearBtn) {
         clearBtn.addEventListener('click', function() {
             console.log('[DEBUG] Clear button clicked');
+            console.log('[DEBUG] Active project ID at clear time:', window.activeProjectId);
 
             if (!window.activeProjectId) {
                 console.error('[DEBUG] No active project selected');
@@ -128,6 +141,7 @@ function initImageUpload() {
 // Function to save project data to Django session
 function saveProjectData(projectId) {
     console.log('[DEBUG] Saving project data for project ID:', projectId);
+    console.log('[DEBUG] Verifying activeProjectId matches:', window.activeProjectId);
 
     // Show loading state
     showMessage('Saving project data...', 'info');
@@ -189,6 +203,14 @@ function loadProjectData(projectId) {
     // Set the active project ID
     window.activeProjectId = projectId;
     console.log('[DEBUG] Active project ID set to:', window.activeProjectId);
+    console.log('[DEBUG] typeof activeProjectId:', typeof window.activeProjectId);
+
+    // Verify the active project ID was set correctly
+    if (window.activeProjectId !== projectId) {
+        console.error('[DEBUG] CRITICAL ERROR: Active project ID was not set correctly!');
+        console.error('[DEBUG] Expected:', projectId);
+        console.error('[DEBUG] Actual:', window.activeProjectId);
+    }
 
     // Show loading state
     const dataStatus = document.getElementById('data-status');
@@ -209,6 +231,8 @@ function loadProjectData(projectId) {
     })
     .then(data => {
         console.log('[DEBUG] Load response data:', data);
+        // Check active project ID is still correct
+        console.log('[DEBUG] Active project ID after load:', window.activeProjectId);
 
         if (data.success) {
             console.log('[DEBUG] Session debug info:', data.session_debug);
@@ -460,4 +484,10 @@ window.projectForm = {
     saveProjectData,
     clearForm,
     checkSessionStatus
+};
+
+// Debug function to test active project ID
+window.debugProjectId = function() {
+    console.log('[DEBUG] Manual check of active project ID:', window.activeProjectId);
+    return window.activeProjectId;
 };
