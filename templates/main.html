@@ -118,8 +118,47 @@
     <!-- General notes -->
     <div class="bg-white p-6 rounded-lg shadow-md mb-6">
         {% if projects %}
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="gap-6">
                 <h2 class="text-2xl font-bold text-gray-800 mb-4">Notes générales</h2>
+
+                <div class=" p-4 grid-cols-1">
+
+                    <p class="text-gray-700 font-medium ">A. Observations</p>
+                    <div class="prose prose-sm text-gray-600">
+                        <p class="text-gray-700 font-medium">Généralités : </p> <p> Les éléments listés ci-dessous documentent l’état général d’avancement du chantier et ils ne nécessitent donc aucun suivi de la part de l’Entrepreneur.</p>
+                    </div>
+
+                    <p class="text-gray-700 font-medium mt-4">B. Instructions</p>
+                    <div class="prose prose-sm text-gray-600">
+                        <p class="text-gray-700 font-medium ">Généralités : </p><p> Les éléments listés ci-dessous documentent les instructions données à l’Entrepreneur et ils nécessitent donc un suivi de sa part.</p>
+                    </div>
+
+                    <p class="text-gray-700 font-medium mt-4">C. Déficiences</p>
+                    <div class="prose prose-sm text-gray-600">
+                        <p class="text-gray-700 font-medium ">Généralités : </p><p>La liste de Déficiences ci-dessous est non-limitative et ne relève pas l'Entrepreneur et ses Soustraitants
+de leurs responsabilités de se conformer aux exigences des plans, devis et autres Documents contractuels
+et notamment en ce qui concerne la complétion de l'Ouvrage. En outre, elle doit être complétée par celles des
+autres Professionnels concernés.</p>
+                        <p class="text-gray-700 font-medium mt-2">Procédure : </p><p>Les Déficiences doivent être corrigés dans les dix (10) jours ouvrables suivant la réception du présent
+document. Le surintendant de l'Entrepreneur doit traiter les Déficiences sur cette liste et la faire suivre à l'Architecte
+dès que les travaux correctifs ont été effectués. Aucune retenue monétaire ne sera libérée tant et aussi longtemps
+que les Déficiences n’auront été entièrement et
+parfaitement corrigées.</p>
+                        <p class="text-gray-700 font-medium mt-2">Honoraires supplémentaires : </p><p>Après la Réception provisoire de l’ouvrage, l’Architecte prévoit une seule visite
+pour procéder à l'acceptation finale des travaux correctifs et il facturera, au Maître de l’ouvrage, des honoraires
+supplémentaires de 1 000 $/visite supplémentaire. Le montant total des honoraires supplémentaire sera prélevé
+par le Maître de l’ouvrage à même les sommes dues à
+l'Entrepreneur en vertu de son Contrat. L'Entrepreneur est responsable de s'assurer que toutes les Déficiences,
+incluant celles de ses Sous-traitants et de ses Fournisseurs, ont bel et bien été
+entièrement et parfaitement corrigées. </p>
+                        <p class="text-gray-700 font-medium mt-2">Classement des couleurs des pastilles : </p><p> Bleu (posée) : nouvelle observation/instruction/déficience constatée par l'Architecte.</p>
+                                                                                                               <p>  Rouge / orange (posée) : observation/instruction/déficience d'une visite précédente.</p>
+                                                                                                             <p>    Mauve (traitée) : déficience traitée par l'entrepreneur, prête à être validée par l'Architecte.</p>
+                                                                                                              <p>   Noir (refusée) : correction de déficience refusée par l'Architecte, à corriger de nouveau, adéquatement.</p>
+                                                                                                              <p>   Gris (levée) : déficience dont la correction est approuvée par l'Architecte.</p>
+                    </div>
+
+                </div>
             </div>
         {% else %}
              <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
