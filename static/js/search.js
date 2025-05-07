@@ -2,61 +2,15 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('[DEBUG] Search handler initialized');
 
-    // Check if window.activeProjectId exists
-    console.log('[DEBUG] Initial window.activeProjectId in search.js:', window.activeProjectId);
+    // Set up global active project ID if it doesn't exist
+    if (window.activeProjectId === undefined) {
+        window.activeProjectId = null;
+        console.log('[DEBUG] Initialized window.activeProjectId:', window.activeProjectId);
+    }
 
     // Initialize search when elements are available
     initSearchWhenReady();
-
-    // Add a button to the page for debugging
-    addDebugButton();
 });
-
-// Add a debug button to test active project ID
-function addDebugButton() {
-    // Create a button element
-    const debugBtn = document.createElement('button');
-    debugBtn.textContent = 'Debug Project ID';
-    debugBtn.className = 'px-4 py-2 mt-4 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300';
-    debugBtn.style.position = 'fixed';
-    debugBtn.style.bottom = '10px';
-    debugBtn.style.right = '10px';
-    debugBtn.style.zIndex = '9999';
-
-    // Add click event
-    debugBtn.addEventListener('click', function() {
-        console.log('[DEBUG] Debug button clicked');
-        console.log('[DEBUG] Current window.activeProjectId:', window.activeProjectId);
-        console.log('[DEBUG] typeof activeProjectId:', typeof window.activeProjectId);
-
-        // Check if the global variables are shared correctly
-        if (window.projectForm) {
-            console.log('[DEBUG] window.projectForm exists');
-            try {
-                // Try to call the debug function if it exists
-                if (window.debugProjectId) {
-                    const result = window.debugProjectId();
-                    console.log('[DEBUG] Result from window.debugProjectId():', result);
-                }
-            } catch (e) {
-                console.error('[DEBUG] Error calling debug function:', e);
-            }
-        } else {
-            console.error('[DEBUG] window.projectForm does not exist!');
-        }
-
-        // Check all related global variables
-        console.log('[DEBUG] All properties of window related to project:',
-            Object.keys(window).filter(key => key.toLowerCase().includes('project')));
-
-        // Show an alert with the current project ID
-        alert('Current active project ID: ' + (window.activeProjectId || 'None'));
-    });
-
-    // Add to document body
-    document.body.appendChild(debugBtn);
-    console.log('[DEBUG] Debug button added to page');
-}
 
 // Wait for search elements to be available, then initialize
 function initSearchWhenReady() {
@@ -205,102 +159,186 @@ function initSearch(searchInput, dropdownElement) {
             console.error('[DEBUG] Project title element not found');
         }
 
-        // Explicitly set the active project ID on the window object
-        console.log('[DEBUG] Before setting: window.activeProjectId =', window.activeProjectId);
+        // Set the active project ID globally
         window.activeProjectId = project.id;
-        console.log('[DEBUG] After setting: window.activeProjectId =', window.activeProjectId);
+        console.log('[DEBUG] Set window.activeProjectId to:', window.activeProjectId);
 
-        // Create a global variable with a different name as a backup
-        window.selectedProjectId = project.id;
-        console.log('[DEBUG] Created backup global: window.selectedProjectId =', window.selectedProjectId);
+        // STEP 1: Clear the form before loading or creating project data
+        console.log('[DEBUG] Clearing form before loading project data');
+        if (window.projectForm && typeof window.projectForm.clearForm === 'function') {
+            window.projectForm.clearForm();
+        } else {
+            console.error('[DEBUG] projectForm.clearForm function not available');
+            // Fallback to basic form clearing
+            clearFormFields();
+        }
 
-        // Set as global variable with fully qualified name
-        console.log('[DEBUG] Setting window.activeProjectId directly');
-        try {
-            // Try to forcefully set using window object
-            Object.defineProperty(window, 'activeProjectId', {
-                value: project.id,
-                writable: true,
-                configurable: true
+        // STEP 2: Load or create project data
+        loadOrCreateProjectData(project.id);
+    }
+
+    // Basic form clearing function as fallback
+    function clearFormFields() {
+        console.log('[DEBUG] Using fallback form clearing function');
+        const formFields = [
+            'report-date', 'project-name', 'project-owner', 'contractor',
+            'visit-by', 'in-presence-of', 'visit-date', 'visit-number',
+            'architect-file', 'distribution', 'project-description'
+        ];
+
+        formFields.forEach(fieldId => {
+            const element = document.getElementById(fieldId);
+            if (element) {
+                element.value = '';
+            }
+        });
+
+        // Reset image preview
+        const imagePreview = document.getElementById('project-image-preview');
+        if (imagePreview) {
+            imagePreview.innerHTML = `
+                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+            `;
+        }
+    }
+
+    // Load or create project data
+    function loadOrCreateProjectData(projectId) {
+        console.log('[DEBUG] Loading or creating project data for ID:', projectId);
+
+        // Load existing data
+        fetch(`/api/projects/${projectId}/data/load/`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('[DEBUG] Load response:', data);
+
+                if (data.success) {
+                    if (data.has_data) {
+                        // Existing data found, populate form
+                        console.log('[DEBUG] Existing data found, populating form');
+
+                        // Use the project form handler if available
+                        if (window.projectForm && typeof window.projectForm.populateForm === 'function') {
+                            window.projectForm.populateForm(data.data);
+                        } else {
+                            // Fallback to our own implementation if projectForm not available
+                            populateFormFields(data.data);
+                        }
+
+                        // Show last saved time if available
+                        updateLastSavedStatus(data.data.lastSaved ? new Date(data.data.lastSaved) : new Date());
+                    } else {
+                        // No data found, create a new entry
+                        console.log('[DEBUG] No data found, creating new entry');
+                        createNewProjectEntry(projectId);
+                    }
+                } else {
+                    console.error('[DEBUG] Error loading project data:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('[DEBUG] Error in load/create process:', error);
             });
-            console.log('[DEBUG] Forcefully set window.activeProjectId to:', project.id);
-        } catch (e) {
-            console.error('[DEBUG] Error forcefully setting activeProjectId:', e);
-        }
+    }
 
-        // Double-check that it was set
-        console.log('[DEBUG] Double checking activeProjectId value:', window.activeProjectId);
+    // Create a new project entry
+    function createNewProjectEntry(projectId) {
+        console.log('[DEBUG] Creating new project entry for ID:', projectId);
 
-        // Try to create a closure with the project ID
-        (function(projectId) {
-            console.log('[DEBUG] Inside closure, projectId =', projectId);
-            window.latestProjectId = projectId;
-            console.log('[DEBUG] From closure, set window.latestProjectId =', window.latestProjectId);
-        })(project.id);
+        // Prepare empty data
+        const emptyData = {
+            projectId: projectId,
+            lastSaved: new Date().toISOString()
+            // other fields will be empty
+        };
 
-        // Load project data using the project form handler
-        if (window.projectForm && typeof window.projectForm.loadProjectData === 'function') {
-            console.log('[DEBUG] Calling window.projectForm.loadProjectData with ID:', project.id);
+        // Save this empty data to create the entry
+        fetch(`/api/projects/${projectId}/data/save/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify(emptyData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('[DEBUG] New project entry created:', data);
 
-            // Pass both the parameter and set the global variable
-            window.projectForm.loadProjectData(project.id);
+            // Update status
+            updateLastSavedStatus(new Date());
+        })
+        .catch(error => {
+            console.error('[DEBUG] Error creating new project entry:', error);
+        });
+    }
 
-            // Check after loading
-            setTimeout(function() {
-                console.log('[DEBUG] After loadProjectData, activeProjectId =', window.activeProjectId);
-            }, 500);
-        } else {
-            console.error('[DEBUG] Project form handler not available or loadProjectData is not a function');
-            console.error('[DEBUG] window.projectForm exists:', !!window.projectForm);
-            if (window.projectForm) {
-                console.error('[DEBUG] loadProjectData exists:', !!window.projectForm.loadProjectData);
-                console.error('[DEBUG] loadProjectData type:', typeof window.projectForm.loadProjectData);
+    // Helper function to populate form with data (if projectForm is not available)
+    function populateFormFields(data) {
+        console.log('[DEBUG] Populating form fields with data');
+
+        // Map data fields to form fields
+        trySetFormValue('report-date', data.reportDate);
+        trySetFormValue('project-name', data.projectName);
+        trySetFormValue('project-owner', data.projectOwner);
+        trySetFormValue('contractor', data.contractor);
+        trySetFormValue('visit-by', data.visitBy);
+        trySetFormValue('in-presence-of', data.inPresenceOf);
+        trySetFormValue('visit-date', data.visitDate);
+        trySetFormValue('visit-number', data.visitNumber);
+        trySetFormValue('architect-file', data.architectFile);
+        trySetFormValue('distribution', data.distribution);
+        trySetFormValue('project-description', data.description);
+
+        // Load image if available
+        if (data.imageUrl) {
+            const imagePreview = document.getElementById('project-image-preview');
+            if (imagePreview) {
+                // Clear previous content
+                imagePreview.innerHTML = '';
+
+                // Create and append image
+                const img = document.createElement('img');
+                img.src = data.imageUrl;
+                img.className = 'w-full h-full object-cover';
+                imagePreview.appendChild(img);
             }
         }
+    }
 
-        // Load issues if function exists
-        if (typeof loadIssues === 'function') {
-            console.log('[DEBUG] Calling loadIssues with ID:', project.id);
-            loadIssues(project.id);
-        } else {
-            console.log('[DEBUG] loadIssues function not found, skipping');
-        }
-
-        // Alert the user for debugging
-        console.log('[DEBUG] Project selection complete');
-        console.log('[DEBUG] Final activeProjectId =', window.activeProjectId);
-
-        // Create a visible indicator
-        const indicator = document.createElement('div');
-        indicator.style.position = 'fixed';
-        indicator.style.top = '10px';
-        indicator.style.right = '10px';
-        indicator.style.padding = '8px 12px';
-        indicator.style.background = '#e0f7fa';
-        indicator.style.border = '1px solid #4fc3f7';
-        indicator.style.borderRadius = '4px';
-        indicator.style.zIndex = '9999';
-        indicator.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
-        indicator.textContent = `Active Project: ${project.text} (ID: ${project.id})`;
-
-        // Remove any existing indicators
-        const existingIndicator = document.getElementById('project-indicator');
-        if (existingIndicator) {
-            existingIndicator.remove();
-        }
-
-        // Add ID to new indicator
-        indicator.id = 'project-indicator';
-
-        // Add to document
-        document.body.appendChild(indicator);
-
-        // Remove after 5 seconds
-        setTimeout(() => {
-            if (indicator.parentNode) {
-                indicator.remove();
+    // Helper function to set form field value
+    function trySetFormValue(elementId, value) {
+        if (value) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.value = value;
             }
-        }, 5000);
+        }
+    }
+
+    // Helper function to update last saved status
+    function updateLastSavedStatus(saveDate) {
+        const lastSavedText = document.getElementById('last-saved-text');
+        const dataStatus = document.getElementById('data-status');
+
+        if (lastSavedText) {
+            const formattedDate = saveDate.toLocaleString();
+            lastSavedText.textContent = `Last saved: ${formattedDate}`;
+        }
+
+        if (dataStatus) {
+            dataStatus.classList.remove('hidden');
+        }
+    }
+
+    // Helper function to get CSRF token
+    function getCsrfToken() {
+        return document.querySelector('input[name="csrfmiddlewaretoken"]')?.value ||
+            document.cookie.split('; ')
+                .find(row => row.startsWith('csrftoken='))
+                ?.split('=')[1] || '';
     }
 
     // Show dropdown
@@ -317,3 +355,11 @@ function initSearch(searchInput, dropdownElement) {
 
     console.log('[DEBUG] Search functionality fully initialized');
 }
+
+// Make functions available globally
+window.searchFunctions = {
+    loadOrCreateProjectData: function(projectId) {
+        console.log('[DEBUG] Global function loadOrCreateProjectData called with ID:', projectId);
+        // This function would need to be implemented here if needed globally
+    }
+};

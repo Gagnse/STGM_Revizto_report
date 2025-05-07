@@ -90,6 +90,7 @@ def get_issue_details(request, project_id, issue_id):
 def save_project_data(request, project_id):
     """
     API endpoint to save project form data to database
+    Creates new entry if project doesn't exist, otherwise updates existing entry
     """
     if request.method != 'POST':
         logger.warning("Save project data called with non-POST method: %s", request.method)

@@ -16,6 +16,9 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body class="flex flex-col min-h-screen bg-gray-50">
+    <!-- Add CSRF Token -->
+    {% csrf_token %}
+
     <!-- Navigation Bar -->
     {% include "navbar.html" %}
 

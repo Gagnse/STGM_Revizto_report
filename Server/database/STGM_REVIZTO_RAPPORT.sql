@@ -15,5 +15,5 @@ CREATE TABLE projets
     rapportDate DATETIME,
     description VARCHAR(500),
     distribution VARCHAR(500),
-    image VARCHAR(255)
+    image LONGTEXT
 );

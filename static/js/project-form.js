@@ -11,35 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize image upload
     initImageUpload();
-
-    // Check session status on load
-    checkSessionStatus();
-
-    // Set up interval to monitor active project ID
-    setInterval(function() {
-        console.log('[DEBUG] Current window.activeProjectId:', window.activeProjectId);
-    }, 5000); // Log every 5 seconds
 });
-
-// Check current session status
-function checkSessionStatus() {
-    console.log('[DEBUG] Checking session status...');
-
-    fetch('/api/debug/session/')
-        .then(response => response.json())
-        .then(data => {
-            console.log('[DEBUG] Session status:', data);
-            if (data.success) {
-                console.log('[DEBUG] Session ID:', data.session_data.session_key);
-                console.log('[DEBUG] Session keys:', Object.keys(data.session_data.session_items));
-                console.log('[DEBUG] Cookie age:', data.session_data.cookie_age);
-                console.log('[DEBUG] Expire date:', data.session_data.expire_date);
-            }
-        })
-        .catch(error => {
-            console.error('[DEBUG] Failed to get session status:', error);
-        });
-}
 
 // Initialize form event handlers
 function initFormHandlers() {
@@ -48,12 +20,6 @@ function initFormHandlers() {
     if (saveBtn) {
         saveBtn.addEventListener('click', function() {
             console.log('[DEBUG] Save button clicked');
-            console.log('[DEBUG] Active project ID at save time:', window.activeProjectId);
-            console.log('[DEBUG] typeof activeProjectId:', typeof window.activeProjectId);
-
-            // Check global scope to make sure window.activeProjectId is accessible
-            console.log('[DEBUG] All properties of window related to project:',
-                Object.keys(window).filter(key => key.toLowerCase().includes('project')));
 
             if (!window.activeProjectId) {
                 console.error('[DEBUG] No active project selected');
@@ -72,7 +38,6 @@ function initFormHandlers() {
     if (clearBtn) {
         clearBtn.addEventListener('click', function() {
             console.log('[DEBUG] Clear button clicked');
-            console.log('[DEBUG] Active project ID at clear time:', window.activeProjectId);
 
             if (!window.activeProjectId) {
                 console.error('[DEBUG] No active project selected');
@@ -132,16 +97,12 @@ function initImageUpload() {
         });
     } else {
         console.error('[DEBUG] One or more image upload components not found');
-        if (!uploadBtn) console.error('[DEBUG] Upload button not found');
-        if (!fileInput) console.error('[DEBUG] File input not found');
-        if (!imagePreview) console.error('[DEBUG] Image preview not found');
     }
 }
 
 // Function to save project data to Django session
 function saveProjectData(projectId) {
     console.log('[DEBUG] Saving project data for project ID:', projectId);
-    console.log('[DEBUG] Verifying activeProjectId matches:', window.activeProjectId);
 
     // Show loading state
     showMessage('Saving project data...', 'info');
@@ -166,10 +127,6 @@ function saveProjectData(projectId) {
     })
     .then(response => {
         console.log('[DEBUG] Server response status:', response.status);
-        console.log('[DEBUG] Response headers:',
-                   Array.from(response.headers.entries())
-                   .map(([k, v]) => `${k}: ${v}`)
-                   .join(', '));
         return response.json();
     })
     .then(data => {
@@ -177,9 +134,6 @@ function saveProjectData(projectId) {
 
         if (data.success) {
             console.log('[DEBUG] Save successful');
-            console.log('[DEBUG] Session ID:', data.sessionId);
-            console.log('[DEBUG] Session keys:', data.sessionKeys);
-
             showMessage('Project data saved successfully', 'success');
             updateLastSavedStatus(new Date());
         } else {
@@ -197,20 +151,12 @@ function saveProjectData(projectId) {
 function loadProjectData(projectId) {
     console.log('[DEBUG] Loading project data for project ID:', projectId);
 
-    // Always clear form first
+    // Always clear form first to prevent mixing data
     clearForm();
 
     // Set the active project ID
     window.activeProjectId = projectId;
     console.log('[DEBUG] Active project ID set to:', window.activeProjectId);
-    console.log('[DEBUG] typeof activeProjectId:', typeof window.activeProjectId);
-
-    // Verify the active project ID was set correctly
-    if (window.activeProjectId !== projectId) {
-        console.error('[DEBUG] CRITICAL ERROR: Active project ID was not set correctly!');
-        console.error('[DEBUG] Expected:', projectId);
-        console.error('[DEBUG] Actual:', window.activeProjectId);
-    }
 
     // Show loading state
     const dataStatus = document.getElementById('data-status');
@@ -218,8 +164,6 @@ function loadProjectData(projectId) {
         dataStatus.classList.remove('hidden');
         document.getElementById('last-saved-text').textContent = 'Loading project data...';
         console.log('[DEBUG] Loading indicator shown');
-    } else {
-        console.error('[DEBUG] Data status element not found');
     }
 
     // Load data from server
@@ -231,12 +175,8 @@ function loadProjectData(projectId) {
     })
     .then(data => {
         console.log('[DEBUG] Load response data:', data);
-        // Check active project ID is still correct
-        console.log('[DEBUG] Active project ID after load:', window.activeProjectId);
 
         if (data.success) {
-            console.log('[DEBUG] Session debug info:', data.session_debug);
-
             if (data.has_data) {
                 console.log('[DEBUG] Data found for project');
 
@@ -249,12 +189,10 @@ function loadProjectData(projectId) {
                     console.log('[DEBUG] Last saved timestamp updated');
                 }
             } else {
-                console.log('[DEBUG] No data found for project');
+                console.log('[DEBUG] No data found for project - creating new entry');
 
-                // Hide data status if no data
-                if (dataStatus) {
-                    dataStatus.classList.add('hidden');
-                }
+                // Create a new entry for this project
+                createNewProjectEntry(projectId);
             }
         } else {
             console.error('[DEBUG] Load failed:', data.error || 'Unknown error');
@@ -267,8 +205,75 @@ function loadProjectData(projectId) {
     })
     .catch(error => {
         console.error('[DEBUG] Error loading project data:', error);
-        console.error('[DEBUG] Error stack:', error.stack);
+        showMessage('Error loading project data: ' + error.message, 'error');
 
+        // Hide data status on error
+        if (dataStatus) {
+            dataStatus.classList.add('hidden');
+        }
+    });
+}
+
+
+// Function to load project data from database
+function loadProjectData(projectId) {
+    console.log('[DEBUG] Loading project data for project ID:', projectId);
+
+    // STEP 1: Set the active project ID
+    window.activeProjectId = projectId;
+    console.log('[DEBUG] Active project ID set to:', window.activeProjectId);
+
+    // STEP 2: Always clear form first to prevent mixing data
+    console.log('[DEBUG] Clearing form before loading data');
+    clearForm();
+
+    // Show loading state
+    const dataStatus = document.getElementById('data-status');
+    if (dataStatus) {
+        dataStatus.classList.remove('hidden');
+        document.getElementById('last-saved-text').textContent = 'Loading project data...';
+        console.log('[DEBUG] Loading indicator shown');
+    }
+
+    // STEP 3: Load data from server
+    console.log('[DEBUG] Requesting project data from server...');
+    fetch(`/api/projects/${projectId}/data/load/`)
+    .then(response => {
+        console.log('[DEBUG] Load response status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('[DEBUG] Load response data:', data);
+
+        if (data.success) {
+            if (data.has_data) {
+                console.log('[DEBUG] Data found for project');
+
+                // Populate form with data
+                populateForm(data.data);
+
+                // Show last saved time if available
+                if (data.data.lastSaved) {
+                    updateLastSavedStatus(new Date(data.data.lastSaved));
+                    console.log('[DEBUG] Last saved timestamp updated');
+                }
+            } else {
+                console.log('[DEBUG] No data found for project - creating new entry');
+
+                // Create a new entry for this project
+                createNewProjectEntry(projectId);
+            }
+        } else {
+            console.error('[DEBUG] Load failed:', data.error || 'Unknown error');
+
+            // Hide data status on error
+            if (dataStatus) {
+                dataStatus.classList.add('hidden');
+            }
+        }
+    })
+    .catch(error => {
+        console.error('[DEBUG] Error loading project data:', error);
         showMessage('Error loading project data: ' + error.message, 'error');
 
         // Hide data status on error
@@ -308,8 +313,6 @@ function clearForm() {
             </svg>
         `;
         console.log('[DEBUG] Image preview reset');
-    } else {
-        console.error('[DEBUG] Image preview element not found');
     }
 
     // Hide data status
@@ -317,8 +320,6 @@ function clearForm() {
     if (dataStatus) {
         dataStatus.classList.add('hidden');
         console.log('[DEBUG] Data status hidden');
-    } else {
-        console.error('[DEBUG] Data status element not found');
     }
 }
 
@@ -348,8 +349,6 @@ function getFormData() {
         if (img) {
             formData.imageUrl = img.src;
             console.log('[DEBUG] Image URL included in form data');
-        } else {
-            console.log('[DEBUG] No image found in preview');
         }
     }
 
@@ -398,8 +397,6 @@ function populateForm(data) {
             img.className = 'w-full h-full object-cover';
             imagePreview.appendChild(img);
             console.log('[DEBUG] Image loaded into preview');
-        } else {
-            console.error('[DEBUG] Image preview element not found');
         }
     }
 
@@ -408,8 +405,6 @@ function populateForm(data) {
     if (dataStatus) {
         dataStatus.classList.remove('hidden');
         console.log('[DEBUG] Data status shown');
-    } else {
-        console.error('[DEBUG] Data status element not found');
     }
 }
 
@@ -423,8 +418,6 @@ function trySetFormValue(elementId, value) {
         } else {
             console.error(`[DEBUG] Element not found when setting value: ${elementId}`);
         }
-    } else {
-        console.log(`[DEBUG] No value for ${elementId}, skipping`);
     }
 }
 
@@ -437,8 +430,6 @@ function updateLastSavedStatus(saveDate) {
         const formattedDate = saveDate.toLocaleString();
         lastSavedText.textContent = `Last saved: ${formattedDate}`;
         console.log('[DEBUG] Last saved text updated to:', formattedDate);
-    } else {
-        console.error('[DEBUG] Last saved text element not found');
     }
 
     // Show the data status container
@@ -446,8 +437,6 @@ function updateLastSavedStatus(saveDate) {
     if (dataStatus) {
         dataStatus.classList.remove('hidden');
         console.log('[DEBUG] Data status shown');
-    } else {
-        console.error('[DEBUG] Data status element not found');
     }
 }
 
@@ -458,24 +447,16 @@ function showMessage(message, type = 'info') {
     if (type === 'error') {
         alert(message);
     }
-
     // You could implement a more sophisticated message display system here
 }
 
 // Helper function to get CSRF token
 function getCsrfToken() {
-    const cookieValue = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('csrftoken='))
-        ?.split('=')[1];
-
-    if (cookieValue) {
-        console.log('[DEBUG] CSRF token found in cookies');
-    } else {
-        console.error('[DEBUG] CSRF token not found in cookies');
-    }
-
-    return cookieValue || '';
+    return document.querySelector('input[name="csrfmiddlewaretoken"]')?.value ||
+        document.cookie
+            .split('; ')
+            .find(row => row.startsWith('csrftoken='))
+            ?.split('=')[1] || '';
 }
 
 // Make functions available globally
@@ -483,11 +464,6 @@ window.projectForm = {
     loadProjectData,
     saveProjectData,
     clearForm,
-    checkSessionStatus
-};
-
-// Debug function to test active project ID
-window.debugProjectId = function() {
-    console.log('[DEBUG] Manual check of active project ID:', window.activeProjectId);
-    return window.activeProjectId;
+    populateForm,
+    createNewProjectEntry
 };
