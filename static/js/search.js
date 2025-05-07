@@ -1,4 +1,4 @@
-// Search functionality
+// Search functionality - Fixed version
 class SearchAutocomplete {
     constructor(inputSelector, dropdownSelector) {
         this.searchInput = document.querySelector(inputSelector);
@@ -15,6 +15,15 @@ class SearchAutocomplete {
         // Add event listeners
         this.searchInput.addEventListener('input', () => this.debounceSearch());
         this.searchInput.addEventListener('focus', () => this.showDropdown());
+
+        // Add click outside listener to close dropdown
+        document.addEventListener('click', (event) => {
+            if (!this.searchInput.contains(event.target) && !this.dropdown.contains(event.target)) {
+                this.hideDropdown();
+            }
+        });
+
+        console.log('Search autocomplete initialized');
     }
 
     debounceSearch() {
@@ -42,6 +51,22 @@ class SearchAutocomplete {
             .then(data => {
                 console.log("Search results:", data);
                 this.results = data.results || [];
+
+                // Enhancement: Add a visual indicator for projects that have saved data
+                if (window.projectDataManager) {
+                    console.log('Adding saved data indicators to search results');
+                    this.results = this.results.map(result => {
+                        // Check if there's saved data for this project
+                        const hasSavedData = window.projectDataManager.hasProjectData(result.id);
+                        return {
+                            ...result,
+                            hasSavedData
+                        };
+                    });
+                } else {
+                    console.warn('ProjectDataManager not found, cannot check for saved data');
+                }
+
                 this.renderResults();
                 this.showDropdown();
             })
@@ -73,9 +98,23 @@ class SearchAutocomplete {
             const li = document.createElement('li');
             const a = document.createElement('a');
             a.href = '#'; // We'll handle navigation via JavaScript
-            a.className = 'block px-4 py-2 hover:bg-gray-100';
-            a.textContent = result.text;
+            a.className = 'block px-4 py-2 hover:bg-gray-100 flex justify-between items-center';
+
+            // Add project name
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = result.text;
+            a.appendChild(nameSpan);
+
+            // Add indicator if there's saved data
+            if (result.hasSavedData) {
+                const savedIcon = document.createElement('span');
+                savedIcon.className = 'ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800';
+                savedIcon.textContent = 'Saved';
+                a.appendChild(savedIcon);
+            }
+
             a.dataset.id = result.id;
+            a.dataset.text = result.text;
 
             a.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -90,30 +129,47 @@ class SearchAutocomplete {
     }
 
     selectResult(result) {
-        // Handle selection - load issues for the selected project
+        console.log(`Project selected: ID=${result.id}, Name=${result.text}`);
+
+        // Update the search input value
         this.searchInput.value = result.text;
         this.hideDropdown();
 
         // Update active project name in the header
         this.updateActiveProject(result.text, result.id);
 
+        // Load project data from localStorage FIRST before loading issues
+        // This ensures the form is populated with the correct data for this project
+        if (window.loadProjectData) {
+            console.log(`Calling loadProjectData for project ID: ${result.id}`);
+            window.loadProjectData(result.id);
+        } else {
+            console.error('loadProjectData function not found');
+        }
+
         // Load issues for the selected project
-        loadIssues(result.id);
+        if (typeof loadIssues === 'function') {
+            loadIssues(result.id);
+        }
     }
 
-    // New method to update active project information
+    // Update active project information
     updateActiveProject(projectName, projectId) {
+        console.log(`Updating active project: ID=${projectId}, Name=${projectName}`);
+
         // Update the active project title
         const projectTitle = document.getElementById('active-project-title');
         if (projectTitle) {
             projectTitle.textContent = projectName || 'ACTIVE PROJECT NAME';
         }
 
-        // Store the current project ID
+        // Store the current project ID globally
         window.currentProjectId = projectId;
 
-        // Don't pre-fill the project name field since it's manually input
-        // and different from the API title
+        // Also update the main script's currentProjectId
+        if (typeof currentProjectId !== 'undefined') {
+            currentProjectId = projectId;
+        }
 
         console.log(`Active project updated: ${projectName} (ID: ${projectId})`);
     }
@@ -129,12 +185,18 @@ class SearchAutocomplete {
     }
 }
 
-// Initialize when the navbar is loaded
+// Initialize when the DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded - search.js running');
+
     // We'll check periodically if the search input exists
-    // (since it's loaded dynamically)
+    // (since it may be loaded dynamically)
     const searchInitInterval = setInterval(() => {
-        if (document.getElementById('search-dropdown')) {
+        const searchInput = document.getElementById('search-dropdown');
+        const dropdownElement = document.getElementById('autocomplete-dropdown');
+
+        if (searchInput && dropdownElement) {
+            console.log('Search elements found, initializing SearchAutocomplete');
             const searchAutoComplete = new SearchAutocomplete('#search-dropdown', '#autocomplete-dropdown');
             window.searchAutoComplete = searchAutoComplete; // Make it globally accessible
             clearInterval(searchInitInterval);
