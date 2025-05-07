@@ -1,92 +1,81 @@
-// Search functionality - Fixed version
-class SearchAutocomplete {
-    constructor(inputSelector, dropdownSelector) {
-        this.searchInput = document.querySelector(inputSelector);
-        this.dropdown = document.querySelector(dropdownSelector);
-        this.results = [];
-        this.debounceTimer = null;
+// Search functionality with Django sessions for project data
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Search handler initialized');
 
-        this.init();
+    // Initialize search when elements are available
+    initSearchWhenReady();
+});
+
+// Wait for search elements to be available, then initialize
+function initSearchWhenReady() {
+    const searchInput = document.getElementById('search-dropdown');
+    const dropdownElement = document.getElementById('autocomplete-dropdown');
+
+    if (searchInput && dropdownElement) {
+        initSearch(searchInput, dropdownElement);
+    } else {
+        // Try again in 100ms
+        setTimeout(initSearchWhenReady, 100);
     }
+}
 
-    init() {
-        if (!this.searchInput || !this.dropdown) return;
+// Initialize search functionality
+function initSearch(searchInput, dropdownElement) {
+    let results = [];
+    let debounceTimer = null;
 
-        // Add event listeners
-        this.searchInput.addEventListener('input', () => this.debounceSearch());
-        this.searchInput.addEventListener('focus', () => this.showDropdown());
+    // Add event listeners
+    searchInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function() {
+            performSearch(searchInput.value.trim());
+        }, 300);
+    });
 
-        // Add click outside listener to close dropdown
-        document.addEventListener('click', (event) => {
-            if (!this.searchInput.contains(event.target) && !this.dropdown.contains(event.target)) {
-                this.hideDropdown();
-            }
-        });
+    searchInput.addEventListener('focus', function() {
+        if (results.length > 0) {
+            showDropdown();
+        }
+    });
 
-        console.log('Search autocomplete initialized');
-    }
+    // Add click outside listener to close dropdown
+    document.addEventListener('click', function(event) {
+        if (!searchInput.contains(event.target) && !dropdownElement.contains(event.target)) {
+            hideDropdown();
+        }
+    });
 
-    debounceSearch() {
-        clearTimeout(this.debounceTimer);
-        this.debounceTimer = setTimeout(() => {
-            this.performSearch();
-        }, 300); // Wait 300ms after typing stops
-    }
-
-    performSearch() {
-        const query = this.searchInput.value.trim();
-        console.log("Searching for:", query);
-
+    // Perform search
+    function performSearch(query) {
         if (query.length < 2) {
-            this.hideDropdown();
+            hideDropdown();
             return;
         }
 
-        // Call the real API endpoint
         fetch(`/api/search/?query=${encodeURIComponent(query)}`)
-            .then(response => {
-                console.log("Search response status:", response.status);
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
-                console.log("Search results:", data);
-                this.results = data.results || [];
-
-                // Enhancement: Add a visual indicator for projects that have saved data
-                if (window.projectDataManager) {
-                    console.log('Adding saved data indicators to search results');
-                    this.results = this.results.map(result => {
-                        // Check if there's saved data for this project
-                        const hasSavedData = window.projectDataManager.hasProjectData(result.id);
-                        return {
-                            ...result,
-                            hasSavedData
-                        };
-                    });
-                } else {
-                    console.warn('ProjectDataManager not found, cannot check for saved data');
-                }
-
-                this.renderResults();
-                this.showDropdown();
+                results = data.results || [];
+                renderResults();
+                showDropdown();
             })
             .catch(error => {
                 console.error('Search error:', error);
-                this.results = [];
-                this.renderResults();
-                this.showDropdown();
+                results = [];
+                renderResults();
             });
     }
 
-    renderResults() {
+    // Render search results
+    function renderResults() {
         // Clear previous results
-        this.dropdown.innerHTML = '';
+        dropdownElement.innerHTML = '';
 
-        if (this.results.length === 0) {
+        if (results.length === 0) {
             const noResults = document.createElement('div');
             noResults.className = 'p-4 text-sm text-gray-500';
             noResults.textContent = 'No projects found';
-            this.dropdown.appendChild(noResults);
+            dropdownElement.appendChild(noResults);
             return;
         }
 
@@ -94,10 +83,10 @@ class SearchAutocomplete {
         const ul = document.createElement('ul');
         ul.className = 'py-2 text-sm text-gray-700';
 
-        this.results.forEach(result => {
+        results.forEach(result => {
             const li = document.createElement('li');
             const a = document.createElement('a');
-            a.href = '#'; // We'll handle navigation via JavaScript
+            a.href = '#';
             a.className = 'block px-4 py-2 hover:bg-gray-100 flex justify-between items-center';
 
             // Add project name
@@ -105,7 +94,7 @@ class SearchAutocomplete {
             nameSpan.textContent = result.text;
             a.appendChild(nameSpan);
 
-            // Add indicator if there's saved data
+            // Add saved indicator if applicable
             if (result.hasSavedData) {
                 const savedIcon = document.createElement('span');
                 savedIcon.className = 'ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800';
@@ -113,93 +102,57 @@ class SearchAutocomplete {
                 a.appendChild(savedIcon);
             }
 
-            a.dataset.id = result.id;
-            a.dataset.text = result.text;
-
-            a.addEventListener('click', (e) => {
+            // Add click handler
+            a.addEventListener('click', function(e) {
                 e.preventDefault();
-                this.selectResult(result);
+                selectProject(result);
             });
 
             li.appendChild(a);
             ul.appendChild(li);
         });
 
-        this.dropdown.appendChild(ul);
+        dropdownElement.appendChild(ul);
     }
 
-    selectResult(result) {
-        console.log(`Project selected: ID=${result.id}, Name=${result.text}`);
+    // Select a project from search results
+    function selectProject(project) {
+        console.log(`Project selected: ${project.text} (ID: ${project.id})`);
 
-        // Update the search input value
-        this.searchInput.value = result.text;
-        this.hideDropdown();
+        // Update search input
+        searchInput.value = project.text;
 
-        // Update active project name in the header
-        this.updateActiveProject(result.text, result.id);
+        // Hide dropdown
+        hideDropdown();
 
-        // Load project data from localStorage FIRST before loading issues
-        // This ensures the form is populated with the correct data for this project
-        if (window.loadProjectData) {
-            console.log(`Calling loadProjectData for project ID: ${result.id}`);
-            window.loadProjectData(result.id);
-        } else {
-            console.error('loadProjectData function not found');
-        }
-
-        // Load issues for the selected project
-        if (typeof loadIssues === 'function') {
-            loadIssues(result.id);
-        }
-    }
-
-    // Update active project information
-    updateActiveProject(projectName, projectId) {
-        console.log(`Updating active project: ID=${projectId}, Name=${projectName}`);
-
-        // Update the active project title
+        // Update project title
         const projectTitle = document.getElementById('active-project-title');
         if (projectTitle) {
-            projectTitle.textContent = projectName || 'ACTIVE PROJECT NAME';
+            projectTitle.textContent = project.text;
         }
 
-        // Store the current project ID globally
-        window.currentProjectId = projectId;
-
-        // Also update the main script's currentProjectId
-        if (typeof currentProjectId !== 'undefined') {
-            currentProjectId = projectId;
+        // Load project data using the project form handler
+        if (window.projectForm && window.projectForm.loadProjectData) {
+            window.projectForm.loadProjectData(project.id);
+        } else {
+            console.error('Project form handler not available');
         }
 
-        console.log(`Active project updated: ${projectName} (ID: ${projectId})`);
-    }
-
-    showDropdown() {
-        if (this.results.length > 0 || this.searchInput.value.trim().length >= 2) {
-            this.dropdown.classList.remove('hidden');
+        // Load issues if function exists
+        if (typeof loadIssues === 'function') {
+            loadIssues(project.id);
         }
     }
 
-    hideDropdown() {
-        this.dropdown.classList.add('hidden');
+    // Show dropdown
+    function showDropdown() {
+        dropdownElement.classList.remove('hidden');
     }
+
+    // Hide dropdown
+    function hideDropdown() {
+        dropdownElement.classList.add('hidden');
+    }
+
+    console.log('Search functionality initialized');
 }
-
-// Initialize when the DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded - search.js running');
-
-    // We'll check periodically if the search input exists
-    // (since it may be loaded dynamically)
-    const searchInitInterval = setInterval(() => {
-        const searchInput = document.getElementById('search-dropdown');
-        const dropdownElement = document.getElementById('autocomplete-dropdown');
-
-        if (searchInput && dropdownElement) {
-            console.log('Search elements found, initializing SearchAutocomplete');
-            const searchAutoComplete = new SearchAutocomplete('#search-dropdown', '#autocomplete-dropdown');
-            window.searchAutoComplete = searchAutoComplete; // Make it globally accessible
-            clearInterval(searchInitInterval);
-        }
-    }, 100);
-});

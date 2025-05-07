@@ -90,12 +90,12 @@
                     <!-- Project Description -->
                     <div class="mt-4">
                         <label for="project-description" class="block text-sm font-medium text-gray-700">Description du projet</label>
-                        <textarea id="project-description" rows="3" class=" resize-none mt-1 block w-full h-20  rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                        <textarea id="project-description" rows="3" class="resize-none mt-1 block w-full h-20 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
                     </div>
 
                     <div>
                         <label for="distribution" class="block text-sm font-medium text-gray-700">Distribution</label>
-                        <textarea type="text" id="distribution" class=" resize-none mt-1 h-60 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                        <textarea type="text" id="distribution" class="resize-none mt-1 h-60 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
                     </div>
 
                     <!-- Save Button -->
@@ -140,9 +140,6 @@
 </main>
 
 <script>
-    // Current project ID
-    let currentProjectId = null;
-
     document.addEventListener('DOMContentLoaded', function() {
         console.log('DOM loaded - main.html script running');
 
@@ -175,189 +172,6 @@
             });
         }
 
-        // Add event listener for save button
-        const saveBtn = document.getElementById('save-project-info');
-        if (saveBtn) {
-            saveBtn.addEventListener('click', saveProjectInformation);
-        }
-
-        // Add event listener for clear button
-        const clearBtn = document.getElementById('clear-project-info');
-        if (clearBtn) {
-            clearBtn.addEventListener('click', clearProjectForm);
-        }
-    });
-
-    // Function to save project information
-    function saveProjectInformation() {
-        if (!currentProjectId) {
-            alert('Please select a project first');
-            return;
-        }
-
-        console.log(`Saving data for project ID: ${currentProjectId}`);
-
-        // Get all form field values
-        const projectInfo = {
-            reportDate: document.getElementById('report-date').value,
-            projectName: document.getElementById('project-name').value,
-            projectOwner: document.getElementById('project-owner').value,
-            contractor: document.getElementById('contractor').value,
-            visitBy: document.getElementById('visit-by').value,
-            inPresenceOf: document.getElementById('in-presence-of').value,
-            visitDate: document.getElementById('visit-date').value,
-            visitNumber: document.getElementById('visit-number').value,
-            architectFile: document.getElementById('architect-file').value,
-            distribution: document.getElementById('distribution').value,
-            description: document.getElementById('project-description').value
-        };
-
-        // Get image if exists
-        const imagePreview = document.getElementById('project-image-preview');
-        const img = imagePreview.querySelector('img');
-        if (img) {
-            projectInfo.imageUrl = img.src;
-        }
-
-        console.log('Project data to save:', projectInfo);
-
-        // Save to localStorage using the ProjectDataManager
-        if (window.projectDataManager) {
-            const success = window.projectDataManager.saveProjectData(currentProjectId, projectInfo);
-
-            if (success) {
-                // Show saved confirmation
-                updateLastSavedStatus(new Date());
-                // Show data status
-                document.getElementById('data-status').classList.remove('hidden');
-                console.log('Project information saved successfully');
-            } else {
-                alert('Error saving project information. Please try again.');
-                console.error('Failed to save project information');
-            }
-        } else {
-            console.error('ProjectDataManager not found');
-            alert('Project data manager not initialized. Please refresh the page and try again.');
-        }
-    }
-
-    // Function to load project data
-    function loadProjectData(projectId) {
-        if (!projectId) {
-            console.error('No project ID provided to loadProjectData');
-            return;
-        }
-
-        console.log(`Loading data for project ID: ${projectId}`);
-
-        // Set current project ID
-        currentProjectId = projectId;
-
-        // Try to load saved data
-        if (!window.projectDataManager) {
-            console.error('ProjectDataManager not found');
-            return;
-        }
-
-        const projectData = window.projectDataManager.loadProjectData(projectId);
-
-        if (projectData) {
-            console.log('Found saved data, populating form fields');
-
-            // Populate form fields with saved data
-            document.getElementById('report-date').value = projectData.reportDate || '';
-            document.getElementById('project-name').value = projectData.projectName || '';
-            document.getElementById('project-owner').value = projectData.projectOwner || '';
-            document.getElementById('contractor').value = projectData.contractor || '';
-            document.getElementById('visit-by').value = projectData.visitBy || '';
-            document.getElementById('in-presence-of').value = projectData.inPresenceOf || '';
-            document.getElementById('visit-date').value = projectData.visitDate || '';
-            document.getElementById('visit-number').value = projectData.visitNumber || '';
-            document.getElementById('architect-file').value = projectData.architectFile || '';
-            document.getElementById('distribution').value = projectData.distribution || '';
-            document.getElementById('project-description').value = projectData.description || '';
-
-            // Load image if saved
-            if (projectData.imageUrl) {
-                const imagePreview = document.getElementById('project-image-preview');
-                // Clear previous content
-                imagePreview.innerHTML = '';
-
-                // Create and append image
-                const img = document.createElement('img');
-                img.src = projectData.imageUrl;
-                img.className = 'w-full h-full object-cover';
-                imagePreview.appendChild(img);
-            }
-
-            // Update last saved status
-            if (projectData.lastSaved) {
-                updateLastSavedStatus(new Date(projectData.lastSaved));
-                document.getElementById('data-status').classList.remove('hidden');
-            }
-        } else {
-            console.log('No saved data found, clearing form');
-            // No saved data, clear the form
-            clearProjectForm();
-            // Hide data status
-            document.getElementById('data-status').classList.add('hidden');
-        }
-    }
-
-    // Function to clear the project form
-    function clearProjectForm() {
-        console.log('Clearing project form');
-
-        document.getElementById('report-date').value = '';
-        document.getElementById('project-name').value = '';
-        document.getElementById('project-owner').value = '';
-        document.getElementById('contractor').value = '';
-        document.getElementById('visit-by').value = '';
-        document.getElementById('in-presence-of').value = '';
-        document.getElementById('visit-date').value = '';
-        document.getElementById('visit-number').value = '';
-        document.getElementById('architect-file').value = '';
-        document.getElementById('distribution').value = '';
-        document.getElementById('project-description').value = '';
-
-        // Reset image preview
-        const imagePreview = document.getElementById('project-image-preview');
-        imagePreview.innerHTML = `
-            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-            </svg>
-        `;
-
-        // Hide data status
-        document.getElementById('data-status').classList.add('hidden');
-    }
-
-    // Function to update last saved status
-    function updateLastSavedStatus(saveDate) {
-        const lastSavedText = document.getElementById('last-saved-text');
-        if (lastSavedText) {
-            const formattedDate = saveDate.toLocaleString();
-            lastSavedText.textContent = `Last saved: ${formattedDate}`;
-        }
-    }
-
-    // Make the loadProjectData function available globally
-    window.loadProjectData = loadProjectData;
-
-    // Update the search bar when a project is selected
-    function updateActiveProject(projectName) {
-        // Update the active project title
-        const projectTitle = document.getElementById('active-project-title');
-        if (projectTitle) {
-            projectTitle.textContent = projectName || 'ACTIVE PROJECT NAME';
-        }
-
-        // Optionally update the search input value too
-        const searchInput = document.getElementById('search-dropdown');
-        if (searchInput) {
-            searchInput.value = projectName || '';
-        }
-    }
 
     // Below functions are kept for future issue functionality
     // Load issues for a project
