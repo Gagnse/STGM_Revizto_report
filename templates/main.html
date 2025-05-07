@@ -1,11 +1,11 @@
 <main class="flex-grow container mx-auto px-4 py-8">
     <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-        <h1 id="active-project-title" class="text-2xl font-bold text-gray-800 mb-4">ACTIVE PROJECT NAME</h1>
+        <h1 id="active-project-title" class="text-2xl font-bold text-gray-800 mb-4">Projet sélectionné</h1>
 
         {% if projects %}
                 <!-- Project Information Section -->
                 <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4">Project information</h2>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Information du projet</h2>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- First column of form fields -->
@@ -80,7 +80,7 @@
                             <!-- Data persistence status -->
                             <div id="data-status" class="mt-4 hidden">
                                 <div class="p-2 rounded-md bg-blue-50 text-blue-800 text-sm">
-                                    <span id="last-saved-text">Loading saved data...</span>
+                                    <span id="last-saved-text">Chargement des données</span>
                                 </div>
                             </div>
 
@@ -101,10 +101,10 @@
                     <!-- Save Button -->
                     <div class="mt-6 flex space-x-4">
                         <button type="button" id="save-project-info" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                            Save Project Information
+                            Enregistrer
                         </button>
                         <button type="button" id="clear-project-info" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
-                            Clear Form
+                            Tout supprimer
                         </button>
                     </div>
                 </div>
@@ -115,28 +115,57 @@
         {% endif %}
     </div>
 
-    <!-- Issues Section (unchanged) -->
+    <!-- General notes -->
     <div class="bg-white p-6 rounded-lg shadow-md mb-6">
         {% if projects %}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">Issues</h2>
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Notes générales</h2>
             </div>
         {% else %}
              <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                <p class="text-yellow-700">No issues found</p>
             </div>
         {% endif %}
     </div>
 
-    <!-- Issues container (hidden by default, unchanged) -->
-    <div id="issues-container" class="bg-white p-6 rounded-lg shadow-md hidden">
-        <!-- Unchanged content -->
+    <!-- Observations -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+        {% if projects %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">1 - Observations</h2>
+            </div>
+        {% else %}
+             <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <p class="text-yellow-700">Aucun problème trouvé</p>
+            </div>
+        {% endif %}
     </div>
 
-    <!-- Issue details modal (unchanged) -->
-    <div id="issue-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <!-- Unchanged content -->
+    <!-- instructions -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+        {% if projects %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">2 - Instructions</h2>
+            </div>
+        {% else %}
+             <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <p class="text-yellow-700">Aucun problème trouvé</p>
+            </div>
+        {% endif %}
     </div>
+
+    <!-- Déficiences -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+        {% if projects %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">2 - Déficiences</h2>
+            </div>
+        {% else %}
+             <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <p class="text-yellow-700">Aucun problème trouvé</p>
+            </div>
+        {% endif %}
+    </div>
+
 </main>
 
 <script>
