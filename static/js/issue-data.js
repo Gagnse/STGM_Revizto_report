@@ -50,16 +50,15 @@ function fetchObservations(projectId) {
             return response.json();
         })
         .then(data => {
-            // Extract observations from the response structure
+            // Extract observations from the correct nested structure
             let observations = [];
-
             if (data && data.result === 0 && data.data && data.data.data) {
                 observations = data.data.data;
+                console.log('[DEBUG] Found', observations.length, 'observations in data.data.data');
             }
 
             window.issueData.observations = observations;
-            console.log('[DEBUG] Received observations data:', observations.length, 'items');
-            renderObservations(observations);
+            renderItemsDirectly(observations, 'observations-container', 'Observation');
         })
         .catch(error => {
             console.error('[DEBUG] Error fetching observations:', error);
@@ -78,16 +77,15 @@ function fetchInstructions(projectId) {
             return response.json();
         })
         .then(data => {
-            // Extract instructions from the response structure
+            // Extract instructions from the correct nested structure
             let instructions = [];
-
             if (data && data.result === 0 && data.data && data.data.data) {
                 instructions = data.data.data;
+                console.log('[DEBUG] Found', instructions.length, 'instructions in data.data.data');
             }
 
             window.issueData.instructions = instructions;
-            console.log('[DEBUG] Received instructions data:', instructions.length, 'items');
-            renderInstructions(instructions);
+            renderItemsDirectly(instructions, 'instructions-container', 'Instruction');
         })
         .catch(error => {
             console.error('[DEBUG] Error fetching instructions:', error);
@@ -110,30 +108,134 @@ function fetchDeficiencies(projectId) {
         .then(data => {
             console.log('[DEBUG] Received deficiencies data with keys:', Object.keys(data));
 
-            // Find the deficiencies in the nested structure
+            // Extract deficiencies from the nested data structure
             let deficiencies = [];
-
-            if (data.result === 0 && data.data && data.data.data) {
+            if (data && data.result === 0 && data.data && data.data.data) {
                 deficiencies = data.data.data;
                 console.log('[DEBUG] Found', deficiencies.length, 'deficiencies in data.data.data');
-            } else if (data.deficiencies && Array.isArray(data.deficiencies)) {
-                deficiencies = data.deficiencies;
-                console.log('[DEBUG] Found', deficiencies.length, 'deficiencies in data.deficiencies');
             }
 
-            // Log the first deficiency if available
-            if (deficiencies.length > 0) {
-                console.log('[DEBUG] First deficiency ID:', deficiencies[0].id);
-            }
-
+            // Store in global state
             window.issueData.deficiencies = deficiencies;
-            renderDeficiencies(deficiencies);
+
+            // Render deficiencies regardless of rendering function used previously
+            renderDeficienciesDirectly(deficiencies);
         })
         .catch(error => {
             console.error('[DEBUG] Error fetching deficiencies:', error);
             showError('deficiencies');
         });
 }
+
+// Add this new direct rendering function to issue-data.js
+function renderDeficienciesDirectly(deficiencies) {
+    console.log('[DEBUG] Direct rendering of', deficiencies.length, 'deficiencies');
+    const container = document.getElementById('deficiencies-container');
+
+    if (!container) {
+        console.error('[DEBUG] Deficiencies container not found');
+        return;
+    }
+
+    if (!deficiencies || deficiencies.length === 0) {
+        container.innerHTML = '<p class="text-yellow-700">Aucune déficience trouvée</p>';
+        return;
+    }
+
+    // Create HTML for all deficiencies
+    let html = '';
+
+    deficiencies.forEach(deficiency => {
+        // Extract basic properties safely
+        const id = deficiency.id || 'N/A';
+
+        // Get title - could be string or object with value property
+        let title = 'Sans titre';
+        if (deficiency.title) {
+            if (typeof deficiency.title === 'string') {
+                title = deficiency.title;
+            } else if (deficiency.title.value) {
+                title = deficiency.title.value;
+            }
+        }
+
+        // Get status - could be string or object with value property
+        let status = 'Unknown';
+        if (deficiency.status) {
+            if (typeof deficiency.status === 'string') {
+                status = deficiency.status;
+            } else if (deficiency.status.value) {
+                status = deficiency.status.value;
+            }
+        }
+
+        // Get preview image URL if exists
+        let imageUrl = '';
+        if (deficiency.preview) {
+            if (typeof deficiency.preview === 'string') {
+                imageUrl = deficiency.preview;
+            } else if (deficiency.preview.original) {
+                imageUrl = deficiency.preview.original;
+            }
+        }
+
+        // Determine status color
+        let statusColor = 'bg-gray-100 text-gray-800';
+        const statusLower = String(status).toLowerCase();
+        if (statusLower === 'open' || statusLower === 'opened') {
+            statusColor = 'bg-yellow-100 text-yellow-800';
+        } else if (statusLower === 'closed' || statusLower === 'solved') {
+            statusColor = 'bg-green-100 text-green-800';
+        } else if (statusLower === 'in_progress' || statusLower === 'in progress') {
+            statusColor = 'bg-blue-100 text-blue-800';
+        }
+
+        // Build the HTML for this deficiency
+        html += `
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 overflow-hidden">
+                <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-semibold text-gray-800">Déficience #${id}</h3>
+                        <span class="px-2 py-1 rounded-full text-xs ${statusColor}">${status}</span>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <div class="flex flex-col md:flex-row">
+                        ${imageUrl ? 
+                            `<div class="w-full md:w-1/3 mb-4 md:mb-0 md:pr-4">
+                                <img src="${imageUrl}" alt="Preview" class="w-full h-auto rounded-md border border-gray-200">
+                            </div>` : 
+                            `<div class="w-full md:w-1/3 mb-4 md:mb-0 md:pr-4">
+                                <div class="w-full h-40 bg-gray-100 rounded-md flex items-center justify-center">
+                                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                            </div>`
+                        }
+                        <div class="w-full ${imageUrl ? 'md:w-2/3' : ''}">
+                            <div class="space-y-2">
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Titre</h4>
+                                    <p class="text-gray-800">${title}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">État</h4>
+                                    <p class="text-gray-800">${status}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    // Set the HTML to the container
+    container.innerHTML = html;
+    console.log('[DEBUG] Rendered', deficiencies.length, 'deficiency cards');
+}
+
 
 // Force render deficiencies with a simpler approach
 function forceRenderDeficiencies(deficiencies) {
@@ -232,79 +334,112 @@ function forceRenderDeficiencies(deficiencies) {
     console.log('[DEBUG] Force-rendered', deficiencies.length, 'deficiency cards');
 }
 
-// Render observations in the UI
-function renderObservations(observations) {
-    console.log('[DEBUG] Rendering', observations.length, 'observations');
-    const container = document.getElementById('observations-container');
+function renderItemsDirectly(items, containerId, itemType) {
+    console.log(`[DEBUG] Direct rendering of ${items.length} ${itemType.toLowerCase()}s`);
+    const container = document.getElementById(containerId);
 
     if (!container) {
-        console.error('[DEBUG] Observations container not found in DOM');
+        console.error(`[DEBUG] ${itemType} container not found`);
         return;
     }
 
-    if (!observations || observations.length === 0) {
-        container.innerHTML = '<p class="text-yellow-700">Aucune observation trouvée</p>';
+    if (!items || items.length === 0) {
+        container.innerHTML = `<p class="text-yellow-700">Aucun(e) ${itemType.toLowerCase()} trouvé(e)</p>`;
         return;
     }
 
-    // Create HTML for observations
+    // Create HTML for all items
     let html = '';
-    observations.forEach(observation => {
-        html += createIssueCard(observation, 'observation');
+
+    items.forEach(item => {
+        // Extract basic properties safely
+        const id = item.id || 'N/A';
+
+        // Get title - could be string or object with value property
+        let title = 'Sans titre';
+        if (item.title) {
+            if (typeof item.title === 'string') {
+                title = item.title;
+            } else if (item.title.value) {
+                title = item.title.value;
+            }
+        }
+
+        // Get status - could be string or object with value property
+        let status = 'Unknown';
+        if (item.status) {
+            if (typeof item.status === 'string') {
+                status = item.status;
+            } else if (item.status.value) {
+                status = item.status.value;
+            }
+        }
+
+        // Get preview image URL if exists
+        let imageUrl = '';
+        if (item.preview) {
+            if (typeof item.preview === 'string') {
+                imageUrl = item.preview;
+            } else if (item.preview.small) {
+                imageUrl = item.preview.small;
+            }
+        }
+
+        // Determine status color
+        let statusColor = 'bg-gray-100 text-gray-800';
+        const statusLower = String(status).toLowerCase();
+        if (statusLower === 'open' || statusLower === 'opened') {
+            statusColor = 'bg-yellow-100 text-yellow-800';
+        } else if (statusLower === 'closed' || statusLower === 'solved') {
+            statusColor = 'bg-green-100 text-green-800';
+        } else if (statusLower === 'in_progress' || statusLower === 'in progress') {
+            statusColor = 'bg-blue-100 text-blue-800';
+        }
+
+        // Build the HTML for this item
+        html += `
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 overflow-hidden">
+                <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-semibold text-gray-800">${itemType} #${id}</h3>
+                        <span class="px-2 py-1 rounded-full text-xs ${statusColor}">${status}</span>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <div class="flex flex-col md:flex-row">
+                        ${imageUrl ? 
+                            `<div class="w-full md:w-1/3 mb-4 md:mb-0 md:pr-4">
+                                <img src="${imageUrl}" alt="Preview" class="w-full h-auto rounded-md border border-gray-200">
+                            </div>` : 
+                            `<div class="w-full md:w-1/3 mb-4 md:mb-0 md:pr-4">
+                                <div class="w-full h-40 bg-gray-100 rounded-md flex items-center justify-center">
+                                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                            </div>`
+                        }
+                        <div class="w-full ${imageUrl ? 'md:w-2/3' : ''}">
+                            <div class="space-y-2">
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Titre</h4>
+                                    <p class="text-gray-800">${title}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">État</h4>
+                                    <p class="text-gray-800">${status}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
     });
 
+    // Set the HTML to the container
     container.innerHTML = html;
-    console.log('[DEBUG] Observation cards rendered successfully');
-}
-
-// Render instructions in the UI
-function renderInstructions(instructions) {
-    console.log('[DEBUG] Rendering', instructions.length, 'instructions');
-    const container = document.getElementById('instructions-container');
-
-    if (!container) {
-        console.error('[DEBUG] Instructions container not found in DOM');
-        return;
-    }
-
-    if (!instructions || instructions.length === 0) {
-        container.innerHTML = '<p class="text-yellow-700">Aucune instruction trouvée</p>';
-        return;
-    }
-
-    // Create HTML for instructions
-    let html = '';
-    instructions.forEach(instruction => {
-        html += createIssueCard(instruction, 'instruction');
-    });
-
-    container.innerHTML = html;
-    console.log('[DEBUG] Instruction cards rendered successfully');
-}
-
-// Render deficiencies in the UI
-function renderDeficiencies(deficiencies) {
-    console.log('[DEBUG] Rendering', deficiencies.length, 'deficiencies');
-    const container = document.getElementById('deficiencies-container');
-
-    if (!container) {
-        console.error('[DEBUG] Deficiencies container not found in DOM');
-        return;
-    }
-
-    if (deficiencies.length === 0) {
-        container.innerHTML = '<p class="text-yellow-700">Aucune déficience trouvée</p>';
-        return;
-    }
-
-    // Create HTML for deficiencies
-    let html = '';
-    deficiencies.forEach(deficiency => {
-        html += createDeficiencyCard(deficiency);
-    });
-
-    container.innerHTML = html;
-    console.log('[DEBUG] Deficiency cards rendered successfully');
+    console.log(`[DEBUG] Rendered ${items.length} ${itemType.toLowerCase()} cards`);
 }
 
 function createDeficiencyCard(deficiency) {
@@ -580,4 +715,191 @@ window.forceLoadDeficiencies = function(projectId) {
             console.error('[DEBUG] Fetch error:', error);
             return 'Fetch error';
         });
+
+    function debugRenderSingleItem(item, container) {
+    console.log('[DEBUG-CLIENT] Rendering test item with ID:', item.id);
+
+    // Extract ID
+    const id = item.id || 'N/A';
+    console.log('[DEBUG-CLIENT] - ID:', id);
+
+    // Extract title
+    let title = 'Sans titre';
+    if (item.title) {
+        if (typeof item.title === 'string') {
+            title = item.title;
+        } else if (item.title.value) {
+            title = item.title.value;
+        }
+    }
+    console.log('[DEBUG-CLIENT] - Title:', title);
+
+    // Extract status
+    let status = 'Unknown';
+    if (item.status) {
+        if (typeof item.status === 'string') {
+            status = item.status;
+        } else if (item.status.value) {
+            status = item.status.value;
+        }
+    }
+    console.log('[DEBUG-CLIENT] - Status:', status);
+
+    // Create simple HTML for the test
+    const html = `
+        <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 p-4">
+            <h3 class="text-lg font-semibold text-gray-800">TEST - Déficience #${id}</h3>
+            <p class="text-gray-700">Titre: ${title}</p>
+            <p class="text-gray-700">État: ${status}</p>
+        </div>
+    `;
+
+    // Append to container rather than replacing everything
+    const testDiv = document.createElement('div');
+    testDiv.innerHTML = html;
+    container.appendChild(testDiv.firstElementChild);
+}
 };
+function debugRenderSingleItem(item, container) {
+    console.log('[DEBUG-CLIENT] Rendering test item with ID:', item.id);
+
+    // Extract ID
+    const id = item.id || 'N/A';
+    console.log('[DEBUG-CLIENT] - ID:', id);
+
+    // Extract title
+    let title = 'Sans titre';
+    if (item.title) {
+        if (typeof item.title === 'string') {
+            title = item.title;
+        } else if (item.title.value) {
+            title = item.title.value;
+        }
+    }
+    console.log('[DEBUG-CLIENT] - Title:', title);
+
+    // Extract status
+    let status = 'Unknown';
+    if (item.status) {
+        if (typeof item.status === 'string') {
+            status = item.status;
+        } else if (item.status.value) {
+            status = item.status.value;
+        }
+    }
+    console.log('[DEBUG-CLIENT] - Status:', status);
+
+    // Create simple HTML for the test
+    const html = `
+        <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 p-4">
+            <h3 class="text-lg font-semibold text-gray-800">TEST - Déficience #${id}</h3>
+            <p class="text-gray-700">Titre: ${title}</p>
+            <p class="text-gray-700">État: ${status}</p>
+        </div>
+    `;
+
+    // Append to container rather than replacing everything
+    const testDiv = document.createElement('div');
+    testDiv.innerHTML = html;
+    container.appendChild(testDiv.firstElementChild);
+}
+
+// Function to render all items with detailed logging
+function debugRenderAllItems(items, containerId, itemType) {
+    console.log(`[DEBUG-CLIENT] Rendering ${items.length} ${itemType.toLowerCase()}s to container ${containerId}`);
+
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.error(`[DEBUG-CLIENT] Container ${containerId} not found`);
+        return;
+    }
+
+    // Clear existing content
+    container.innerHTML = '';
+
+    if (!items || items.length === 0) {
+        console.log(`[DEBUG-CLIENT] No ${itemType.toLowerCase()}s to render`);
+        container.innerHTML = `<p class="text-yellow-700">Aucun(e) ${itemType.toLowerCase()} trouvé(e)</p>`;
+        return;
+    }
+
+    // Process each item
+    items.forEach((item, index) => {
+        try {
+            console.log(`[DEBUG-CLIENT] Processing item ${index+1}/${items.length}, ID: ${item.id || 'unknown'}`);
+
+            // Extract basic info
+            const id = item.id || 'N/A';
+
+            // Get title
+            let title = 'Sans titre';
+            if (item.title) {
+                if (typeof item.title === 'string') {
+                    title = item.title;
+                } else if (typeof item.title === 'object' && item.title.value) {
+                    title = item.title.value;
+                }
+            }
+
+            // Get status
+            let status = 'Unknown';
+            if (item.status) {
+                if (typeof item.status === 'string') {
+                    status = item.status;
+                } else if (typeof item.status === 'object' && item.status.value) {
+                    status = item.status.value;
+                }
+            }
+
+            // Get preview image URL
+            let imageUrl = '';
+            if (item.preview) {
+                if (typeof item.preview === 'string') {
+                    imageUrl = item.preview;
+                } else if (item.preview.small) {
+                    imageUrl = item.preview.small;
+                }
+            }
+
+            // Create simple HTML for each item
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'bg-white border border-gray-200 rounded-lg shadow-sm mb-4 p-4';
+            itemDiv.innerHTML = `
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="text-lg font-semibold text-gray-800">${itemType} #${id}</h3>
+                    <span class="px-2 py-1 rounded-full text-xs bg-gray-100">${status}</span>
+                </div>
+                
+                <div class="flex flex-col md:flex-row">
+                    ${imageUrl ? 
+                        `<div class="w-full md:w-1/3 mb-4 md:mb-0 md:pr-4">
+                            <img src="${imageUrl}" alt="Preview" class="w-full h-auto rounded-md border border-gray-200">
+                        </div>` : 
+                        `<div class="w-full md:w-1/3 mb-4 md:mb-0 md:pr-4">
+                            <div class="w-full h-32 bg-gray-100 rounded-md flex items-center justify-center">
+                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                        </div>`
+                    }
+                    <div class="w-full md:w-2/3">
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500">Titre</h4>
+                            <p class="text-gray-800">${title}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Add to container
+            container.appendChild(itemDiv);
+
+            console.log(`[DEBUG-CLIENT] Successfully rendered item ${index+1}`);
+        } catch (e) {
+            console.error(`[DEBUG-CLIENT] Error rendering item ${index+1}:`, e);
+        }
+    });
+
+    console.log(`[DEBUG-CLIENT] Completed rendering ${items.length} items`);
+}

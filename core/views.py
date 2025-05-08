@@ -331,10 +331,44 @@ def get_project_deficiencies(request, project_id):
     """
     API endpoint to get deficiencies for a specific project
     """
-    print(f"[DEBUG] Deficiencies request received for project ID: {project_id}")
+    print(f"\n\n[DEBUG-SERVER] ===== DEFICIENCIES REQUEST =====")
+    print(f"[DEBUG-SERVER] Deficiencies request received for project ID: {project_id}")
 
-    # Get deficiencies from the API
-    response_data = ReviztoService.get_deficiencies(project_id)
+    try:
+        # Get deficiencies from the API
+        print(f"[DEBUG-SERVER] Calling ReviztoService.get_deficiencies for project ID: {project_id}")
+        response_data = ReviztoService.get_deficiencies(project_id)
 
-    # Return the raw API response
-    return JsonResponse(response_data)
+        # Debug the response structure
+        print(f"[DEBUG-SERVER] Response data type: {type(response_data)}")
+        if isinstance(response_data, dict):
+            print(f"[DEBUG-SERVER] Response keys: {list(response_data.keys())}")
+
+            # Check result key
+            if 'result' in response_data:
+                print(f"[DEBUG-SERVER] Result value: {response_data['result']}")
+
+            # Check data structure
+            if 'data' in response_data and isinstance(response_data['data'], dict):
+                print(f"[DEBUG-SERVER] Data keys: {list(response_data['data'].keys())}")
+
+                if 'data' in response_data['data']:
+                    data_list = response_data['data']['data']
+                    print(f"[DEBUG-SERVER] Items in data.data: {len(data_list)}")
+
+                    # Debug first item if available
+                    if len(data_list) > 0:
+                        first_item = data_list[0]
+                        print(f"[DEBUG-SERVER] First item ID: {first_item.get('id')}")
+                        print(f"[DEBUG-SERVER] First item keys: {list(first_item.keys())[:10]}...")
+
+        print(f"[DEBUG-SERVER] ===== END DEFICIENCIES REQUEST =====\n\n")
+
+        # Return the raw API response
+        return JsonResponse(response_data)
+
+    except Exception as e:
+        print(f"[DEBUG-SERVER] Error in get_project_deficiencies: {e}")
+        import traceback
+        print(f"[DEBUG-SERVER] Traceback: {traceback.format_exc()}")
+        return JsonResponse({"result": 1, "message": str(e), "data": {"data": []}})

@@ -289,7 +289,8 @@ class ReviztoService:
     @classmethod
     def get_deficiencies(cls, project_id):
         """Get all deficiencies for a project (issues with stamp A-DF)."""
-        print(f"[DEBUG] Fetching deficiencies for project ID: {project_id}")
+        print(f"\n[DEBUG-SERVICE] ===== FETCHING DEFICIENCIES =====")
+        print(f"[DEBUG-SERVICE] Fetching deficiencies for project ID: {project_id}")
         try:
             endpoint = f"project/{project_id}/issue-filter/filter"
             params = {
@@ -303,14 +304,46 @@ class ReviztoService:
                 "reportSort[2][direction]": "asc"
             }
 
-            response = ReviztoAPI.get(endpoint, params=params)
-            print(f"[DEBUG] Deficiencies API response received: {type(response)}")
+            print(f"[DEBUG-SERVICE] Using endpoint: {endpoint}")
+            print(f"[DEBUG-SERVICE] Using params: {params}")
 
-            # Pass through the raw API response
+            # Make the API request
+            try:
+                response = ReviztoAPI.get(endpoint, params=params)
+                print(f"[DEBUG-SERVICE] API call successful")
+            except Exception as e:
+                print(f"[DEBUG-SERVICE] API call failed: {e}")
+                import traceback
+                print(f"[DEBUG-SERVICE] API error traceback: {traceback.format_exc()}")
+                return {"result": 1, "message": str(e), "data": {"data": []}}
+
+            # Debug the response
+            print(f"[DEBUG-SERVICE] Response type: {type(response)}")
+            if isinstance(response, dict):
+                print(f"[DEBUG-SERVICE] Response has keys: {list(response.keys())}")
+                if 'result' in response:
+                    print(f"[DEBUG-SERVICE] Result value: {response['result']}")
+
+                # Check for data
+                if 'data' in response:
+                    data_obj = response['data']
+                    if isinstance(data_obj, dict) and 'data' in data_obj:
+                        deficiencies = data_obj['data']
+                        print(f"[DEBUG-SERVICE] Found {len(deficiencies)} deficiencies")
+
+                        # Debug first deficiency
+                        if len(deficiencies) > 0:
+                            first = deficiencies[0]
+                            print(f"[DEBUG-SERVICE] First deficiency ID: {first.get('id')}")
+                            print(f"[DEBUG-SERVICE] First deficiency has keys: {list(first.keys())[:10]}...")
+
+            print(f"[DEBUG-SERVICE] ===== END FETCHING DEFICIENCIES =====\n")
+
+            # Return the original response
             return response
 
         except Exception as e:
+            print(f"[DEBUG-SERVICE] General error in get_deficiencies: {e}")
             import traceback
-            print(f"[DEBUG] Failed to get deficiencies: {e}")
-            print(f"[DEBUG] Exception traceback: {traceback.format_exc()}")
+            print(f"[DEBUG-SERVICE] Exception traceback: {traceback.format_exc()}")
             return {"result": 1, "message": str(e), "data": {"data": []}}
