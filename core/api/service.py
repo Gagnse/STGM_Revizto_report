@@ -227,3 +227,90 @@ class ReviztoService:
             print(f"[DEBUG] Failed to search projects: {e}")
             print(f"[DEBUG] Exception traceback: {traceback.format_exc()}")
             return []
+
+    @classmethod
+    def get_observations(cls, project_id):
+        """Get all observations for a project (issues with stamp A-OB)."""
+        print(f"[DEBUG] Fetching observations for project ID: {project_id}")
+        try:
+            endpoint = f"project/{project_id}/issue-filter/filter"
+            params = {
+                "anyFiltersDTO[0][type]": "stampAbbr",
+                "anyFiltersDTO[0][expr]": "1",
+                "anyFiltersDTO[0][value][2]": "A-OB",
+                "sendFullIssueData": "true",
+                "reportSort[1][field]": "sheet",
+                "reportSort[1][direction]": "asc",
+                "reportSort[2][field]": "id",
+                "reportSort[2][direction]": "asc"
+            }
+
+            response = ReviztoAPI.get(endpoint, params=params)
+            print(f"[DEBUG] Observations API response received: {type(response)}")
+
+            # Pass through the raw API response
+            return response
+
+        except Exception as e:
+            import traceback
+            print(f"[DEBUG] Failed to get observations: {e}")
+            print(f"[DEBUG] Exception traceback: {traceback.format_exc()}")
+            return {"result": 1, "message": str(e), "data": {"data": []}}
+
+    @classmethod
+    def get_instructions(cls, project_id):
+        """Get all instructions for a project (issues with stamp A-IN)."""
+        print(f"[DEBUG] Fetching instructions for project ID: {project_id}")
+        try:
+            endpoint = f"project/{project_id}/issue-filter/filter"
+            params = {
+                "anyFiltersDTO[0][type]": "stampAbbr",
+                "anyFiltersDTO[0][expr]": "1",
+                "anyFiltersDTO[0][value][1]": "A-IN",
+                "sendFullIssueData": "true",
+                "reportSort[1][field]": "sheet",
+                "reportSort[1][direction]": "asc",
+                "reportSort[2][field]": "id",
+                "reportSort[2][direction]": "asc"
+            }
+
+            response = ReviztoAPI.get(endpoint, params=params)
+            print(f"[DEBUG] Instructions API response received: {type(response)}")
+
+            # Pass through the raw API response
+            return response
+
+        except Exception as e:
+            import traceback
+            print(f"[DEBUG] Failed to get instructions: {e}")
+            print(f"[DEBUG] Exception traceback: {traceback.format_exc()}")
+            return {"result": 1, "message": str(e), "data": {"data": []}}
+
+    @classmethod
+    def get_deficiencies(cls, project_id):
+        """Get all deficiencies for a project (issues with stamp A-DF)."""
+        print(f"[DEBUG] Fetching deficiencies for project ID: {project_id}")
+        try:
+            endpoint = f"project/{project_id}/issue-filter/filter"
+            params = {
+                "anyFiltersDTO[0][type]": "stampAbbr",
+                "anyFiltersDTO[0][expr]": "1",
+                "anyFiltersDTO[0][value][0]": "A-DF",
+                "sendFullIssueData": "true",
+                "reportSort[1][field]": "sheet",
+                "reportSort[1][direction]": "asc",
+                "reportSort[2][field]": "id",
+                "reportSort[2][direction]": "asc"
+            }
+
+            response = ReviztoAPI.get(endpoint, params=params)
+            print(f"[DEBUG] Deficiencies API response received: {type(response)}")
+
+            # Pass through the raw API response
+            return response
+
+        except Exception as e:
+            import traceback
+            print(f"[DEBUG] Failed to get deficiencies: {e}")
+            print(f"[DEBUG] Exception traceback: {traceback.format_exc()}")
+            return {"result": 1, "message": str(e), "data": {"data": []}}

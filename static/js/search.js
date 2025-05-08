@@ -139,43 +139,53 @@ function initSearch(searchInput, dropdownElement) {
 
     // Select a project from search results
     function selectProject(project) {
-        console.log('[DEBUG] Project selected:', project);
-        console.log(`[DEBUG] Project details - ID: ${project.id}, Name: ${project.text}`);
+    console.log('[DEBUG] Project selected:', project);
+    console.log(`[DEBUG] Project details - ID: ${project.id}, Name: ${project.text}`);
 
-        // Update search input
-        searchInput.value = project.text;
-        console.log('[DEBUG] Updated search input value to:', project.text);
+    // Update search input
+    searchInput.value = project.text;
+    console.log('[DEBUG] Updated search input value to:', project.text);
 
-        // Hide dropdown
-        hideDropdown();
-        console.log('[DEBUG] Dropdown hidden');
+    // Hide dropdown
+    hideDropdown();
+    console.log('[DEBUG] Dropdown hidden');
 
-        // Update project title
-        const projectTitle = document.getElementById('active-project-title');
-        if (projectTitle) {
-            projectTitle.textContent = project.text;
-            console.log('[DEBUG] Project title updated to:', project.text);
-        } else {
-            console.error('[DEBUG] Project title element not found');
-        }
-
-        // Set the active project ID globally
-        window.activeProjectId = project.id;
-        console.log('[DEBUG] Set window.activeProjectId to:', window.activeProjectId);
-
-        // STEP 1: Clear the form before loading or creating project data
-        console.log('[DEBUG] Clearing form before loading project data');
-        if (window.projectForm && typeof window.projectForm.clearForm === 'function') {
-            window.projectForm.clearForm();
-        } else {
-            console.error('[DEBUG] projectForm.clearForm function not available');
-            // Fallback to basic form clearing
-            clearFormFields();
-        }
-
-        // STEP 2: Load or create project data
-        loadOrCreateProjectData(project.id);
+    // Update project title
+    const projectTitle = document.getElementById('active-project-title');
+    if (projectTitle) {
+        projectTitle.textContent = project.text;
+        console.log('[DEBUG] Project title updated to:', project.text);
+    } else {
+        console.error('[DEBUG] Project title element not found');
     }
+
+    // Set the active project ID globally
+    window.activeProjectId = project.id;
+    console.log('[DEBUG] Set window.activeProjectId to:', window.activeProjectId);
+
+    // STEP 1: Clear the form before loading or creating project data
+    console.log('[DEBUG] Clearing form before loading project data');
+    if (window.projectForm && typeof window.projectForm.clearForm === 'function') {
+        window.projectForm.clearForm();
+    } else {
+        console.error('[DEBUG] projectForm.clearForm function not available');
+        // Fallback to basic form clearing
+        clearFormFields();
+    }
+
+    // STEP 2: Load or create project data
+    loadOrCreateProjectData(project.id);
+
+    // STEP 3: Trigger event to notify issue data handler
+    console.log('[DEBUG] Dispatching projectSelected event');
+    const event = new CustomEvent('projectSelected', {
+        detail: {
+            projectId: project.id,
+            projectName: project.text
+        }
+    });
+    document.dispatchEvent(event);
+}
 
     // Basic form clearing function as fallback
     function clearFormFields() {

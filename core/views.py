@@ -299,3 +299,42 @@ def debug_session(request):
         'success': True,
         'message': 'Debug info printed to console'
     })
+
+
+def get_project_observations(request, project_id):
+    """
+    API endpoint to get observations for a specific project
+    """
+    print(f"[DEBUG] Observations request received for project ID: {project_id}")
+
+    # Get observations from the API
+    response_data = ReviztoService.get_observations(project_id)
+
+    # Return the raw API response
+    return JsonResponse(response_data)
+
+
+def get_project_instructions(request, project_id):
+    """
+    API endpoint to get instructions for a specific project
+    """
+    print(f"[DEBUG] Instructions request received for project ID: {project_id}")
+
+    # Get instructions from the API
+    response_data = ReviztoService.get_instructions(project_id)
+
+    # Return the raw API response
+    return JsonResponse(response_data)
+
+
+def get_project_deficiencies(request, project_id):
+    """
+    API endpoint to get deficiencies for a specific project
+    """
+    print(f"[DEBUG] Deficiencies request received for project ID: {project_id}")
+
+    # Get deficiencies from the API
+    response_data = ReviztoService.get_deficiencies(project_id)
+
+    # Return the raw API response
+    return JsonResponse(response_data)

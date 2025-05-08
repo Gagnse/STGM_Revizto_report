@@ -28,10 +28,30 @@
     <!-- Footer -->
     {% include "footer.html" %}
 
-    <!-- JavaScript -->
-    <script src="{% static 'js/project-form.js' %}"></script>
+    <!-- JavaScript - Note the order is important -->
     <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/project-form.js' %}"></script>
     <script src="{% static 'js/search.js' %}"></script>
+    <script src="{% static 'js/issue-data.js' %}"></script>
     <script src="{% static 'js/datepicker.js' %}"></script>
+
+    <!-- Debugging script to check if issue-data.js is loaded -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('[INDEX-DEBUG] DOM loaded in index.html');
+
+            // Check if issue data handler is available
+            if (window.issueDataHandler) {
+                console.log('[INDEX-DEBUG] issueDataHandler is available');
+            } else {
+                console.error('[INDEX-DEBUG] issueDataHandler is NOT available');
+            }
+
+            // Check for activeProjectId
+            setTimeout(function() {
+                console.log('[INDEX-DEBUG] Current activeProjectId:', window.activeProjectId);
+            }, 2000);
+        });
+    </script>
 </body>
 </html>
