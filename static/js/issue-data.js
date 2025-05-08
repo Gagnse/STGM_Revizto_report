@@ -177,15 +177,20 @@ function renderDeficienciesDirectly(deficiencies) {
             }
         }
 
-        // Determine status color
+        // Translate status to French and determine status color
         let statusColor = 'bg-gray-100 text-gray-800';
+        let frenchStatus = 'Inconnu';
         const statusLower = String(status).toLowerCase();
+
         if (statusLower === 'open' || statusLower === 'opened') {
-            statusColor = 'bg-yellow-100 text-yellow-800';
+            statusColor = 'bg-red-100 text-red-800'; // Changed from yellow to red
+            frenchStatus = 'Ouvert';
         } else if (statusLower === 'closed' || statusLower === 'solved') {
-            statusColor = 'bg-green-100 text-green-800';
+            statusColor = 'bg-green-100 text-green-800'; // Kept green for solved
+            frenchStatus = 'Résolu';
         } else if (statusLower === 'in_progress' || statusLower === 'in progress') {
-            statusColor = 'bg-blue-100 text-blue-800';
+            statusColor = 'bg-orange-100 text-orange-800'; // Changed from blue to orange
+            frenchStatus = 'En cours';
         }
 
         // Build the HTML for this deficiency
@@ -194,7 +199,7 @@ function renderDeficienciesDirectly(deficiencies) {
                 <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
                     <div class="flex justify-between items-center">
                         <h3 class="text-lg font-semibold text-gray-800">#${id}</h3>
-                        <span class="px-2 py-1 rounded-full text-xs ${statusColor}">${status}</span>
+                        <span class="px-2 py-1 rounded-full text-xs ${statusColor}">${frenchStatus}</span>
                     </div>
                 </div>
                 <div class="p-4">
@@ -219,7 +224,7 @@ function renderDeficienciesDirectly(deficiencies) {
                                 </div>
                                 <div>
                                     <h4 class="text-sm font-medium text-gray-500">État</h4>
-                                    <p class="text-gray-800">${status}</p>
+                                    <p class="text-gray-800">${frenchStatus}</p>
                                 </div>
                             </div>
                         </div>
@@ -286,15 +291,20 @@ function renderItemsDirectly(items, containerId, itemType) {
             }
         }
 
-        // Determine status color
+        // Translate status to French and determine status color
         let statusColor = 'bg-gray-100 text-gray-800';
+        let frenchStatus = 'Inconnu';
         const statusLower = String(status).toLowerCase();
+
         if (statusLower === 'open' || statusLower === 'opened') {
-            statusColor = 'bg-yellow-100 text-yellow-800';
+            statusColor = 'bg-red-100 text-red-800'; // Changed from yellow to red
+            frenchStatus = 'Ouvert';
         } else if (statusLower === 'closed' || statusLower === 'solved') {
-            statusColor = 'bg-green-100 text-green-800';
+            statusColor = 'bg-green-100 text-green-800'; // Kept green for solved
+            frenchStatus = 'Résolu';
         } else if (statusLower === 'in_progress' || statusLower === 'in progress') {
-            statusColor = 'bg-blue-100 text-blue-800';
+            statusColor = 'bg-orange-100 text-orange-800'; // Changed from blue to orange
+            frenchStatus = 'En cours';
         }
 
         // Build the HTML for this item
@@ -303,7 +313,7 @@ function renderItemsDirectly(items, containerId, itemType) {
                 <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
                     <div class="flex justify-between items-center">
                         <h3 class="text-lg font-semibold text-gray-800">#${id}</h3>
-                        <span class="px-2 py-1 rounded-full text-xs ${statusColor}">${status}</span>
+                        <span class="px-2 py-1 rounded-full text-xs ${statusColor}">${frenchStatus}</span>
                     </div>
                 </div>
                 <div class="p-4">
@@ -328,7 +338,7 @@ function renderItemsDirectly(items, containerId, itemType) {
                                 </div>
                                 <div>
                                     <h4 class="text-sm font-medium text-gray-500">État</h4>
-                                    <p class="text-gray-800">${status}</p>
+                                    <p class="text-gray-800">${frenchStatus}</p>
                                 </div>
                             </div>
                         </div>
