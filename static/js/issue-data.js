@@ -98,47 +98,36 @@ function fetchInstructions(projectId) {
 // Fetch deficiencies from the API
 function fetchDeficiencies(projectId) {
     console.log('[DEBUG] Fetching deficiencies for project ID:', projectId);
+
+    // Show loading indicators
     showLoadingState('deficiencies');
 
     fetch(`/api/projects/${projectId}/deficiencies/`)
         .then(response => {
             console.log('[DEBUG] Deficiencies response status:', response.status);
-            return response.text(); // First get as text
+            return response.json();
         })
-        .then(responseText => {
-            console.log('[DEBUG] Direct API Response Length:', responseText.length);
+        .then(data => {
+            console.log('[DEBUG] Received deficiencies data with keys:', Object.keys(data));
 
-            // DIRECT APPROACH: Force rendering with the response
-            try {
-                const data = JSON.parse(responseText);
-                console.log('[DEBUG] Parsed response data structure:', Object.keys(data));
+            // Find the deficiencies in the nested structure
+            let deficiencies = [];
 
-                // Simply force a direct rendering
-                if (data && data.result === 0 && data.data && data.data.data) {
-                    const deficiencies = data.data.data;
-                    console.log('[DEBUG] Found', deficiencies.length, 'deficiencies directly in data.data.data');
-
-                    // Debug first item
-                    if (deficiencies.length > 0) {
-                        console.log('[DEBUG] First deficiency sample:', {
-                            id: deficiencies[0].id,
-                            title: deficiencies[0].title && deficiencies[0].title.value || 'Unknown'
-                        });
-                    }
-
-                    window.issueData.deficiencies = deficiencies;
-                    console.log('[DEBUG] Received deficiencies data:', deficiencies.length, 'items');
-
-                    // BYPASS all normal rendering and force a simple rendering
-                    forceRenderDeficiencies(deficiencies);
-                } else {
-                    console.error('[DEBUG] Could not extract deficiencies from response');
-                    showError('deficiencies');
-                }
-            } catch (e) {
-                console.error('[DEBUG] Error parsing deficiencies JSON:', e);
-                showError('deficiencies');
+            if (data.result === 0 && data.data && data.data.data) {
+                deficiencies = data.data.data;
+                console.log('[DEBUG] Found', deficiencies.length, 'deficiencies in data.data.data');
+            } else if (data.deficiencies && Array.isArray(data.deficiencies)) {
+                deficiencies = data.deficiencies;
+                console.log('[DEBUG] Found', deficiencies.length, 'deficiencies in data.deficiencies');
             }
+
+            // Log the first deficiency if available
+            if (deficiencies.length > 0) {
+                console.log('[DEBUG] First deficiency ID:', deficiencies[0].id);
+            }
+
+            window.issueData.deficiencies = deficiencies;
+            renderDeficiencies(deficiencies);
         })
         .catch(error => {
             console.error('[DEBUG] Error fetching deficiencies:', error);
@@ -303,7 +292,7 @@ function renderDeficiencies(deficiencies) {
         return;
     }
 
-    if (!deficiencies || deficiencies.length === 0) {
+    if (deficiencies.length === 0) {
         container.innerHTML = '<p class="text-yellow-700">Aucune déficience trouvée</p>';
         return;
     }
@@ -311,11 +300,101 @@ function renderDeficiencies(deficiencies) {
     // Create HTML for deficiencies
     let html = '';
     deficiencies.forEach(deficiency => {
-        html += createIssueCard(deficiency, 'deficiency');
+        html += createDeficiencyCard(deficiency);
     });
 
     container.innerHTML = html;
     console.log('[DEBUG] Deficiency cards rendered successfully');
+}
+
+function createDeficiencyCard(deficiency) {
+    // Extract data with fallbacks
+    const id = deficiency.id || '';
+
+    // Get title (could be string or object with value property)
+    let title = 'Sans titre';
+    if (deficiency.title) {
+        if (typeof deficiency.title === 'string') {
+            title = deficiency.title;
+        } else if (deficiency.title.value) {
+            title = deficiency.title.value;
+        }
+    }
+
+    // Get status (could be string or object with value property)
+    let status = 'unknown';
+    if (deficiency.status) {
+        if (typeof deficiency.status === 'string') {
+            status = deficiency.status;
+        } else if (deficiency.status.value) {
+            status = deficiency.status.value;
+        }
+    }
+
+    // Get sheet info
+    let sheetNumber = '';
+    let sheetName = '';
+    if (deficiency.sheet) {
+        if (typeof deficiency.sheet === 'object' && !Array.isArray(deficiency.sheet)) {
+            // Direct sheet object
+            sheetNumber = deficiency.sheet.number || '';
+            sheetName = deficiency.sheet.name || '';
+        } else if (deficiency.sheet.value && typeof deficiency.sheet.value === 'object') {
+            // Sheet in value property
+            sheetNumber = deficiency.sheet.value.number || '';
+            sheetName = deficiency.sheet.value.name || '';
+        }
+    }
+
+    // Get preview image
+    let previewUrl = '';
+    if (deficiency.preview && deficiency.preview.small) {
+        previewUrl = deficiency.preview.small;
+    }
+
+    // Create card HTML
+    return `
+        <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 overflow-hidden">
+            <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-800">Déficience #${id}</h3>
+                    <span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">${status}</span>
+                </div>
+            </div>
+            <div class="p-4">
+                <div class="flex flex-col md:flex-row">
+                    <div class="w-full md:w-1/3 mb-4 md:mb-0 md:pr-4">
+                        ${previewUrl ? 
+                            `<img src="${previewUrl}" alt="Preview" class="w-full h-auto rounded-md border border-gray-200">` : 
+                            `<div class="w-full h-40 bg-gray-100 rounded-md flex items-center justify-center">
+                                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>`
+                        }
+                    </div>
+                    <div class="w-full md:w-2/3">
+                        <div class="space-y-2">
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-500">Titre</h4>
+                                <p class="text-gray-800">${title}</p>
+                            </div>
+                            ${(sheetNumber || sheetName) ? 
+                                `<div>
+                                    <h4 class="text-sm font-medium text-gray-500">Feuille</h4>
+                                    <p class="text-gray-800">${sheetNumber ? `${sheetNumber} - ` : ''}${sheetName}</p>
+                                </div>` : ''
+                            }
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-500">État</h4>
+                                <p class="text-gray-800">${status}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 // Create HTML for an issue card (observation, instruction, or deficiency)
