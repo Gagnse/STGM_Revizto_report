@@ -1,4 +1,4 @@
-// Simple and direct solution for deficiencies display
+// Optimized issue data handler for observations, instructions, and deficiencies
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('[DEBUG] Issue data handler initialized');
@@ -96,8 +96,6 @@ function fetchInstructions(projectId) {
 // Fetch deficiencies from the API
 function fetchDeficiencies(projectId) {
     console.log('[DEBUG] Fetching deficiencies for project ID:', projectId);
-
-    // Show loading indicators
     showLoadingState('deficiencies');
 
     fetch(`/api/projects/${projectId}/deficiencies/`)
@@ -118,7 +116,7 @@ function fetchDeficiencies(projectId) {
             // Store in global state
             window.issueData.deficiencies = deficiencies;
 
-            // Render deficiencies regardless of rendering function used previously
+            // Render deficiencies
             renderDeficienciesDirectly(deficiencies);
         })
         .catch(error => {
@@ -127,7 +125,7 @@ function fetchDeficiencies(projectId) {
         });
 }
 
-// Add this new direct rendering function to issue-data.js
+// Render deficiencies directly
 function renderDeficienciesDirectly(deficiencies) {
     console.log('[DEBUG] Direct rendering of', deficiencies.length, 'deficiencies');
     const container = document.getElementById('deficiencies-container');
@@ -192,17 +190,17 @@ function renderDeficienciesDirectly(deficiencies) {
 
         // Build the HTML for this deficiency
         html += `
-            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 overflow-hidden">
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-2 overflow-hidden">
                 <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
                     <div class="flex justify-between items-center">
-                        <h3 class="text-lg font-semibold text-gray-800">Déficience #${id}</h3>
+                        <h3 class="text-lg font-semibold text-gray-800">#${id}</h3>
                         <span class="px-2 py-1 rounded-full text-xs ${statusColor}">${status}</span>
                     </div>
                 </div>
                 <div class="p-4">
                     <div class="flex flex-col md:flex-row">
                         ${imageUrl ? 
-                            `<div class="w-full md:w-1/3 mb-4 md:mb-0 md:pr-4">
+                            `<div class="max-w-200 md:w-1/3 mb-4 md:mb-0 md:pr-4">
                                 <img src="${imageUrl}" alt="Preview" class="w-full h-auto rounded-md border border-gray-200">
                             </div>` : 
                             `<div class="w-full md:w-1/3 mb-4 md:mb-0 md:pr-4">
@@ -236,104 +234,7 @@ function renderDeficienciesDirectly(deficiencies) {
     console.log('[DEBUG] Rendered', deficiencies.length, 'deficiency cards');
 }
 
-
-// Force render deficiencies with a simpler approach
-function forceRenderDeficiencies(deficiencies) {
-    console.log('[DEBUG] Force rendering', deficiencies.length, 'deficiencies');
-    const container = document.getElementById('deficiencies-container');
-
-    if (!container) {
-        console.error('[DEBUG] Deficiencies container not found in DOM');
-        return;
-    }
-
-    if (!deficiencies || deficiencies.length === 0) {
-        container.innerHTML = '<p class="text-yellow-700">Aucune déficience trouvée</p>';
-        return;
-    }
-
-    // Create HTML for deficiencies - SIMPLE VERSION
-    let html = '';
-
-    deficiencies.forEach(deficiency => {
-        // Extract basic info safely
-        const id = deficiency.id || 'N/A';
-
-        // Get title - handle both string and object with value
-        let title = 'Sans titre';
-        if (deficiency.title) {
-            if (typeof deficiency.title === 'string') {
-                title = deficiency.title;
-            } else if (deficiency.title.value) {
-                title = deficiency.title.value;
-            }
-        }
-
-        // Get status - handle both string and object with value
-        let status = 'Unknown';
-        if (deficiency.status) {
-            if (typeof deficiency.status === 'string') {
-                status = deficiency.status;
-            } else if (deficiency.status.value) {
-                status = deficiency.status.value;
-            }
-        }
-
-        // Get image URL if exists
-        let imageUrl = '';
-        if (deficiency.preview) {
-            if (typeof deficiency.preview === 'string') {
-                imageUrl = deficiency.preview;
-            } else if (deficiency.preview.small) {
-                imageUrl = deficiency.preview.small;
-            }
-        }
-
-        // Determine status color
-        let statusColor = 'bg-gray-100 text-gray-800';
-        const statusLower = String(status).toLowerCase();
-        if (statusLower === 'open' || statusLower === 'opened') {
-            statusColor = 'bg-yellow-100 text-yellow-800';
-        } else if (statusLower === 'closed' || statusLower === 'solved') {
-            statusColor = 'bg-green-100 text-green-800';
-        } else if (statusLower === 'in_progress' || statusLower === 'in progress') {
-            statusColor = 'bg-blue-100 text-blue-800';
-        }
-
-        // Create a simple card
-        html += `
-            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 overflow-hidden">
-                <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-lg font-semibold text-gray-800">Déficience #${id}</h3>
-                        <span class="px-2 py-1 rounded-full text-xs ${statusColor}">${status}</span>
-                    </div>
-                </div>
-                <div class="p-4">
-                    <div class="flex flex-col md:flex-row">
-                        ${imageUrl ? 
-                            `<div class="w-full md:w-1/3 mb-4 md:mb-0 md:pr-4">
-                                <img src="${imageUrl}" alt="Preview" class="w-full h-auto rounded-md border border-gray-200">
-                            </div>` : ''
-                        }
-                        <div class="w-full ${imageUrl ? 'md:w-2/3' : ''}">
-                            <div class="space-y-2">
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-500">Titre</h4>
-                                    <p class="text-gray-800">${title}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-
-    container.innerHTML = html;
-    console.log('[DEBUG] Force-rendered', deficiencies.length, 'deficiency cards');
-}
-
+// Render items (observations, instructions) directly
 function renderItemsDirectly(items, containerId, itemType) {
     console.log(`[DEBUG] Direct rendering of ${items.length} ${itemType.toLowerCase()}s`);
     const container = document.getElementById(containerId);
@@ -380,8 +281,8 @@ function renderItemsDirectly(items, containerId, itemType) {
         if (item.preview) {
             if (typeof item.preview === 'string') {
                 imageUrl = item.preview;
-            } else if (item.preview.small) {
-                imageUrl = item.preview.small;
+            } else if (item.preview.original) {
+                imageUrl = item.preview.original;
             }
         }
 
@@ -398,17 +299,17 @@ function renderItemsDirectly(items, containerId, itemType) {
 
         // Build the HTML for this item
         html += `
-            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 overflow-hidden">
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-1 overflow-hidden">
                 <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
                     <div class="flex justify-between items-center">
-                        <h3 class="text-lg font-semibold text-gray-800">${itemType} #${id}</h3>
+                        <h3 class="text-lg font-semibold text-gray-800">#${id}</h3>
                         <span class="px-2 py-1 rounded-full text-xs ${statusColor}">${status}</span>
                     </div>
                 </div>
                 <div class="p-4">
                     <div class="flex flex-col md:flex-row">
                         ${imageUrl ? 
-                            `<div class="w-full md:w-1/3 mb-4 md:mb-0 md:pr-4">
+                            `<div class="max-w-200 md:w-1/3 mb-4 md:mb-0 md:pr-4">
                                 <img src="${imageUrl}" alt="Preview" class="w-full h-auto rounded-md border border-gray-200">
                             </div>` : 
                             `<div class="w-full md:w-1/3 mb-4 md:mb-0 md:pr-4">
@@ -442,219 +343,6 @@ function renderItemsDirectly(items, containerId, itemType) {
     console.log(`[DEBUG] Rendered ${items.length} ${itemType.toLowerCase()} cards`);
 }
 
-function createDeficiencyCard(deficiency) {
-    // Extract data with fallbacks
-    const id = deficiency.id || '';
-
-    // Get title (could be string or object with value property)
-    let title = 'Sans titre';
-    if (deficiency.title) {
-        if (typeof deficiency.title === 'string') {
-            title = deficiency.title;
-        } else if (deficiency.title.value) {
-            title = deficiency.title.value;
-        }
-    }
-
-    // Get status (could be string or object with value property)
-    let status = 'unknown';
-    if (deficiency.status) {
-        if (typeof deficiency.status === 'string') {
-            status = deficiency.status;
-        } else if (deficiency.status.value) {
-            status = deficiency.status.value;
-        }
-    }
-
-    // Get sheet info
-    let sheetNumber = '';
-    let sheetName = '';
-    if (deficiency.sheet) {
-        if (typeof deficiency.sheet === 'object' && !Array.isArray(deficiency.sheet)) {
-            // Direct sheet object
-            sheetNumber = deficiency.sheet.number || '';
-            sheetName = deficiency.sheet.name || '';
-        } else if (deficiency.sheet.value && typeof deficiency.sheet.value === 'object') {
-            // Sheet in value property
-            sheetNumber = deficiency.sheet.value.number || '';
-            sheetName = deficiency.sheet.value.name || '';
-        }
-    }
-
-    // Get preview image
-    let previewUrl = '';
-    if (deficiency.preview && deficiency.preview.small) {
-        previewUrl = deficiency.preview.small;
-    }
-
-    // Create card HTML
-    return `
-        <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 overflow-hidden">
-            <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-lg font-semibold text-gray-800">Déficience #${id}</h3>
-                    <span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">${status}</span>
-                </div>
-            </div>
-            <div class="p-4">
-                <div class="flex flex-col md:flex-row">
-                    <div class="w-full md:w-1/3 mb-4 md:mb-0 md:pr-4">
-                        ${previewUrl ? 
-                            `<img src="${previewUrl}" alt="Preview" class="w-full h-auto rounded-md border border-gray-200">` : 
-                            `<div class="w-full h-40 bg-gray-100 rounded-md flex items-center justify-center">
-                                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                            </div>`
-                        }
-                    </div>
-                    <div class="w-full md:w-2/3">
-                        <div class="space-y-2">
-                            <div>
-                                <h4 class="text-sm font-medium text-gray-500">Titre</h4>
-                                <p class="text-gray-800">${title}</p>
-                            </div>
-                            ${(sheetNumber || sheetName) ? 
-                                `<div>
-                                    <h4 class="text-sm font-medium text-gray-500">Feuille</h4>
-                                    <p class="text-gray-800">${sheetNumber ? `${sheetNumber} - ` : ''}${sheetName}</p>
-                                </div>` : ''
-                            }
-                            <div>
-                                <h4 class="text-sm font-medium text-gray-500">État</h4>
-                                <p class="text-gray-800">${status}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// Create HTML for an issue card (observation, instruction, or deficiency)
-function createIssueCard(issue, type) {
-    // Extract ID
-    const id = extractValue(issue, 'id', 'N/A');
-
-    // Extract title
-    let title = 'Sans titre';
-    if (issue.title) {
-        if (typeof issue.title === 'string') {
-            title = issue.title;
-        } else if (issue.title.value) {
-            title = issue.title.value;
-        }
-    }
-
-    // Extract status
-    let status = 'Unknown';
-    if (issue.status) {
-        if (typeof issue.status === 'string') {
-            status = issue.status;
-        } else if (issue.status.value) {
-            status = issue.status.value;
-        }
-    }
-
-    // Extract sheet info
-    let sheetNumber = '';
-    let sheetName = '';
-    if (issue.sheet) {
-        if (typeof issue.sheet === 'object' && !Array.isArray(issue.sheet)) {
-            if (issue.sheet.number) sheetNumber = issue.sheet.number;
-            if (issue.sheet.name) sheetName = issue.sheet.name;
-        } else if (issue.sheet.value && typeof issue.sheet.value === 'object') {
-            if (issue.sheet.value.number) sheetNumber = issue.sheet.value.number;
-            if (issue.sheet.value.name) sheetName = issue.sheet.value.name;
-        }
-    }
-
-    // Extract preview image
-    let previewUrl = '';
-    if (issue.preview) {
-        if (typeof issue.preview === 'string') {
-            previewUrl = issue.preview;
-        } else if (issue.preview.small) {
-            previewUrl = issue.preview.small;
-        } else if (issue.preview.value && issue.preview.value.small) {
-            previewUrl = issue.preview.value.small;
-        }
-    }
-
-    // Determine status color
-    let statusColor = 'bg-gray-100 text-gray-800';
-    const statusLower = String(status).toLowerCase();
-    if (statusLower === 'open' || statusLower === 'opened') {
-        statusColor = 'bg-yellow-100 text-yellow-800';
-    } else if (statusLower === 'closed' || statusLower === 'solved') {
-        statusColor = 'bg-green-100 text-green-800';
-    } else if (statusLower === 'in_progress' || statusLower === 'in progress') {
-        statusColor = 'bg-blue-100 text-blue-800';
-    }
-
-    // Get type label in French
-    let typeLabel = 'Item';
-    if (type === 'observation') typeLabel = 'Observation';
-    if (type === 'instruction') typeLabel = 'Instruction';
-    if (type === 'deficiency') typeLabel = 'Déficience';
-
-    // Create card HTML
-    return `
-        <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 overflow-hidden">
-            <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-lg font-semibold text-gray-800">${typeLabel} #${id}</h3>
-                    <span class="px-2 py-1 rounded-full text-xs ${statusColor}">${status}</span>
-                </div>
-            </div>
-            <div class="p-4">
-                <div class="flex flex-col md:flex-row">
-                    <div class="w-full md:w-1/3 mb-4 md:mb-0 md:pr-4">
-                        ${previewUrl ? 
-                            `<img src="${previewUrl}" alt="Preview" class="w-full h-auto rounded-md border border-gray-200">` : 
-                            `<div class="w-full h-40 bg-gray-100 rounded-md flex items-center justify-center">
-                                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                            </div>`
-                        }
-                    </div>
-                    <div class="w-full md:w-2/3">
-                        <div class="space-y-2">
-                            <div>
-                                <h4 class="text-sm font-medium text-gray-500">Titre</h4>
-                                <p class="text-gray-800">${title}</p>
-                            </div>
-                            ${(sheetNumber || sheetName) ? 
-                                `<div>
-                                    <h4 class="text-sm font-medium text-gray-500">Feuille</h4>
-                                    <p class="text-gray-800">${sheetNumber ? `${sheetNumber} - ` : ''}${sheetName}</p>
-                                </div>` : ''
-                            }
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// Helper function to extract values safely
-function extractValue(obj, key, defaultValue = '') {
-    if (!obj) return defaultValue;
-
-    if (obj[key] !== undefined) {
-        if (typeof obj[key] === 'string' || typeof obj[key] === 'number') {
-            return obj[key];
-        } else if (obj[key] && obj[key].value !== undefined) {
-            return obj[key].value;
-        }
-    }
-
-    return defaultValue;
-}
-
 // Show loading state
 function showLoadingState(section) {
     console.log('[DEBUG] Showing loading state for', section);
@@ -682,224 +370,14 @@ function showError(section) {
     }
 }
 
-// Add this debugging function
+// Manual testing function
 window.forceLoadDeficiencies = function(projectId) {
-    projectId = projectId || window.activeProjectId || 712062;
+    projectId = projectId || window.activeProjectId;
+    if (!projectId) {
+        console.error('[DEBUG] No project ID available for manual fetch');
+        return;
+    }
 
     console.log('[DEBUG] Forcing deficiency load for project:', projectId);
-
-    fetch(`/api/projects/${projectId}/deficiencies/`)
-        .then(response => response.text())
-        .then(text => {
-            try {
-                const data = JSON.parse(text);
-                console.log('[DEBUG] Raw response data:', data);
-
-                if (data.result === 0 && data.data && data.data.data) {
-                    const deficiencies = data.data.data;
-                    console.log('[DEBUG] Found', deficiencies.length, 'deficiencies');
-
-                    if (deficiencies.length > 0) {
-                        forceRenderDeficiencies(deficiencies);
-                        return 'Successfully rendered deficiencies';
-                    }
-                }
-
-                return 'No deficiencies found in data';
-            } catch (e) {
-                console.error('[DEBUG] JSON parse error:', e);
-                return 'Error parsing JSON';
-            }
-        })
-        .catch(error => {
-            console.error('[DEBUG] Fetch error:', error);
-            return 'Fetch error';
-        });
-
-    function debugRenderSingleItem(item, container) {
-    console.log('[DEBUG-CLIENT] Rendering test item with ID:', item.id);
-
-    // Extract ID
-    const id = item.id || 'N/A';
-    console.log('[DEBUG-CLIENT] - ID:', id);
-
-    // Extract title
-    let title = 'Sans titre';
-    if (item.title) {
-        if (typeof item.title === 'string') {
-            title = item.title;
-        } else if (item.title.value) {
-            title = item.title.value;
-        }
-    }
-    console.log('[DEBUG-CLIENT] - Title:', title);
-
-    // Extract status
-    let status = 'Unknown';
-    if (item.status) {
-        if (typeof item.status === 'string') {
-            status = item.status;
-        } else if (item.status.value) {
-            status = item.status.value;
-        }
-    }
-    console.log('[DEBUG-CLIENT] - Status:', status);
-
-    // Create simple HTML for the test
-    const html = `
-        <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 p-4">
-            <h3 class="text-lg font-semibold text-gray-800">TEST - Déficience #${id}</h3>
-            <p class="text-gray-700">Titre: ${title}</p>
-            <p class="text-gray-700">État: ${status}</p>
-        </div>
-    `;
-
-    // Append to container rather than replacing everything
-    const testDiv = document.createElement('div');
-    testDiv.innerHTML = html;
-    container.appendChild(testDiv.firstElementChild);
-}
+    fetchDeficiencies(projectId);
 };
-function debugRenderSingleItem(item, container) {
-    console.log('[DEBUG-CLIENT] Rendering test item with ID:', item.id);
-
-    // Extract ID
-    const id = item.id || 'N/A';
-    console.log('[DEBUG-CLIENT] - ID:', id);
-
-    // Extract title
-    let title = 'Sans titre';
-    if (item.title) {
-        if (typeof item.title === 'string') {
-            title = item.title;
-        } else if (item.title.value) {
-            title = item.title.value;
-        }
-    }
-    console.log('[DEBUG-CLIENT] - Title:', title);
-
-    // Extract status
-    let status = 'Unknown';
-    if (item.status) {
-        if (typeof item.status === 'string') {
-            status = item.status;
-        } else if (item.status.value) {
-            status = item.status.value;
-        }
-    }
-    console.log('[DEBUG-CLIENT] - Status:', status);
-
-    // Create simple HTML for the test
-    const html = `
-        <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 p-4">
-            <h3 class="text-lg font-semibold text-gray-800">TEST - Déficience #${id}</h3>
-            <p class="text-gray-700">Titre: ${title}</p>
-            <p class="text-gray-700">État: ${status}</p>
-        </div>
-    `;
-
-    // Append to container rather than replacing everything
-    const testDiv = document.createElement('div');
-    testDiv.innerHTML = html;
-    container.appendChild(testDiv.firstElementChild);
-}
-
-// Function to render all items with detailed logging
-function debugRenderAllItems(items, containerId, itemType) {
-    console.log(`[DEBUG-CLIENT] Rendering ${items.length} ${itemType.toLowerCase()}s to container ${containerId}`);
-
-    const container = document.getElementById(containerId);
-    if (!container) {
-        console.error(`[DEBUG-CLIENT] Container ${containerId} not found`);
-        return;
-    }
-
-    // Clear existing content
-    container.innerHTML = '';
-
-    if (!items || items.length === 0) {
-        console.log(`[DEBUG-CLIENT] No ${itemType.toLowerCase()}s to render`);
-        container.innerHTML = `<p class="text-yellow-700">Aucun(e) ${itemType.toLowerCase()} trouvé(e)</p>`;
-        return;
-    }
-
-    // Process each item
-    items.forEach((item, index) => {
-        try {
-            console.log(`[DEBUG-CLIENT] Processing item ${index+1}/${items.length}, ID: ${item.id || 'unknown'}`);
-
-            // Extract basic info
-            const id = item.id || 'N/A';
-
-            // Get title
-            let title = 'Sans titre';
-            if (item.title) {
-                if (typeof item.title === 'string') {
-                    title = item.title;
-                } else if (typeof item.title === 'object' && item.title.value) {
-                    title = item.title.value;
-                }
-            }
-
-            // Get status
-            let status = 'Unknown';
-            if (item.status) {
-                if (typeof item.status === 'string') {
-                    status = item.status;
-                } else if (typeof item.status === 'object' && item.status.value) {
-                    status = item.status.value;
-                }
-            }
-
-            // Get preview image URL
-            let imageUrl = '';
-            if (item.preview) {
-                if (typeof item.preview === 'string') {
-                    imageUrl = item.preview;
-                } else if (item.preview.small) {
-                    imageUrl = item.preview.small;
-                }
-            }
-
-            // Create simple HTML for each item
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'bg-white border border-gray-200 rounded-lg shadow-sm mb-4 p-4';
-            itemDiv.innerHTML = `
-                <div class="flex justify-between items-center mb-2">
-                    <h3 class="text-lg font-semibold text-gray-800">${itemType} #${id}</h3>
-                    <span class="px-2 py-1 rounded-full text-xs bg-gray-100">${status}</span>
-                </div>
-                
-                <div class="flex flex-col md:flex-row">
-                    ${imageUrl ? 
-                        `<div class="w-full md:w-1/3 mb-4 md:mb-0 md:pr-4">
-                            <img src="${imageUrl}" alt="Preview" class="w-full h-auto rounded-md border border-gray-200">
-                        </div>` : 
-                        `<div class="w-full md:w-1/3 mb-4 md:mb-0 md:pr-4">
-                            <div class="w-full h-32 bg-gray-100 rounded-md flex items-center justify-center">
-                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                            </div>
-                        </div>`
-                    }
-                    <div class="w-full md:w-2/3">
-                        <div>
-                            <h4 class="text-sm font-medium text-gray-500">Titre</h4>
-                            <p class="text-gray-800">${title}</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            // Add to container
-            container.appendChild(itemDiv);
-
-            console.log(`[DEBUG-CLIENT] Successfully rendered item ${index+1}`);
-        } catch (e) {
-            console.error(`[DEBUG-CLIENT] Error rendering item ${index+1}:`, e);
-        }
-    });
-
-    console.log(`[DEBUG-CLIENT] Completed rendering ${items.length} items`);
-}
