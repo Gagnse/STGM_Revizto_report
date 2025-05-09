@@ -360,7 +360,7 @@ class ReviztoService:
             params = {
                 "anyFiltersDTO[0][type]": "id",
                 "anyFiltersDTO[0][expr]": "1",
-                "issueidFiltersDTO[0][value]": issue_id  # Use the specific issue ID
+                "anyFiltersDTO[0][value][0]": issue_id  # Use the specific issue ID
             }
 
             # Get issue details to extract UUID
