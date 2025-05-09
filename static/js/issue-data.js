@@ -520,7 +520,7 @@ function renderDeficienciesDirectly(deficiencies) {
                         </span>
                     </div>
                 </div>
-                <div class="p-4">
+                <div class="pt-4 pb-4 pl-4">
                     <div class="flex flex-col md:flex-row">
                         ${imageUrl ? 
                             `<div class="max-w-75 md:w-1/4 mb-4 md:mb-0 md:pr-4">
@@ -534,7 +534,7 @@ function renderDeficienciesDirectly(deficiencies) {
                                 </div>
                             </div>`
                         }
-                        <div class="md:w-3/4 flex flex-col md:flex-row">
+                        <div class="w-full flex flex-col md:flex-row">
                             <!-- Left column: Issue information -->
                             <div class="md:w-1/2 pr-4 space-y-3">
                                 <div>
@@ -575,7 +575,7 @@ function renderDeficienciesDirectly(deficiencies) {
                             </div>
                             
                             <!-- Right column: Issue history -->
-                            <div class="md:w-1/2 mt-4 md:mt-0 border-t md:border-t-0 md:border-l border-gray-200 md:px-4 pt-4 md:pt-0">
+                            <div class="w-full md:w-1/2 mt-4 md:mt-0 border-t md:border-t-0 md:border-l border-gray-200 md:pl-4 md:pr-4 pt-4 md:pt-0">
                                 <h4 class="text-sm font-semibold text-gray-700 mb-2">Historique</h4>
                                 <div id="history-panel-${id}" class="bg-gray-50 rounded-md">
                                     <div class="p-3 text-sm text-gray-500">Chargement de l'historique...</div>
@@ -675,7 +675,7 @@ function renderItemsDirectly(items, containerId, itemType) {
                         </span>
                     </div>
                 </div>
-                <div class="p-4">
+                <div class="pt-4 pb-4 pl-4">
                     <div class="flex flex-col md:flex-row">
                         ${imageUrl ? 
                             `<div class="max-w-75 md:w-1/4 mb-4 md:mb-0 md:pr-4">
@@ -689,9 +689,9 @@ function renderItemsDirectly(items, containerId, itemType) {
                                 </div>
                             </div>`
                         }
-                        <div class="md:w-3/4 flex flex-col md:flex-row">
+                        <div class="w-full flex flex-col md:flex-row">
                             <!-- Left column: Issue information -->
-                            <div class="md:w-1/2 pr-4 space-y-3">
+                            <div class="w-full md:w-1/2 pr-4 space-y-3">
                                 <div>
                                     <h4 class="text-sm font-medium text-gray-500">Titre</h4>
                                     <p class="text-gray-800">${title}</p>
@@ -730,7 +730,7 @@ function renderItemsDirectly(items, containerId, itemType) {
                             </div>
                             
                             <!-- Right column: Issue history -->
-                            <div class="md:w-1/2 mt-4 md:mt-0 border-t md:border-t-0 md:border-l border-gray-200 md:pl-4 pt-4 md:pt-0">
+                            <div class="w-full md:w-1/2 mt-4 md:mt-0 border-t md:border-t-0 md:border-l border-gray-200 md:pl-4 md:pr-4 pt-4 md:pt-0">
                                 <h4 class="text-sm font-semibold text-gray-700 mb-2">Historique</h4>
                                 <div id="history-panel-${id}" class="bg-gray-50 rounded-md">
                                     <div class="p-3 text-sm text-gray-500">Chargement de l'historique...</div>
