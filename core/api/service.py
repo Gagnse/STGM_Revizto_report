@@ -380,11 +380,17 @@ class ReviztoService:
                 if issue_uuid:
                     print(f"[DEBUG-SERVICE] Found issue UUID: {issue_uuid}")
 
-                    # Step 2: Now use the UUID to fetch comments
-                    comments_endpoint = f"issue/{issue_uuid}/comments"
+                    # Step 2: Now use the UUID to fetch comments with the correct URL format
+                    comments_endpoint = f"issue/{issue_uuid}/comments/date"
 
-                    # Make API request
-                    comments_response = ReviztoAPI.get(comments_endpoint)
+                    # Include the required parameters
+                    comments_params = {
+                        "date": date,
+                        "projectId": project_id
+                    }
+
+                    # Make API request with the correct parameters
+                    comments_response = ReviztoAPI.get(comments_endpoint, comments_params)
                     print(f"[DEBUG-SERVICE] API call successful")
 
                     # Log response info
@@ -394,17 +400,21 @@ class ReviztoService:
                         if comments_response.get('result') == 0 and 'data' in comments_response:
                             print(f"[DEBUG-SERVICE] Comments found for issue UUID: {issue_uuid}")
 
+                            # Add the issue ID to the response for reference on the client side
+                            comments_response['issueId'] = issue_id
+
                     print(f"[DEBUG-SERVICE] ===== END FETCHING ISSUE COMMENTS =====\n")
                     return comments_response
                 else:
                     print(f"[DEBUG-SERVICE] Issue found but UUID is missing")
-                    return {"result": 1, "message": "Issue UUID not found", "data": {"data": []}}
+                    return {"result": 1, "message": "Issue UUID not found", "data": {"data": []}, "issueId": issue_id}
             else:
                 print(f"[DEBUG-SERVICE] Issue not found with ID: {issue_id}")
-                return {"result": 1, "message": f"Issue not found with ID: {issue_id}", "data": {"data": []}}
+                return {"result": 1, "message": f"Issue not found with ID: {issue_id}", "data": {"data": []},
+                        "issueId": issue_id}
 
         except Exception as e:
             print(f"[DEBUG-SERVICE] Error in get_issue_comments: {e}")
             import traceback
             print(f"[DEBUG-SERVICE] Traceback: {traceback.format_exc()}")
-            return {"result": 1, "message": str(e), "data": {"data": []}}
+            return {"result": 1, "message": str(e), "data": {"data": []}, "issueId": issue_id}

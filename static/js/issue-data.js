@@ -888,7 +888,13 @@ function fetchIssueHistory(projectId, issueId) {
                 return;
             }
 
-            // Render the comments
+            // Store the comments in the global state for this specific issue
+            if (!window.issueData.history) {
+                window.issueData.history = {};
+            }
+            window.issueData.history[issueId] = comments;
+
+            // Render the comments for this specific issue
             const html = renderCommentsHTML(comments);
             historyPanel.innerHTML = html;
         })
@@ -896,81 +902,6 @@ function fetchIssueHistory(projectId, issueId) {
             console.error(`[DEBUG] Error fetching comments for issue ${issueId}:`, error);
             historyPanel.innerHTML = '<div class="p-3 text-sm text-red-500">Erreur lors du chargement de l\'historique.</div>';
         });
-}
-
-function renderIssueHistory(issueId, comments) {
-console.log(`[DEBUG] Rendering history for issue ${issueId} with ${comments.length} comments`);
-
-const historyPanel = document.querySelector(`.issue-history-panel-${issueId}`);
-
-if (!historyPanel) {
-    console.error(`[DEBUG] History panel not found for issue ${issueId}`);
-    return;
-}
-
-if (!comments || comments.length === 0) {
-    historyPanel.innerHTML = '<p class="p-4 text-gray-500">Aucun historique disponible.</p>';
-    return;
-}
-
-// Sort comments by date (newest first)
-comments.sort((a, b) => {
-    const dateA = new Date(a.created || 0);
-    const dateB = new Date(b.created || 0);
-    return dateB - dateA;
-});
-
-// Create timeline HTML
-let html = '<div class="space-y-4 p-4">';
-
-comments.forEach(comment => {
-    // Extract author information
-    let authorName = 'Utilisateur inconnu';
-    if (comment.author) {
-        if (typeof comment.author === 'string') {
-            authorName = comment.author;
-        } else if (comment.author.firstname && comment.author.lastname) {
-            authorName = `${comment.author.firstname} ${comment.author.lastname}`;
-        } else if (comment.author.email) {
-            authorName = comment.author.email;
-        }
-    }
-
-    const created = comment.created ? new Date(comment.created).toLocaleString('fr-CA') : 'Date inconnue';
-
-    // Start building the comment HTML
-    html += `
-        <div class="border-l-2 border-gray-200 pl-4 relative">
-            <div class="absolute w-3 h-3 bg-blue-500 rounded-full -left-1.5 top-2"></div>
-            <div class="mb-1">
-                <span class="font-medium">${authorName}</span>
-                <span class="text-sm text-gray-500 ml-2">${created}</span>
-            </div>
-    `;
-
-    // Handle different comment types
-    switch (comment.type) {
-        case 'diff':
-            html += renderDiffComment(comment);
-            break;
-        case 'text':
-            html += `<p class="text-gray-700">${comment.text || ''}</p>`;
-            break;
-        case 'file':
-            html += renderFileComment(comment);
-            break;
-        case 'markup':
-            html += renderMarkupComment(comment);
-            break;
-        default:
-            html += `<p class="text-gray-700 italic">Activité: ${comment.type || 'Action non spécifiée'}</p>`;
-    }
-
-    html += '</div>';
-});
-
-html += '</div>';
-historyPanel.innerHTML = html;
 }
 
 function renderCommentsHTML(comments) {
@@ -982,6 +913,12 @@ function renderCommentsHTML(comments) {
     });
 
     let html = '<div class="space-y-3 p-3">';
+
+    if (!comments || comments.length === 0) {
+        html += '<div class="text-sm text-gray-500">Aucun historique disponible.</div>';
+        html += '</div>';
+        return html;
+    }
 
     comments.forEach(comment => {
         // Get author info
