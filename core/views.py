@@ -435,7 +435,7 @@ def get_issue_comments(request, project_id, issue_id):
     print(f"[DEBUG] Fetching comments for issue ID: {issue_id} in project: {project_id}")
 
     # Get date parameter with default to empty string (which will fetch all comments)
-    date_param = request.GET.get('date', '')
+    date_param = request.GET.get('date', '2018-05-30')
 
     try:
         # Get comments from the API via service

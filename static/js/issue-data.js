@@ -842,55 +842,60 @@ function filterOutClosedIssues(issues) {
 };
 
 function fetchIssueHistory(projectId, issueId) {
-console.log(`[DEBUG] Fetching history for issue ID: ${issueId} in project: ${projectId}`);
+    console.log(`[DEBUG] Fetching history for issue ID: ${issueId} in project: ${projectId}`);
 
-const historyPanelId = `history-panel-${issueId}`;
-const historyPanel = document.getElementById(historyPanelId);
+    const historyPanelId = `history-panel-${issueId}`;
+    const historyPanel = document.getElementById(historyPanelId);
 
-if (!historyPanel) {
-    console.error(`[DEBUG] History panel not found with ID: ${historyPanelId}`);
-    return;
-}
+    if (!historyPanel) {
+        console.error(`[DEBUG] History panel not found with ID: ${historyPanelId}`);
+        return;
+    }
 
-// Show loading state
-historyPanel.innerHTML = `
-    <div class="p-3">
-        <div class="flex items-center">
-            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
-            <span class="text-sm text-gray-500">Chargement de l'historique...</span>
+    // Show loading state
+    historyPanel.innerHTML = `
+        <div class="p-3">
+            <div class="flex items-center">
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
+                <span class="text-sm text-gray-500">Chargement de l'historique...</span>
+            </div>
         </div>
-    </div>
-`;
+    `;
 
-fetch(`/api/projects/${projectId}/issues/${issueId}/comments/`)
-    .then(response => {
-        console.log(`[DEBUG] Comment history response status for issue ${issueId}:`, response.status);
-        return response.json();
-    })
-    .then(data => {
-        console.log(`[DEBUG] Comment history data for issue ${issueId}:`, data);
+    fetch(`/api/projects/${projectId}/issues/${issueId}/comments/`)
+        .then(response => {
+            console.log(`[DEBUG] Comment history response status for issue ${issueId}:`, response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log(`[DEBUG] Comment history data for issue ${issueId}:`, data);
 
-        // Extract comments from the response
-        let comments = [];
+            // Extract comments from the response
+            let comments = [];
 
-        // Check for data in the expected structure
-        if (data && data.result === 0 && data.data && data.data.data) {
-            comments = data.data.data;
-            console.log(`[DEBUG] Found ${comments.length} comments for issue ${issueId}`);
-        }
+            // Check for data in the expected structure
+            if (data && data.result === 0 && data.data) {
+                if (Array.isArray(data.data)) {
+                    comments = data.data;
+                } else if (data.data.data && Array.isArray(data.data.data)) {
+                    comments = data.data.data;
+                }
+                console.log(`[DEBUG] Found ${comments.length} comments for issue ${issueId}`);
+            }
 
-        if (!comments || comments.length === 0) {
-            historyPanel.innerHTML = '<div class="p-3 text-sm text-gray-500">Aucun historique disponible.</div>';
-            return;
-        }
+            if (!comments || comments.length === 0) {
+                historyPanel.innerHTML = '<div class="p-3 text-sm text-gray-500">Aucun historique disponible.</div>';
+                return;
+            }
 
-        // Render the comments
-        renderComments(historyPanel, comments);
-    })
-    .catch(error => {
-        console.error(`[DEBUG] Error fetching comments for issue ${issueId}:`, error);
-        historyPanel.innerHTML = '<div class="p-3 text-sm text-red-500">Erreur lors du chargement de l\'historique.</div>';
-    });
+            // Render the comments
+            const html = renderCommentsHTML(comments);
+            historyPanel.innerHTML = html;
+        })
+        .catch(error => {
+            console.error(`[DEBUG] Error fetching comments for issue ${issueId}:`, error);
+            historyPanel.innerHTML = '<div class="p-3 text-sm text-red-500">Erreur lors du chargement de l\'historique.</div>';
+        });
 }
 
 function renderIssueHistory(issueId, comments) {
@@ -969,63 +974,63 @@ historyPanel.innerHTML = html;
 }
 
 function renderCommentsHTML(comments) {
-// Sort comments by date (newest first)
-comments.sort((a, b) => {
-    const dateA = new Date(a.created || 0);
-    const dateB = new Date(b.created || 0);
-    return dateB - dateA;
-});
+    // Sort comments by date (newest first)
+    comments.sort((a, b) => {
+        const dateA = new Date(a.created || 0);
+        const dateB = new Date(b.created || 0);
+        return dateB - dateA;
+    });
 
-let html = '<div class="space-y-3 p-3">';
+    let html = '<div class="space-y-3 p-3">';
 
-comments.forEach(comment => {
-    // Get author info
-    let authorName = 'Utilisateur inconnu';
-    if (comment.author) {
-        if (typeof comment.author === 'string') {
-            authorName = comment.author;
-        } else if (comment.author.firstname && comment.author.lastname) {
-            authorName = `${comment.author.firstname} ${comment.author.lastname}`;
-        } else if (comment.author.email) {
-            authorName = comment.author.email;
+    comments.forEach(comment => {
+        // Get author info
+        let authorName = 'Utilisateur inconnu';
+        if (comment.author) {
+            if (typeof comment.author === 'string') {
+                authorName = comment.author;
+            } else if (comment.author.firstname && comment.author.lastname) {
+                authorName = `${comment.author.firstname} ${comment.author.lastname}`;
+            } else if (comment.author.email) {
+                authorName = comment.author.email;
+            }
         }
-    }
 
-    // Format date
-    const created = comment.created ? new Date(comment.created).toLocaleString('fr-CA') : 'Date inconnue';
+        // Format date
+        const created = comment.created ? new Date(comment.created).toLocaleString('fr-CA') : 'Date inconnue';
 
-    // Start comment container
-    html += `
-        <div class="border-l-2 border-gray-200 pl-3">
-            <div class="flex justify-between items-center text-sm mb-1">
-                <span class="font-medium">${authorName}</span>
-                <span class="text-gray-500">${created}</span>
-            </div>
-    `;
+        // Start comment container
+        html += `
+            <div class="border-l-2 border-gray-200 pl-3">
+                <div class="flex justify-between items-center text-sm mb-1">
+                    <span class="font-medium">${authorName}</span>
+                    <span class="text-gray-500">${created}</span>
+                </div>
+        `;
 
-    // Handle different comment types
-    switch (comment.type) {
-        case 'diff':
-            html += renderDiffComment(comment);
-            break;
-        case 'text':
-            html += `<p class="text-gray-700 text-sm">${comment.text || ''}</p>`;
-            break;
-        case 'file':
-            html += renderFileComment(comment);
-            break;
-        case 'markup':
-            html += renderMarkupComment(comment);
-            break;
-        default:
-            html += `<p class="text-gray-700 text-sm italic">Activité: ${comment.type || 'Action non spécifiée'}</p>`;
-    }
+        // Handle different comment types
+        switch (comment.type) {
+            case 'diff':
+                html += renderDiffComment(comment);
+                break;
+            case 'text':
+                html += `<p class="text-gray-700 text-sm">${comment.text || ''}</p>`;
+                break;
+            case 'file':
+                html += renderFileComment(comment);
+                break;
+            case 'markup':
+                html += renderMarkupComment(comment);
+                break;
+            default:
+                html += `<p class="text-gray-700 text-sm italic">Activité: ${comment.type || 'Action non spécifiée'}</p>`;
+        }
+
+        html += '</div>';
+    });
 
     html += '</div>';
-});
-
-html += '</div>';
-return html;
+    return html;
 }
 
 function renderDiffComment(comment) {
