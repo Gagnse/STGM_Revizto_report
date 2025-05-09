@@ -1,7 +1,9 @@
 import logging
 import requests
+import os
 from datetime import datetime, timedelta
 from django.conf import settings
+from .token_manager import TokenManager
 
 logger = logging.getLogger(__name__)
 
@@ -9,100 +11,20 @@ logger = logging.getLogger(__name__)
 class ReviztoAPI:
     """
     Client for interacting with the Revizto API.
-    Handles token refresh and API requests.
+    Uses TokenManager for token management.
     """
-    # Configure with your region
-    REGION = "canada"
+    # Configure with your region from environment or settings
+    REGION = os.environ.get('REVIZTO_API_REGION', getattr(settings, 'REVIZTO_API_REGION', 'canada'))
     BASE_URL = f"https://api.{REGION}.revizto.com/v5/"
-    LICENCE_UUID = settings.REVIZTO_LICENCE_UUID
-    # Store tokens as class variables
-    ACCESS_TOKEN = None
-    REFRESH_TOKEN = None
-    TOKEN_EXPIRY = None
+    LICENCE_UUID = os.environ.get('REVIZTO_LICENCE_UUID', getattr(settings, 'REVIZTO_LICENCE_UUID', None))
 
     @classmethod
-    def initialize(cls, access_token, refresh_token, expires_in=3600):
+    def initialize(cls, force=False):
         """
-        Initialize the API with tokens.
-
-        Args:
-            access_token (str): The access token
-            refresh_token (str): The refresh token
-            expires_in (int): Token expiration time in seconds (default: 1 hour)
+        Initialize the API by initializing the TokenManager.
         """
-        cls.ACCESS_TOKEN = access_token
-        cls.REFRESH_TOKEN = refresh_token
-        # Calculate expiry time (current time + expires_in)
-        cls.TOKEN_EXPIRY = datetime.now() + timedelta(seconds=expires_in)
-        logger.info("API client initialized with tokens")
-
-    @classmethod
-    def refresh_token(cls):
-        """
-        Refresh the access token using the refresh token.
-
-        Returns:
-            bool: True if successful, False otherwise
-        """
-        if not cls.REFRESH_TOKEN:
-            logger.error("No refresh token available")
-            return False
-
-        try:
-            # Prepare the refresh token request as per Revizto API documentation
-            url = f"{cls.BASE_URL}oauth2"
-            headers = {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-            data = {
-                'grant_type': 'refresh_token',
-                'refresh_token': cls.REFRESH_TOKEN
-            }
-
-            response = requests.post(url, headers=headers, data=data)
-            response.raise_for_status()
-
-            # Parse response
-            token_data = response.json()
-
-            # Update tokens
-            if 'access_token' in token_data:
-                cls.ACCESS_TOKEN = token_data['access_token']
-            else:
-                logger.error("No access token in refresh response")
-                return False
-
-            # Update refresh token if provided
-            if 'refresh_token' in token_data:
-                cls.REFRESH_TOKEN = token_data['refresh_token']
-
-            # Update token expiry (default: 1 hour)
-            expires_in = token_data.get('expires_in', 3600)
-            cls.TOKEN_EXPIRY = datetime.now() + timedelta(seconds=expires_in)
-
-            logger.info("Successfully refreshed access token")
-            return True
-        except Exception as e:
-            logger.error(f"Failed to refresh token: {e}")
-            return False
-
-    @classmethod
-    def ensure_token_valid(cls):
-        """
-        Ensure the access token is valid, refresh if needed.
-
-        Returns:
-            bool: True if a valid token is available, False otherwise
-        """
-        if not cls.ACCESS_TOKEN or not cls.REFRESH_TOKEN:
-            logger.error("No tokens available")
-            return False
-
-        # If token is expired or will expire in next 5 minutes
-        if not cls.TOKEN_EXPIRY or datetime.now() > (cls.TOKEN_EXPIRY - timedelta(minutes=5)):
-            return cls.refresh_token()
-
-        return True
+        TokenManager.initialize()
+        logger.info("ReviztoAPI client initialized with TokenManager")
 
     @classmethod
     def get_headers(cls):
@@ -112,8 +34,11 @@ class ReviztoAPI:
         Returns:
             dict: Headers for API requests
         """
+        # Get a fresh access token from TokenManager
+        access_token = TokenManager.get_access_token()
+
         return {
-            "Authorization": f"Bearer {cls.ACCESS_TOKEN}",
+            "Authorization": f"Bearer {access_token}",
             "Content-Type": "application/json",
             "Accept": "application/json"
         }
@@ -133,10 +58,6 @@ class ReviztoAPI:
         Raises:
             Exception: If the request fails
         """
-        if not cls.ensure_token_valid():
-            print(f"[DEBUG] Failed to obtain valid token for endpoint: {endpoint}")
-            raise Exception("Failed to obtain valid token")
-
         url = f"{cls.BASE_URL}{endpoint}"
         print(f"[DEBUG] Making API request to: {url}")
         print(f"[DEBUG] With params: {params}")
@@ -154,8 +75,8 @@ class ReviztoAPI:
             # Handle 401 or 403 (token expired or invalid)
             if response.status_code in (401, 403) or "-206" in response.text:
                 print(f"[DEBUG] Token expired or invalid. Attempting refresh...")
-                # Try to refresh the token and retry the request
-                if cls.refresh_token():
+                # Explicitly refresh the token through TokenManager
+                if TokenManager.refresh_tokens():
                     print(f"[DEBUG] Token refreshed. Retrying request...")
                     # Retry with new token
                     response = requests.get(url, headers=cls.get_headers(), params=params)
@@ -196,17 +117,14 @@ class ReviztoAPI:
         Raises:
             Exception: If the request fails
         """
-        if not cls.ensure_token_valid():
-            raise Exception("Failed to obtain valid token")
-
         url = f"{cls.BASE_URL}{endpoint}"
         try:
             response = requests.post(url, headers=cls.get_headers(), data=data, json=json)
 
             # Handle 401 or 403 (token expired or invalid)
             if response.status_code in (401, 403) or "-206" in response.text:
-                # Try to refresh the token and retry the request
-                if cls.refresh_token():
+                # Refresh token and retry
+                if TokenManager.refresh_tokens():
                     # Retry with new token
                     response = requests.post(url, headers=cls.get_headers(), data=data, json=json)
                 else:
@@ -234,17 +152,14 @@ class ReviztoAPI:
         Raises:
             Exception: If the request fails
         """
-        if not cls.ensure_token_valid():
-            raise Exception("Failed to obtain valid token")
-
         url = f"{cls.BASE_URL}{endpoint}"
         try:
             response = requests.put(url, headers=cls.get_headers(), data=data, json=json)
 
             # Handle 401 or 403 (token expired or invalid)
             if response.status_code in (401, 403) or "-206" in response.text:
-                # Try to refresh the token and retry the request
-                if cls.refresh_token():
+                # Refresh token and retry
+                if TokenManager.refresh_tokens():
                     # Retry with new token
                     response = requests.put(url, headers=cls.get_headers(), data=data, json=json)
                 else:
@@ -270,17 +185,14 @@ class ReviztoAPI:
         Raises:
             Exception: If the request fails
         """
-        if not cls.ensure_token_valid():
-            raise Exception("Failed to obtain valid token")
-
         url = f"{cls.BASE_URL}{endpoint}"
         try:
             response = requests.delete(url, headers=cls.get_headers())
 
             # Handle 401 or 403 (token expired or invalid)
             if response.status_code in (401, 403) or "-206" in response.text:
-                # Try to refresh the token and retry the request
-                if cls.refresh_token():
+                # Refresh token and retry
+                if TokenManager.refresh_tokens():
                     # Retry with new token
                     response = requests.delete(url, headers=cls.get_headers())
                 else:

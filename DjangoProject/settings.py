@@ -5,6 +5,14 @@ Django settings for DjangoProject project.
 from pathlib import Path
 import os
 
+# Load environment variables from .env file
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+    print("Environment variables loaded from .env file")
+except ImportError:
+    print("python-dotenv not installed, using environment variables as is")
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -12,12 +20,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-t@dfso$tn#=gfd+4@!juok9vbm$k1mo#1yh7t5w0z$ed9m&1u-'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-t@dfso$tn#=gfd+4@!juok9vbm$k1mo#1yh7t5w0z$ed9m&1u-')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',') if os.environ.get('ALLOWED_HOSTS') else []
 
 # Application definition
 
@@ -126,18 +134,11 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Revizto API Settings
-REVIZTO_API_BASE_URL = "https://api.canada.revizto.com/v5/"
-
-# These should be set in your environment variables for security
-# You will need to provide these values
-REVIZTO_ACCESS_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIzMjgzODRhYTg1M2E2YTJjYWNmMTQzZGRjNmY4MTkyZSIsImp0aSI6IjQzMzUyMmM4NWNlNTA3OGVkZjliZjQ4ZTk1ZGExY2MwOTEzNjhkZDNlOGUzNjc2YTk4NjYwZDY5OWQxMmE5ZDZjMjAwMGQxZGFhMjBkZjk3IiwiaWF0IjoxNzQ2ODEwNTkzLjM0NDMsImlzcyI6IntcImhvc3RcIjpcImFwaS5jYW5hZGEucmV2aXp0by5jb21cIixcInBvcnRcIjo0NDMsXCJwcm90b2NvbFwiOlwiaHR0cHNcIixcInRpbWV6b25lX25hbWVcIjpcIkNTVFwiLFwidGltZXpvbmVfc2hpZnRcIjpcIkFtZXJpY2FcXC9DaGljYWdvXCJ9IiwibmJmIjoxNzQ2ODEwNTkzLjM0NDMwNiwiZXhwIjoxNzQ2ODE0MTkzLjMwOTA1NSwic3ViIjoic2dhZ25vbkBzdGdtLm5ldCIsInNjb3BlcyI6WyJvcGVuQXBpIl19.NC4RlXn_BjrWzELbHTVZdmsdetE4ZNhsw1Ho5XoXrbZGX94I_pj4kyQb1lvSyAowNOLO1dsqQ01dV3uT6oqoCp6yNcqRRD7dnZAiYj2lb9LkYeZqr5Qsnm45j2byqU4_k2zloyUg3qloREXzk-__cIw8bjN6X7hdudBglmknVgZs5QxvvePVBCpNEOnN8MMrCvGFUDjVvdoAgOk7bIKJ4vtjQ0aC43ctD4zJOvjloicLxDWIhhIJqUbRCbLcFKz-ig9N-h16cJftAHdNLrbLNrFjEOim8lAXJTNCeMLXIJLyAK2jOgEJgveBBvnIe6zfYi5hyz-Kad6I-P6zui3o5g"
-REVIZTO_REFRESH_TOKEN = "def502008fb087f2297dbed8fb30fef42904928b1ee385068f963d15050679c410ff8111a1ceeb486379257dae0332dc7bb77f19b0f566e635451dad2a6874146944408922f70ec1f1e172a59e621f67b6336a875de25f60d70ec665380cdee20b8f11ec4eb36f8cb6af5968b9fd7ab990e1f8f28ad6789279c64bbada4fc1874f499aa7c0f5ba5c47ca842c13ae8b563d0f914c2501027b3b727dec9de58609f7b3124b1fb8127a9ab6efebed33d93ed1d2e784dbb41b80d04dfb2c21ae2abaf484fc5c82e50b627bf946ebf678a30754231ece899d982e4c3050cde2e0b27d7fbca8760046e755705fc6d069710dfa0e1909a97ee63f05f04c5ed17aa84dd690bd41dbb582240a0652d9a8622d87b6812a2b88d84d85bfba98b6c3d52be1d728d51c431bb14496237649e149031f4e29f0fa20bc296b0fe430f91f7e0ac21e60157597b5ed189c9867493a0bebc2b2c568882c892a22d9c10f74bb728194e7169d1c1b38d5fae06c1fab4e11a1e68c51c89ef93e12474e1a69c219a70eae381a373d3cee4b9a7f19e8d4aff0458ba17887d38c039a67622cb431a325f2d81dcbafd417f466f62e0a0af0717ce6ae30c027af9953b7d09f9a80a2bc7f4273bf9cbde0a1ec36ab211638abfd74d3349eea049d9546df76f5319c6049d4687a186327c8383ecf194d529db10b92ec54c83ce887e19b7f66602c041c2363da2d8f6364bb579745c0c95327ab4aa03d2675b110e0cfa3655d244f83a4f6bf5ecd23de4d0fefe8c15da9358bc4778e458082b4bcde07c856f385751d9766b51a27f7b8f1ccc4ba21a78e00c5a8ae8ba6aa752a411f72c73eef251ee919ab"
-REVIZTO_LICENCE_UUID = "2e38d742-c9ad-4d11-b5a8-c9b53e9bf517"
-# For production, use environment variables instead
-# import os
-# REVIZTO_ACCESS_TOKEN = os.environ.get("REVIZTO_ACCESS_TOKEN")
-# REVIZTO_REFRESH_TOKEN = os.environ.get("REVIZTO_REFRESH_TOKEN")
-
+REVIZTO_API_REGION = os.environ.get('REVIZTO_API_REGION', 'canada')
+REVIZTO_API_BASE_URL = f"https://api.{REVIZTO_API_REGION}.revizto.com/v5/"
+REVIZTO_LICENCE_UUID = os.environ.get('REVIZTO_LICENCE_UUID', '')
+REVIZTO_ACCESS_TOKEN = os.environ.get('REVIZTO_ACCESS_TOKEN', '')
+REVIZTO_REFRESH_TOKEN = os.environ.get('REVIZTO_REFRESH_TOKEN', '')
 
 # Session configuration
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'

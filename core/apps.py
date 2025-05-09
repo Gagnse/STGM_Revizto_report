@@ -21,18 +21,16 @@ class CoreConfig(AppConfig):
             return
 
         try:
-            from django.conf import settings
+            # Import the token manager first to avoid circular imports
+            from .api.token_manager import TokenManager
             from .api.client import ReviztoAPI
 
-            # Get tokens from settings
-            access_token = getattr(settings, 'REVIZTO_ACCESS_TOKEN', None)
-            refresh_token = getattr(settings, 'REVIZTO_REFRESH_TOKEN', None)
+            # Initialize the TokenManager, which will load tokens from environment variables
+            print("Initializing Revizto API token manager...")
+            TokenManager.initialize()
 
-            if access_token and refresh_token:
-                # Initialize the API client with tokens
-                ReviztoAPI.initialize(access_token, refresh_token)
-                print("Revizto API client initialized")
-            else:
-                print("Warning: Revizto API tokens not configured in settings")
+            # Initialize the API client
+            ReviztoAPI.initialize()
+            print("Revizto API client initialized")
         except Exception as e:
             print(f"Error initializing Revizto API client: {e}")
