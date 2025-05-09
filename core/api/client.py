@@ -43,7 +43,6 @@ class ReviztoAPI:
             "Accept": "application/json"
         }
 
-
     @classmethod
     def get(cls, endpoint, params=None):
         """
@@ -59,10 +58,6 @@ class ReviztoAPI:
         Raises:
             Exception: If the request fails
         """
-        if not cls.ensure_token_valid():
-            print(f"[DEBUG] Failed to obtain valid token for endpoint: {endpoint}")
-            raise Exception("Failed to obtain valid token")
-
         url = f"{cls.BASE_URL}{endpoint}"
         print(f"[DEBUG] Making API request to: {url}")
         print(f"[DEBUG] With params: {params}")
@@ -72,16 +67,16 @@ class ReviztoAPI:
             response = requests.get(url, headers=cls.get_headers(), params=params)
 
             print(f"[DEBUG] Response status code: {response.status_code}")
-            print(f"[DEBUG] Response headers: {response.headers}")
 
             # Print a sample of the response text
-            print(f"[DEBUG] Response preview: {response.text[:200]}...")
+            response_preview = response.text[:200] if response.text else "Empty response"
+            print(f"[DEBUG] Response preview: {response_preview}...")
 
             # Handle 401 or 403 (token expired or invalid)
             if response.status_code in (401, 403) or "-206" in response.text:
                 print(f"[DEBUG] Token expired or invalid. Attempting refresh...")
-                # Try to refresh the token and retry the request
-                if cls.refresh_token():
+                # Explicitly refresh the token through TokenManager
+                if TokenManager.refresh_tokens():
                     print(f"[DEBUG] Token refreshed. Retrying request...")
                     # Retry with new token
                     response = requests.get(url, headers=cls.get_headers(), params=params)
@@ -93,8 +88,12 @@ class ReviztoAPI:
             print(f"[DEBUG] Final response status: {response.status_code}")
             response.raise_for_status()
             json_response = response.json()
-            print(
-                f"[DEBUG] JSON response keys: {list(json_response.keys()) if isinstance(json_response, dict) else 'Not a dict'}")
+
+            if isinstance(json_response, dict):
+                print(f"[DEBUG] JSON response keys: {list(json_response.keys())}")
+            else:
+                print(f"[DEBUG] JSON response type: {type(json_response)}")
+
             return json_response
         except Exception as e:
             import traceback
