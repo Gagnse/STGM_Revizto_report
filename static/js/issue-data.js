@@ -620,7 +620,7 @@ function filterOutClosedIssues(issues) {
             }
         }
 
-        // Skip closed or solved issues
+        // Skip closed
         return !(status === 'closed');
     });
 }
