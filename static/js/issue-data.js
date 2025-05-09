@@ -577,7 +577,7 @@ function renderDeficienciesDirectly(deficiencies) {
                             <!-- Right column: Issue history -->
                             <div class="md:w-1/2 mt-4 md:mt-0 border-t md:border-t-0 md:border-l border-gray-200 md:pl-4 pt-4 md:pt-0">
                                 <h4 class="text-sm font-semibold text-gray-700 mb-2">Historique</h4>
-                                <div id="history-panel-${id}" class="bg-gray-50 rounded-md overflow-auto max-h-96">
+                                <div id="history-panel-${id}" class="bg-gray-50 rounded-md">
                                     <div class="p-3 text-sm text-gray-500">Chargement de l'historique...</div>
                                 </div>
                             </div>
@@ -598,7 +598,6 @@ function renderDeficienciesDirectly(deficiencies) {
     filteredDeficiencies.forEach(item => {
         fetchIssueHistory(window.issueData.activeProjectId, item.id);
     });
-
 }
 
 // Render items (observations, instructions) directly
@@ -733,7 +732,7 @@ function renderItemsDirectly(items, containerId, itemType) {
                             <!-- Right column: Issue history -->
                             <div class="md:w-1/2 mt-4 md:mt-0 border-t md:border-t-0 md:border-l border-gray-200 md:pl-4 pt-4 md:pt-0">
                                 <h4 class="text-sm font-semibold text-gray-700 mb-2">Historique</h4>
-                                <div id="history-panel-${id}" class="bg-gray-50 rounded-md overflow-auto max-h-96">
+                                <div id="history-panel-${id}" class="bg-gray-50 rounded-md">
                                     <div class="p-3 text-sm text-gray-500">Chargement de l'historique...</div>
                                 </div>
                             </div>
@@ -971,12 +970,15 @@ function renderCommentsHTML(comments) {
 }
 
 function renderDiffComment(comment) {
-if (!comment.diff) return '<p class="text-gray-500 text-sm italic">Modification non spécifiée</p>';
+  if (!comment.diff) return '<p class="text-gray-500 text-sm italic">Modification non spécifiée</p>';
 
-let html = '<div class="bg-gray-50 p-2 rounded-md text-sm">';
+  let html = '<div class="bg-gray-50 p-2 rounded-md text-sm">';
 
-// Go through each changed property
-Object.keys(comment.diff).forEach(key => {
+  // Keep track of whether we've already shown a status change
+  let statusShown = false;
+
+  // Go through each changed property
+  Object.keys(comment.diff).forEach(key => {
     const change = comment.diff[key];
 
     // Format the key to be more readable
@@ -987,44 +989,53 @@ Object.keys(comment.diff).forEach(key => {
     const oldValue = change.old || '-';
     const newValue = change.new || '-';
 
-    // Handle specific keys specially
-    if (key === 'customStatus' || key === 'status') {
-        html += `
-            <div class="mb-1">
-                <span class="font-medium">État:</span> 
-                <span class="line-through text-red-600">${formatStatusValue(oldValue)}</span> → 
-                <span class="text-green-600">${formatStatusValue(newValue)}</span>
-            </div>
-        `;
-    } else if (key === 'assignee') {
-        html += `
-            <div class="mb-1">
-                <span class="font-medium">Assigné à:</span> 
-                <span class="line-through text-red-600">${oldValue}</span> → 
-                <span class="text-green-600">${newValue}</span>
-            </div>
-        `;
-    } else if (key === 'customType') {
-        html += `
-            <div class="mb-1">
-                <span class="font-medium">Type:</span> 
-                <span class="line-through text-red-600">${oldValue}</span> → 
-                <span class="text-green-600">${newValue}</span>
-            </div>
-        `;
-    } else {
-        html += `
-            <div class="mb-1">
-                <span class="font-medium">${readableKey}:</span> 
-                <span class="line-through text-red-600">${oldValue}</span> → 
-                <span class="text-green-600">${newValue}</span>
-            </div>
-        `;
+    // Handle status changes - ONLY show customStatus
+    if (key === 'customStatus') {
+      statusShown = true;
+      html += `
+        <div class="mb-1">
+          <span class="font-medium">État:</span> 
+          <span class="line-through">${formatStatusValue(oldValue)}</span> → 
+          <span class="text">${formatStatusValue(newValue)}</span>
+        </div>
+      `;
     }
-});
+    // Skip all other status fields completely (status and statusAuto)
+    else if (key === 'status' || key === 'statusAuto') {
+      // Skip these fields entirely
+      return;
+    }
+    else if (key === 'assignee') {
+      html += `
+        <div class="mb-1">
+          <span class="font-medium">Assigné à:</span> 
+          <span class="line-through">${oldValue}</span> → 
+          <span class="text">${newValue}</span>
+        </div>
+      `;
+    }
+    else if (key === 'customType') {
+      html += `
+        <div class="mb-1">
+          <span class="font-medium">Type:</span> 
+          <span class="line-through ">${oldValue}</span> → 
+          <span class="text">${newValue}</span>
+        </div>
+      `;
+    }
+    else {
+      html += `
+        <div class="mb-1">
+          <span class="font-medium">${readableKey}:</span> 
+          <span class="line-through">${oldValue}</span> → 
+          <span class="text">${newValue}</span>
+        </div>
+      `;
+    }
+  });
 
-html += '</div>';
-return html;
+  html += '</div>';
+  return html;
 }
 
 function renderFileComment(comment) {
