@@ -298,10 +298,10 @@ class ReviztoService:
                 "anyFiltersDTO[0][expr]": "1",
                 "anyFiltersDTO[0][value][0]": "A-DF",
                 "sendFullIssueData": "true",
-                "reportSort[1][field]": "sheet",
-                "reportSort[1][direction]": "asc",
-                "reportSort[2][field]": "id",
-                "reportSort[2][direction]": "asc"
+                "reportSort[2][field]": "sheet",
+                "reportSort[2][direction]": "asc",
+                "reportSort[3][field]": "id",
+                "reportSort[3][direction]": "asc",
             }
 
             print(f"[DEBUG-SERVICE] Using endpoint: {endpoint}")

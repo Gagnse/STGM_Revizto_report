@@ -372,3 +372,58 @@ def get_project_deficiencies(request, project_id):
         import traceback
         print(f"[DEBUG-SERVER] Traceback: {traceback.format_exc()}")
         return JsonResponse({"result": 1, "message": str(e), "data": {"data": []}})
+
+
+def get_project_workflow_settings(request, project_id):
+    """
+    API endpoint to get workflow settings for a project.
+    This includes custom statuses, types, and workflows.
+    """
+    print(f"\n[DEBUG] ===== WORKFLOW SETTINGS REQUEST =====")
+    print(f"[DEBUG] Workflow settings request received for project ID: {project_id}")
+
+    try:
+        # Create endpoint URL using project ID - IMPORTANT: Using the correct endpoint format
+        # The endpoint should be 'issue-workflow/settings' not 'project/{project_id}/issue-workflow/settings'
+        endpoint = f"issue-workflow/settings"
+        print(f"[DEBUG] Using endpoint: {endpoint}")
+
+        # Make API request
+        try:
+            response_data = ReviztoAPI.get(endpoint)
+            print(f"[DEBUG] Workflow settings response received with status:{response_data.get('result')}")
+
+            # Debug the response data
+            if isinstance(response_data, dict):
+                print(f"[DEBUG] Response keys: {list(response_data.keys())}")
+
+                if response_data.get('result') == 0 and 'data' in response_data:
+                    data = response_data['data']
+                    print(f"[DEBUG] Data keys: {list(data.keys())}")
+
+                    # Debug statuses specifically
+                    if 'statuses' in data:
+                        statuses = data['statuses']
+                        print(f"[DEBUG] Found {len(statuses)} statuses")
+
+                        # Print first few statuses
+                        for i, status in enumerate(statuses[:3]):
+                            print(f"[DEBUG] Status {i + 1}: {status.get('name')} - UUID: {status.get('uuid')}")
+                else:
+                    print(f"[DEBUG] Error in response: {response_data.get('message', 'No message')}")
+            else:
+                print(f"[DEBUG] Response data is not a dictionary: {type(response_data)}")
+
+        except Exception as api_error:
+            print(f"[DEBUG] API request failed: {api_error}")
+            import traceback
+            print(f"[DEBUG] API error traceback: {traceback.format_exc()}")
+            response_data = {"result": 1, "message": str(api_error), "data": {}}
+
+        # Return the raw API response
+        return JsonResponse(response_data)
+    except Exception as e:
+        print(f"[DEBUG] Error in get_project_workflow_settings: {e}")
+        import traceback
+        print(f"[DEBUG] Traceback: {traceback.format_exc()}")
+        return JsonResponse({"result": 1, "message": str(e), "data": {}})

@@ -1,5 +1,78 @@
-// Optimized issue data handler for observations, instructions, and deficiencies
 
+// Hard-coded status map based on the JSON example
+window.statusMap = {
+  // Standard statuses
+  "2ed005c6-43cd-4907-a4d6-807dbd0197d5": {
+    name: "Open",
+    displayName: "Ouvert",
+    textColor: "#FFFFFF",
+    backgroundColor: "#CC2929"
+  },
+  "cd52ac3e-f345-4f99-870f-5be95dc33245": {
+    name: "In progress",
+    displayName: "En cours",
+    textColor: "#FFFFFF",
+    backgroundColor: "#FFAA00"
+  },
+  "b8504242-3489-43a2-9831-54f64053b226": {
+    name: "Solved",
+    displayName: "Résolu",
+    textColor: "#FFFFFF",
+    backgroundColor: "#42BE65"
+  },
+  "135b58c6-1e14-4716-a134-bbba2bbc90a7": {
+    name: "Closed",
+    displayName: "Fermé",
+    textColor: "#FFFFFF",
+    backgroundColor: "#B8B8B8"
+  },
+  // Custom statuses
+  "5947b7d1-70b9-425b-aba6-7187eb0251ff": {
+    name: "En attente",
+    displayName: "En attente",
+    textColor: "#FFFFFF",
+    backgroundColor: "#FFD32E"
+  },
+  "912abbbf-3155-4e3c-b437-5778bdfd73f4": {
+    name: "non-problème",
+    displayName: "Non-problème",
+    textColor: "#FFFFFF",
+    backgroundColor: "#2B2B2B"
+  },
+  "337e2fe6-e2a3-4e3f-b098-30aac68a191c": {
+    name: "Corrigé",
+    displayName: "Corrigé",
+    textColor: "#FFFFFF",
+    backgroundColor: "#892EFB"
+  },
+  // String-based fallbacks
+  "open": {
+    name: "Open",
+    displayName: "Ouvert",
+    textColor: "#FFFFFF",
+    backgroundColor: "#CC2929"
+  },
+  "in_progress": {
+    name: "In progress",
+    displayName: "En cours",
+    textColor: "#FFFFFF",
+    backgroundColor: "#FFAA00"
+  },
+  "solved": {
+    name: "Solved",
+    displayName: "Résolu",
+    textColor: "#FFFFFF",
+    backgroundColor: "#42BE65"
+  },
+  "closed": {
+    name: "Closed",
+    displayName: "Fermé",
+    textColor: "#FFFFFF",
+    backgroundColor: "#B8B8B8"
+  }
+};
+
+// Enhanced issue data handler with custom status support
 document.addEventListener('DOMContentLoaded', function() {
     console.log('[DEBUG] Issue data handler initialized');
 
@@ -7,7 +80,9 @@ document.addEventListener('DOMContentLoaded', function() {
     window.issueData = {
         observations: [],
         instructions: [],
-        deficiencies: []
+        deficiencies: [],
+        projectStatuses: {}, // Store project-specific status information
+        activeProjectId: null
     };
 
     // Listen for project selection
@@ -16,10 +91,22 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('[DEBUG] Project selected event received for ID:', projectId);
 
         if (projectId) {
-            console.log('[DEBUG] Fetching all issue data for project ID:', projectId);
-            fetchObservations(projectId);
-            fetchInstructions(projectId);
-            fetchDeficiencies(projectId);
+            window.issueData.activeProjectId = projectId;
+
+            // First fetch custom statuses, then fetch issues
+            fetchProjectStatuses(projectId).then(() => {
+                // After statuses are loaded, fetch issues
+                console.log('[DEBUG] Fetching all issue data for project ID:', projectId);
+                fetchObservations(projectId);
+                fetchInstructions(projectId);
+                fetchDeficiencies(projectId);
+            }).catch(error => {
+                console.error('[DEBUG] Error fetching project statuses:', error);
+                // Still try to fetch issues even if statuses fail
+                fetchObservations(projectId);
+                fetchInstructions(projectId);
+                fetchDeficiencies(projectId);
+            });
         }
     });
 
@@ -28,6 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
         fetchObservations,
         fetchInstructions,
         fetchDeficiencies,
+        fetchProjectStatuses,
         manualFetchDeficiencies: function(projectId) {
             if (!projectId) {
                 console.error('[DEBUG] No project ID provided for manual fetch');
@@ -38,6 +126,140 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 });
+
+// Fetch project workflow settings including custom statuses
+function fetchProjectStatuses(projectId) {
+    console.log('[DEBUG] Fetching workflow settings for project ID:', projectId);
+
+    return fetch(`/api/projects/${projectId}/workflow-settings/`)
+        .then(response => {
+            console.log('[DEBUG] Workflow settings response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('[DEBUG] Received workflow settings with result:', data.result);
+            console.log('[DEBUG] Workflow data keys:', data.data ? Object.keys(data.data) : 'No data property');
+
+            // Process and store status information
+            if (data && data.result === 0 && data.data) {
+                // Store all statuses in a map for easy lookup
+                const statusMap = {};
+
+                // Process statuses from the response
+                if (data.data.statuses && Array.isArray(data.data.statuses)) {
+                    console.log('[DEBUG] Found', data.data.statuses.length, 'statuses in response');
+
+                    data.data.statuses.forEach(status => {
+                        console.log(`[DEBUG] Processing status: ${status.name} (UUID: ${status.uuid})`);
+
+                        statusMap[status.uuid] = {
+                            name: status.name,
+                            textColor: status.textColor,
+                            backgroundColor: status.backgroundColor,
+                            category: status.category
+                        };
+                    });
+
+                    console.log('[DEBUG] Processed', Object.keys(statusMap).length, 'custom statuses');
+                    console.log('[DEBUG] Status map keys:', Object.keys(statusMap));
+                } else {
+                    console.warn('[DEBUG] No statuses array found in data or it is not an array');
+                    console.log('[DEBUG] Data structure:', JSON.stringify(data.data).substring(0, 200) + '...');
+                }
+
+                // Store in global state
+                window.issueData.projectStatuses = statusMap;
+                return statusMap;
+            } else {
+                console.warn('[DEBUG] Invalid workflow settings data format:', data);
+                return {};
+            }
+        })
+        .catch(error => {
+            console.error('[DEBUG] Error fetching workflow settings:', error);
+            return {};
+        });
+}
+
+// Get status display information based on status UUID
+function getStatusDisplay(statusId) {
+  console.log(`[DEBUG] Getting status display for ID: ${statusId}`);
+
+  // Default status if nothing else matches
+  const defaultStatus = {
+    name: "Unknown",
+    displayName: "Inconnu",
+    textColor: "#FFFFFF",
+    backgroundColor: "#6F7E93"
+  };
+
+  // Check for UUID in custom status value format
+  if (typeof statusId === 'object' && statusId !== null) {
+    console.log('[DEBUG] Status is an object:', statusId);
+
+    // Handle the customStatus.value format seen in logs
+    if (statusId.value) {
+      console.log(`[DEBUG] Using status.value: ${statusId.value}`);
+      statusId = statusId.value;
+    } else if (statusId.uuid) {
+      console.log(`[DEBUG] Using status.uuid: ${statusId.uuid}`);
+      statusId = statusId.uuid;
+    } else {
+      console.log('[DEBUG] Could not extract status ID from object');
+      return defaultStatus;
+    }
+  }
+
+  // Now statusId should be a string, look it up in our map
+  if (statusId && window.statusMap[statusId]) {
+    console.log(`[DEBUG] Found status in map: ${window.statusMap[statusId].displayName}`);
+    return window.statusMap[statusId];
+  }
+
+  // If still not found, try to match by lowercase string
+  if (typeof statusId === 'string') {
+    const statusLower = statusId.toLowerCase();
+
+    if (statusLower.includes('open')) {
+      return window.statusMap['open'];
+    } else if (statusLower.includes('progress')) {
+      return window.statusMap['in_progress'];
+    } else if (statusLower.includes('solved') || statusLower.includes('fixed')) {
+      return window.statusMap['solved'];
+    } else if (statusLower.includes('closed')) {
+      return window.statusMap['closed'];
+    }
+  }
+
+  console.log('[DEBUG] No status match found, using default');
+  return defaultStatus;
+}
+
+// Helper function to map status names to French
+function mapStatusNameToFrench(statusName) {
+    if (!statusName) return 'Inconnu';
+
+    const statusLower = statusName.toLowerCase();
+
+    if (statusLower === 'open' || statusLower === 'opened') {
+        return 'Ouvert';
+    } else if (statusLower === 'closed') {
+        return 'Fermé';
+    } else if (statusLower === 'solved') {
+        return 'Résolu';
+    } else if (statusLower === 'in progress' || statusLower === 'in_progress') {
+        return 'En cours';
+    } else if (statusLower === 'en attente') {
+        return 'En attente';
+    } else if (statusLower === 'corrigé') {
+        return 'Corrigé';
+    } else if (statusLower === 'non-problème') {
+        return 'Non-problème';
+    } else {
+        // If no mapping exists, use the original name
+        return statusName;
+    }
+}
 
 // Fetch observations from the API
 function fetchObservations(projectId) {
@@ -157,15 +379,16 @@ function renderDeficienciesDirectly(deficiencies) {
             }
         }
 
-        // Get status - could be string or object with value property
-        let status = 'Unknown';
-        if (deficiency.status) {
-            if (typeof deficiency.status === 'string') {
-                status = deficiency.status;
-            } else if (deficiency.status.value) {
-                status = deficiency.status.value;
-            }
+        // Get status - check for both status and customStatus
+        let statusId = null;
+        if (deficiency.customStatus) {
+            statusId = deficiency.customStatus;
+        } else if (deficiency.status) {
+            statusId = deficiency.status;
         }
+
+        // Get status display information
+        const statusDisplay = getStatusDisplay(statusId);
 
         // Get preview image URL if exists
         let imageUrl = '';
@@ -177,29 +400,16 @@ function renderDeficienciesDirectly(deficiencies) {
             }
         }
 
-        // Translate status to French and determine status color
-        let statusColor = 'bg-gray-100 text-gray-800';
-        let frenchStatus = 'Inconnu';
-        const statusLower = String(status).toLowerCase();
-
-        if (statusLower === 'open' || statusLower === 'opened') {
-            statusColor = 'bg-red-100 text-red-800'; // Changed from yellow to red
-            frenchStatus = 'Ouvert';
-        } else if (statusLower === 'closed' || statusLower === 'solved') {
-            statusColor = 'bg-green-100 text-green-800'; // Kept green for solved
-            frenchStatus = 'Résolu';
-        } else if (statusLower === 'in_progress' || statusLower === 'in progress') {
-            statusColor = 'bg-orange-100 text-orange-800'; // Changed from blue to orange
-            frenchStatus = 'En cours';
-        }
-
         // Build the HTML for this deficiency
         html += `
             <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-2 overflow-hidden">
                 <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
                     <div class="flex justify-between items-center">
                         <h3 class="text-lg font-semibold text-gray-800">#${id}</h3>
-                        <span class="px-2 py-1 rounded-full text-xs ${statusColor}">${frenchStatus}</span>
+                        <span class="px-5 py-1.5 rounded-full font-bold text-sm" 
+                            style="background-color: ${statusDisplay.backgroundColor}; color: ${statusDisplay.textColor}">
+                            ${statusDisplay.displayName}
+                        </span>
                     </div>
                 </div>
                 <div class="p-4">
@@ -224,7 +434,7 @@ function renderDeficienciesDirectly(deficiencies) {
                                 </div>
                                 <div>
                                     <h4 class="text-sm font-medium text-gray-500">État</h4>
-                                    <p class="text-gray-800">${frenchStatus}</p>
+                                    <p class="text-gray-800">${statusDisplay.displayName}</p>
                                 </div>
                             </div>
                         </div>
@@ -271,15 +481,33 @@ function renderItemsDirectly(items, containerId, itemType) {
             }
         }
 
-        // Get status - could be string or object with value property
-        let status = 'Unknown';
+        /* Get status - could be string, object with value property, or UUID
+        let statusUuid = null;
         if (item.status) {
             if (typeof item.status === 'string') {
-                status = item.status;
+                statusUuid = item.status;
+            } else if (item.status.uuid) {
+                statusUuid = item.status.uuid;
             } else if (item.status.value) {
-                status = item.status.value;
+                statusUuid = item.status.value;
             }
         }
+
+        // Get status display information
+        const statusDisplay = getStatusDisplay(statusUuid);
+
+         */
+
+        // Get status - check for both status and customStatus
+        let statusId = null;
+        if (item.customStatus) {
+            statusId = item.customStatus;
+        } else if (item.status) {
+            statusId = item.status;
+        }
+
+        // Get status display information
+        const statusDisplay = getStatusDisplay(statusId);
 
         // Get preview image URL if exists
         let imageUrl = '';
@@ -291,29 +519,16 @@ function renderItemsDirectly(items, containerId, itemType) {
             }
         }
 
-        // Translate status to French and determine status color
-        let statusColor = 'bg-gray-100 text-gray-800';
-        let frenchStatus = 'Inconnu';
-        const statusLower = String(status).toLowerCase();
-
-        if (statusLower === 'open' || statusLower === 'opened') {
-            statusColor = 'bg-red-100 text-red-800'; // Changed from yellow to red
-            frenchStatus = 'Ouvert';
-        } else if (statusLower === 'closed' || statusLower === 'solved') {
-            statusColor = 'bg-green-100 text-green-800'; // Kept green for solved
-            frenchStatus = 'Résolu';
-        } else if (statusLower === 'in_progress' || statusLower === 'in progress') {
-            statusColor = 'bg-orange-100 text-orange-800'; // Changed from blue to orange
-            frenchStatus = 'En cours';
-        }
-
         // Build the HTML for this item
         html += `
             <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-1 overflow-hidden">
                 <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
                     <div class="flex justify-between items-center">
                         <h3 class="text-lg font-semibold text-gray-800">#${id}</h3>
-                        <span class="px-2 py-1 rounded-full text-xs ${statusColor}">${frenchStatus}</span>
+                        <span class="px-5 py-1.5 rounded-full font-bold text-sm" 
+                            style="background-color: ${statusDisplay.backgroundColor}; color: ${statusDisplay.textColor}">
+                            ${statusDisplay.displayName}
+                        </span>
                     </div>
                 </div>
                 <div class="p-4">
@@ -338,7 +553,7 @@ function renderItemsDirectly(items, containerId, itemType) {
                                 </div>
                                 <div>
                                     <h4 class="text-sm font-medium text-gray-500">État</h4>
-                                    <p class="text-gray-800">${frenchStatus}</p>
+                                    <p class="text-gray-800">${statusDisplay.displayName}</p>
                                 </div>
                             </div>
                         </div>
@@ -382,7 +597,7 @@ function showError(section) {
 
 // Manual testing function
 window.forceLoadDeficiencies = function(projectId) {
-    projectId = projectId || window.activeProjectId;
+    projectId = projectId || window.activeProjectId || window.issueData.activeProjectId;
     if (!projectId) {
         console.error('[DEBUG] No project ID available for manual fetch');
         return;
@@ -391,3 +606,21 @@ window.forceLoadDeficiencies = function(projectId) {
     console.log('[DEBUG] Forcing deficiency load for project:', projectId);
     fetchDeficiencies(projectId);
 };
+
+// Helper function to filter out closed issues
+function filterOutClosedIssues(issues) {
+    return issues.filter(issue => {
+        // Get status - could be string or object with value property
+        let status = '';
+        if (issue.status) {
+            if (typeof issue.status === 'string') {
+                status = issue.status.toLowerCase();
+            } else if (issue.status.value) {
+                status = issue.status.value.toLowerCase();
+            }
+        }
+
+        // Skip closed or solved issues
+        return !(status === 'closed');
+    });
+}
