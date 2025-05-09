@@ -830,3 +830,157 @@ function filterOutClosedIssues(issues) {
         return true;
     });
 }
+
+function fetchIssueHistory(projectId, issueId) {
+    console.log(`[DEBUG] Fetching history for issue ID: ${issueId} in project: ${projectId}`);
+
+    // Show loading state in the history panel
+    const historyPanel = document.querySelector(`.issue-card[data-issue-id="${issueId}"] .issue-history-panel`);
+    if (historyPanel) {
+        historyPanel.innerHTML = `
+            <div class="flex justify-center items-center p-4">
+                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                <span class="ml-2 text-gray-600">Chargement de l'historique...</span>
+            </div>
+        `;
+    }
+
+    fetch(`/api/projects/${projectId}/issues/${issueId}/comments/`)
+        .then(response => {
+            console.log('[DEBUG] Issue history response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('[DEBUG] Issue history response data:', data);
+
+            // Extract comments from the response
+            let comments = [];
+
+            // Check if we have a proper response
+            if (data && data.result === 0) {
+                // The data could be directly in data property or nested
+                if (Array.isArray(data.data)) {
+                    comments = data.data;
+                } else if (data.data && Array.isArray(data.data.items)) {
+                    comments = data.data.items;
+                }
+
+                console.log(`[DEBUG] Found ${comments.length} comments for issue ${issueId}`);
+            }
+
+            // Store in global state
+            window.issueData.history[issueId] = comments;
+
+            // Render the history
+            renderIssueHistory(issueId, comments);
+        })
+        .catch(error => {
+            console.error(`[DEBUG] Error fetching history for issue ${issueId}:`, error);
+            if (historyPanel) {
+                historyPanel.innerHTML = `
+                    <div class="p-4 text-red-600">
+                        <p>Erreur lors du chargement de l'historique.</p>
+                    </div>
+                `;
+            }
+        });
+}
+
+function renderIssueHistory(issueId, comments) {
+    console.log(`[DEBUG] Rendering history for issue ${issueId} with ${comments.length} comments`);
+
+    const historyPanel = document.querySelector(`.issue-card[data-issue-id="${issueId}"] .issue-history-panel`);
+
+    if (!historyPanel) {
+        console.error(`[DEBUG] History panel not found for issue ${issueId}`);
+        return;
+    }
+
+    if (!comments || comments.length === 0) {
+        historyPanel.innerHTML = '<p class="p-4 text-gray-500">Aucun historique disponible.</p>';
+        return;
+    }
+
+    // Sort comments by date (newest first)
+    comments.sort((a, b) => {
+        const dateA = new Date(a.date || a.created || 0);
+        const dateB = new Date(b.date || b.created || 0);
+        return dateB - dateA;
+    });
+
+    // Create timeline HTML
+    let html = '<div class="p-4"><h4 class="text-lg font-medium mb-4">Historique</h4>';
+    html += '<ul class="space-y-4">';
+
+    comments.forEach(comment => {
+        // Extract data from comment
+        const author = comment.author ? comment.author.name || comment.author : 'Unknown';
+        const timestamp = comment.date || comment.created || '';
+        const formattedDate = formatDate(timestamp);
+        let content = comment.text || comment.content || comment.message || 'No content';
+
+        // Get action type if available
+        let actionType = comment.type || comment.action || '';
+
+        // Format different types of comments
+        let actionClass = 'bg-gray-100';
+        let actionIcon = '';
+
+        if (actionType.toLowerCase().includes('status') || content.toLowerCase().includes('status')) {
+            actionClass = 'bg-yellow-100';
+            actionIcon = '<svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>';
+        } else if (actionType.toLowerCase().includes('create') || content.toLowerCase().includes('created')) {
+            actionClass = 'bg-green-100';
+            actionIcon = '<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>';
+        } else if (actionType.toLowerCase().includes('comment') || content.length > 30) {
+            actionClass = 'bg-blue-100';
+            actionIcon = '<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>';
+        }
+
+        // Add to timeline
+        html += `
+            <li class="relative pl-6 border-l-2 border-gray-200">
+                <div class="absolute -left-2 mt-1 w-4 h-4 rounded-full ${actionClass} flex items-center justify-center">
+                    ${actionIcon}
+                </div>
+                <div class="bg-white rounded-lg border border-gray-200 p-3 shadow-sm">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-medium text-gray-900">${author}</span>
+                        <span class="text-sm text-gray-500">${formattedDate}</span>
+                    </div>
+                    <p class="text-gray-700 whitespace-pre-line">${content}</p>
+                </div>
+            </li>
+        `;
+    });
+
+    html += '</ul></div>';
+
+    // Set the HTML
+    historyPanel.innerHTML = html;
+}
+
+function formatDate(dateString) {
+    if (!dateString) return '';
+
+    try {
+        const date = new Date(dateString);
+
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+            return 'Date invalide';
+        }
+
+        // Format the date
+        return date.toLocaleString('fr-CA', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } catch (error) {
+        console.error('[DEBUG] Error formatting date:', error);
+        return dateString;
+    }
+}

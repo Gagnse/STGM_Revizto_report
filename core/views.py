@@ -427,3 +427,24 @@ def get_project_workflow_settings(request, project_id):
         import traceback
         print(f"[DEBUG] Traceback: {traceback.format_exc()}")
         return JsonResponse({"result": 1, "message": str(e), "data": {}})
+
+def get_issue_comments(request, project_id, issue_id):
+    """
+    API endpoint to get comments/history for a specific issue
+    """
+    print(f"[DEBUG] Fetching comments for issue ID: {issue_id} in project: {project_id}")
+
+    # Get date parameter with default to empty string (which will fetch all comments)
+    date_param = request.GET.get('date', '')
+
+    try:
+        # Get comments from the API via service
+        response_data = ReviztoService.get_issue_comments(project_id, issue_id, date_param)
+
+        # Return the raw API response
+        return JsonResponse(response_data)
+    except Exception as e:
+        print(f"[DEBUG] Error in get_issue_comments: {e}")
+        import traceback
+        print(f"[DEBUG] Traceback: {traceback.format_exc()}")
+        return JsonResponse({"result": 1, "message": str(e), "data": []})

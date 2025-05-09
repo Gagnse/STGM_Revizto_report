@@ -347,3 +347,64 @@ class ReviztoService:
             import traceback
             print(f"[DEBUG-SERVICE] Exception traceback: {traceback.format_exc()}")
             return {"result": 1, "message": str(e), "data": {"data": []}}
+
+
+@classmethod
+def get_issue_comments(cls, project_id, issue_id, date=None):
+    """Get comments history for a specific issue."""
+    print(f"\n[DEBUG-SERVICE] ===== FETCHING ISSUE COMMENTS =====")
+    print(f"[DEBUG-SERVICE] Fetching comments for issue ID: {issue_id} in project: {project_id}")
+
+    try:
+        # Construct the endpoint
+        endpoint = f"issue/{issue_id}/comments/date"
+
+        # Prepare parameters
+        params = {"projectId": project_id}
+
+        # Add date parameter if provided
+        if date:
+            params["date"] = date
+            print(f"[DEBUG-SERVICE] Filtering comments by date: {date}")
+
+        print(f"[DEBUG-SERVICE] Using endpoint: {endpoint}")
+        print(f"[DEBUG-SERVICE] Using params: {params}")
+
+        # Make the API request
+        try:
+            response = ReviztoAPI.get(endpoint, params=params)
+            print(f"[DEBUG-SERVICE] API call successful")
+        except Exception as e:
+            print(f"[DEBUG-SERVICE] API call failed: {e}")
+            import traceback
+            print(f"[DEBUG-SERVICE] API error traceback: {traceback.format_exc()}")
+            return {"result": 1, "message": str(e), "data": []}
+
+        # Debug the response
+        print(f"[DEBUG-SERVICE] Response type: {type(response)}")
+        if isinstance(response, dict):
+            print(f"[DEBUG-SERVICE] Response has keys: {list(response.keys())}")
+
+            # Check for data
+            if 'data' in response:
+                if isinstance(response['data'], list):
+                    comments = response['data']
+                    print(f"[DEBUG-SERVICE] Found {len(comments)} comments")
+
+                    # Debug first comment
+                    if len(comments) > 0:
+                        first = comments[0]
+                        print(f"[DEBUG-SERVICE] First comment has keys: {list(first.keys())[:10]}...")
+                elif isinstance(response['data'], dict):
+                    print(f"[DEBUG-SERVICE] Data is a dict with keys: {list(response['data'].keys())}")
+
+        print(f"[DEBUG-SERVICE] ===== END FETCHING ISSUE COMMENTS =====\n")
+
+        # Return the original response
+        return response
+
+    except Exception as e:
+        print(f"[DEBUG-SERVICE] General error in get_issue_comments: {e}")
+        import traceback
+        print(f"[DEBUG-SERVICE] Exception traceback: {traceback.format_exc()}")
+        return {"result": 1, "message": str(e), "data": []}

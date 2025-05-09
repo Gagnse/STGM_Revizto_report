@@ -16,6 +16,7 @@ urlpatterns = [
     path('api/projects/<int:project_id>/data/load/', views.load_project_data, name='load_project_data'),
     path('api/projects/<int:project_id>/data/clear/', views.clear_project_data, name='clear_project_data'),
     path('api/projects/<int:project_id>/workflow-settings/', views.get_project_workflow_settings, name='project_workflow_settings'),
+    path('api/projects/<int:project_id>/issues/<int:issue_id>/comments/', views.get_issue_comments, name='issue_comments'),
 
     # Debug endpoint for session information
     path('api/debug/session/', views.debug_session, name='debug_session'),
