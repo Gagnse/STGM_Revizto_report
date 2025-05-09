@@ -1,4 +1,3 @@
-
 // Hard-coded status map based on the JSON example
 window.statusMap = {
   // Standard statuses
@@ -261,6 +260,104 @@ function mapStatusNameToFrench(statusName) {
     }
 }
 
+// Helper function to safely extract and format creation date
+function getFormattedCreationDate(item) {
+    if (!item.created) return 'N/A';
+
+    let createdDate = '';
+    if (typeof item.created === 'string') {
+        createdDate = item.created;
+    } else if (item.created.value) {
+        createdDate = item.created.value;
+    }
+
+    // Try to format the date nicely
+    if (createdDate) {
+        try {
+            const date = new Date(createdDate);
+            return date.toLocaleString('fr-CA');
+        } catch (e) {
+            return createdDate;
+        }
+    }
+
+    return 'N/A';
+}
+
+// Helper function to safely extract assignee
+function getAssignee(item) {
+    if (!item.assignee) return 'Non assignée';
+
+    try {
+        if (typeof item.assignee === 'string') {
+            return item.assignee;
+        } else if (item.assignee.value) {
+            return item.assignee.value;
+        }
+    } catch (e) {
+        console.error('[DEBUG] Error extracting assignee:', e);
+    }
+
+    return 'Non assignée';
+}
+
+// Helper function to safely extract sheet number
+function getSheetNumber(item) {
+    if (!item.sheet) return 'N/A';
+
+    try {
+        if (typeof item.sheet === 'object' && item.sheet.value && item.sheet.value.number) {
+            return item.sheet.value.number;
+        } else if (typeof item.sheet === 'string') {
+            return item.sheet;
+        }
+    } catch (e) {
+        console.error('[DEBUG] Error extracting sheet number:', e);
+    }
+
+    return 'N/A';
+}
+
+// Helper function to safely extract sheet name
+function getSheetName(item) {
+    if (!item.sheet) return 'N/A';
+
+    try {
+        if (typeof item.sheet === 'object' && item.sheet.value && item.sheet.value.name) {
+            return item.sheet.value.name;
+        }
+    } catch (e) {
+        console.error('[DEBUG] Error extracting sheet name:', e);
+    }
+
+    return 'N/A';
+}
+
+// Helper function to safely extract Revizto links
+function getReviztoLinks(item) {
+    const links = {
+        desktop: null,
+        web: null
+    };
+
+    if (!item.openLinks) return links;
+
+    try {
+        if (typeof item.openLinks === 'object') {
+            if (item.openLinks.desktop) {
+                links.desktop = item.openLinks.desktop;
+            }
+            if (item.openLinks.web) {
+                links.web = item.openLinks.web;
+            }
+        }
+    } catch (e) {
+        console.error('[DEBUG] Error extracting Revizto links:', e);
+    }
+
+    return links;
+}
+
 // Fetch observations from the API
 function fetchObservations(projectId) {
     console.log('[DEBUG] Fetching observations for project ID:', projectId);
@@ -404,9 +501,15 @@ function renderDeficienciesDirectly(deficiencies) {
             }
         }
 
+        // Get additional information
+        const createdDate = getFormattedCreationDate(deficiency);
+        const sheetNumber = getSheetNumber(deficiency);
+        const sheetName = getSheetName(deficiency);
+        const reviztoLinks = getReviztoLinks(deficiency);
+
         // Build the HTML for this deficiency
-        html += `
-            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-2 overflow-hidden">
+         html += `
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 overflow-hidden">
                 <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
                     <div class="flex justify-between items-center">
                         <h3 class="text-lg font-semibold text-gray-800">#${id}</h3>
@@ -419,10 +522,10 @@ function renderDeficienciesDirectly(deficiencies) {
                 <div class="p-4">
                     <div class="flex flex-col md:flex-row">
                         ${imageUrl ? 
-                            `<div class="max-w-200 md:w-1/3 mb-4 md:mb-0 md:pr-4">
+                            `<div class="max-w-75 md:w-1/4 mb-4 md:mb-0 md:pr-4">
                                 <img src="${imageUrl}" alt="Preview" class="w-full h-auto rounded-md border border-gray-200">
                             </div>` : 
-                            `<div class="w-full md:w-1/3 mb-4 md:mb-0 md:pr-4">
+                            `<div class="max-w-75 md:w-1/4 mb-4 md:mb-0 md:pr-4">
                                 <div class="w-full h-40 bg-gray-100 rounded-md flex items-center justify-center">
                                     <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -430,8 +533,9 @@ function renderDeficienciesDirectly(deficiencies) {
                                 </div>
                             </div>`
                         }
-                        <div class="w-full ${imageUrl ? 'md:w-2/3' : ''}">
-                            <div class="space-y-2">
+                        <div class="md:w-3/4 flex flex-col md:flex-row">
+                            <!-- Left column: Issue information -->
+                            <div class="md:w-1/2 pr-4 space-y-3">
                                 <div>
                                     <h4 class="text-sm font-medium text-gray-500">Titre</h4>
                                     <p class="text-gray-800">${title}</p>
@@ -440,7 +544,45 @@ function renderDeficienciesDirectly(deficiencies) {
                                     <h4 class="text-sm font-medium text-gray-500">État</h4>
                                     <p class="text-gray-800">${statusDisplay.displayName}</p>
                                 </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Posée le</h4>
+                                    <p class="text-gray-800">${createdDate}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Assignée à</h4>
+                                    <p class="text-gray-800">${getAssignee(deficiency)}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Numéro de la feuille</h4>
+                                    <p class="text-gray-800">${sheetNumber}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Nom de la feuille</h4>
+                                    <p class="text-gray-800">${sheetName}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Ouvrir dans Revizto</h4>
+                                    <div class="flex gap-2">
+                                        ${reviztoLinks.desktop ? 
+                                            `<a href="${reviztoLinks.desktop}" class="text-blue-600 hover:underline" target="_blank">Application</a>` : 
+                                            ''}
+                                        ${reviztoLinks.web ? 
+                                            `<a href="${reviztoLinks.web}" class="text-blue-600 hover:underline" target="_blank">Web</a>` : 
+                                            ''}
+                                    </div>
+                                </div>
                             </div>
+                            
+                            <!-- Right column: Issue history -->
+                            <div class="md:w-1/2 mt-4 md:mt-0 border-t md:border-t-0 md:border-l border-gray-200 md:pl-4 pt-4 md:pt-0">
+                                <h4 class="text-sm font-semibold text-gray-700 mb-2">Historique</h4>
+                                <div class="bg-gray-50 rounded-md p-3">
+                                    <p class="text-gray-500 text-sm italic">L'historique des modifications sera affiché ici</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                         </div>
                     </div>
                 </div>
@@ -510,9 +652,15 @@ function renderItemsDirectly(items, containerId, itemType) {
             }
         }
 
+        // Get additional information
+        const createdDate = getFormattedCreationDate(item);
+        const sheetNumber = getSheetNumber(item);
+        const sheetName = getSheetName(item);
+        const reviztoLinks = getReviztoLinks(item);
+
         // Build the HTML for this item
-        html += `
-            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-1 overflow-hidden">
+         html += `
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 overflow-hidden">
                 <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
                     <div class="flex justify-between items-center">
                         <h3 class="text-lg font-semibold text-gray-800">#${id}</h3>
@@ -525,10 +673,10 @@ function renderItemsDirectly(items, containerId, itemType) {
                 <div class="p-4">
                     <div class="flex flex-col md:flex-row">
                         ${imageUrl ? 
-                            `<div class="max-w-200 md:w-1/3 mb-4 md:mb-0 md:pr-4">
+                            `<div class="max-w-200 md:w-1/4 mb-4 md:mb-0 md:pr-4">
                                 <img src="${imageUrl}" alt="Preview" class="w-full h-auto rounded-md border border-gray-200">
                             </div>` : 
-                            `<div class="w-full md:w-1/3 mb-4 md:mb-0 md:pr-4">
+                            `<div class="max-w-200 md:w-1/4 mb-4 md:mb-0 md:pr-4">
                                 <div class="w-full h-40 bg-gray-100 rounded-md flex items-center justify-center">
                                     <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -536,8 +684,9 @@ function renderItemsDirectly(items, containerId, itemType) {
                                 </div>
                             </div>`
                         }
-                        <div class="w-full ${imageUrl ? 'md:w-2/3' : ''}">
-                            <div class="space-y-2">
+                        <div class="md:w-3/4 flex flex-col md:flex-row">
+                            <!-- Left column: Issue information -->
+                            <div class="md:w-1/2 pr-4 space-y-3">
                                 <div>
                                     <h4 class="text-sm font-medium text-gray-500">Titre</h4>
                                     <p class="text-gray-800">${title}</p>
@@ -545,6 +694,41 @@ function renderItemsDirectly(items, containerId, itemType) {
                                 <div>
                                     <h4 class="text-sm font-medium text-gray-500">État</h4>
                                     <p class="text-gray-800">${statusDisplay.displayName}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Posée le</h4>
+                                    <p class="text-gray-800">${createdDate}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Assignée à</h4>
+                                    <p class="text-gray-800">${getAssignee(item)}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Numéro de la feuille</h4>
+                                    <p class="text-gray-800">${sheetNumber}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Nom de la feuille</h4>
+                                    <p class="text-gray-800">${sheetName}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Ouvrir dans Revizto</h4>
+                                    <div class="flex gap-2">
+                                        ${reviztoLinks.desktop ? 
+                                            `<a href="${reviztoLinks.desktop}" class="text-blue-600 hover:underline" target="_blank">Application</a>` : 
+                                            ''}
+                                        ${reviztoLinks.web ? 
+                                            `<a href="${reviztoLinks.web}" class="text-blue-600 hover:underline" target="_blank">Web</a>` : 
+                                            ''}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right column: Issue history -->
+                            <div class="md:w-1/2 mt-4 md:mt-0 border-t md:border-t-0 md:border-l border-gray-200 md:pl-4 pt-4 md:pt-0">
+                                <h4 class="text-sm font-semibold text-gray-700 mb-2">Historique</h4>
+                                <div class="bg-gray-50 rounded-md p-3">
+                                    <p class="text-gray-500 text-sm italic">L'historique des modifications sera affiché ici</p>
                                 </div>
                             </div>
                         </div>
