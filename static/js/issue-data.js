@@ -350,6 +350,10 @@ function fetchDeficiencies(projectId) {
 // Render deficiencies directly
 function renderDeficienciesDirectly(deficiencies) {
     console.log('[DEBUG] Direct rendering of', deficiencies.length, 'deficiencies');
+    // Filter out closed issues
+    const filteredDeficiencies = filterOutClosedIssues(deficiencies);
+    console.log('[DEBUG] After filtering closed issues:', filteredDeficiencies.length, 'deficiencies remain');
+
     const container = document.getElementById('deficiencies-container');
 
     if (!container) {
@@ -357,7 +361,7 @@ function renderDeficienciesDirectly(deficiencies) {
         return;
     }
 
-    if (!deficiencies || deficiencies.length === 0) {
+    if (!filteredDeficiencies || filteredDeficiencies.length === 0) {
         container.innerHTML = '<p class="text-yellow-700">Aucune déficience trouvée</p>';
         return;
     }
@@ -365,7 +369,7 @@ function renderDeficienciesDirectly(deficiencies) {
     // Create HTML for all deficiencies
     let html = '';
 
-    deficiencies.forEach(deficiency => {
+    filteredDeficiencies.forEach(deficiency => {
         // Extract basic properties safely
         const id = deficiency.id || 'N/A';
 
@@ -446,12 +450,16 @@ function renderDeficienciesDirectly(deficiencies) {
 
     // Set the HTML to the container
     container.innerHTML = html;
-    console.log('[DEBUG] Rendered', deficiencies.length, 'deficiency cards');
+    console.log('[DEBUG] Rendered', filteredDeficiencies.length, 'deficiency cards');
 }
 
 // Render items (observations, instructions) directly
 function renderItemsDirectly(items, containerId, itemType) {
     console.log(`[DEBUG] Direct rendering of ${items.length} ${itemType.toLowerCase()}s`);
+    // Filter out closed issues
+    const filteredItems = filterOutClosedIssues(items);
+    console.log(`[DEBUG] After filtering closed issues: ${filteredItems.length} ${itemType.toLowerCase()}s remain`);
+
     const container = document.getElementById(containerId);
 
     if (!container) {
@@ -459,7 +467,7 @@ function renderItemsDirectly(items, containerId, itemType) {
         return;
     }
 
-    if (!items || items.length === 0) {
+    if (!filteredItems || filteredItems.length === 0) {
         container.innerHTML = `<p class="text-yellow-700">Aucun(e) ${itemType.toLowerCase()} trouvé(e)</p>`;
         return;
     }
@@ -467,7 +475,7 @@ function renderItemsDirectly(items, containerId, itemType) {
     // Create HTML for all items
     let html = '';
 
-    items.forEach(item => {
+    filteredItems.forEach(item => {
         // Extract basic properties safely
         const id = item.id || 'N/A';
 
@@ -480,23 +488,6 @@ function renderItemsDirectly(items, containerId, itemType) {
                 title = item.title.value;
             }
         }
-
-        /* Get status - could be string, object with value property, or UUID
-        let statusUuid = null;
-        if (item.status) {
-            if (typeof item.status === 'string') {
-                statusUuid = item.status;
-            } else if (item.status.uuid) {
-                statusUuid = item.status.uuid;
-            } else if (item.status.value) {
-                statusUuid = item.status.value;
-            }
-        }
-
-        // Get status display information
-        const statusDisplay = getStatusDisplay(statusUuid);
-
-         */
 
         // Get status - check for both status and customStatus
         let statusId = null;
@@ -565,7 +556,7 @@ function renderItemsDirectly(items, containerId, itemType) {
 
     // Set the HTML to the container
     container.innerHTML = html;
-    console.log(`[DEBUG] Rendered ${items.length} ${itemType.toLowerCase()} cards`);
+    console.log(`[DEBUG] Rendered ${filteredItems.length} ${itemType.toLowerCase()} cards`);
 }
 
 // Show loading state
@@ -610,17 +601,48 @@ window.forceLoadDeficiencies = function(projectId) {
 // Helper function to filter out closed issues
 function filterOutClosedIssues(issues) {
     return issues.filter(issue => {
-        // Get status - could be string or object with value property
+        // Get status - could be string, object with value property, or UUID
         let status = '';
-        if (issue.status) {
+
+        // First check for customStatus
+        if (issue.customStatus) {
+            if (typeof issue.customStatus === 'string') {
+                status = issue.customStatus;
+            } else if (issue.customStatus.value) {
+                status = issue.customStatus.value;
+            }
+        }
+        // If no customStatus or couldn't extract it, check regular status
+        else if (issue.status) {
             if (typeof issue.status === 'string') {
-                status = issue.status.toLowerCase();
+                status = issue.status;
             } else if (issue.status.value) {
-                status = issue.status.value.toLowerCase();
+                status = issue.status.value;
+            } else if (issue.status.uuid) {
+                status = issue.status.uuid;
             }
         }
 
-        // Skip closed
-        return !(status === 'closed');
+        // Check if this is a "closed" status
+        // 1. Direct match with closed UUID
+        if (status === "135b58c6-1e14-4716-a134-bbba2bbc90a7") {
+            return false;
+        }
+
+        // 2. String comparison for status name
+        if (typeof status === 'string' && status.toLowerCase().includes('closed')) {
+            return false;
+        }
+
+        // 3. Check in statusMap if available
+        if (window.statusMap && window.statusMap[status]) {
+            const statusInfo = window.statusMap[status];
+            if (statusInfo.name && statusInfo.name.toLowerCase() === 'closed') {
+                return false;
+            }
+        }
+
+        // Include issue if not closed
+        return true;
     });
 }
