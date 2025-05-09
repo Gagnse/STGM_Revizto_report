@@ -204,37 +204,3 @@ class ReviztoAPI:
         except Exception as e:
             logger.error(f"API DELETE request failed: {e}")
             raise
-
-    @classmethod
-    def ensure_token_valid(cls):
-        """
-        Ensure the access token is valid.
-
-        Returns:
-            bool: True if token is valid, False otherwise
-        """
-        try:
-            # Initialize token manager if not already done
-            if not TokenManager._initialized:
-                TokenManager.initialize()
-
-            # Get a fresh token (TokenManager will refresh if needed)
-            token = TokenManager.get_access_token()
-            return bool(token)
-        except Exception as e:
-            print(f"[DEBUG] Token validation error: {e}")
-            return False
-
-    @classmethod
-    def refresh_token(cls):
-        """
-        Force refresh the access token.
-
-        Returns:
-            bool: True if refresh successful, False otherwise
-        """
-        try:
-            return TokenManager.refresh_tokens()
-        except Exception as e:
-            print(f"[DEBUG] Token refresh error: {e}")
-            return False
