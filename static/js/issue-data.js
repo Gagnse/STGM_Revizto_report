@@ -81,7 +81,8 @@ document.addEventListener('DOMContentLoaded', function() {
         instructions: [],
         deficiencies: [],
         projectStatuses: {}, // Store project-specific status information
-        activeProjectId: null
+        activeProjectId: null,
+        history:{}
     };
 
     // Listen for project selection
@@ -576,8 +577,8 @@ function renderDeficienciesDirectly(deficiencies) {
                             <!-- Right column: Issue history -->
                             <div class="md:w-1/2 mt-4 md:mt-0 border-t md:border-t-0 md:border-l border-gray-200 md:pl-4 pt-4 md:pt-0">
                                 <h4 class="text-sm font-semibold text-gray-700 mb-2">Historique</h4>
-                                <div class="bg-gray-50 rounded-md p-3">
-                                    <p class="text-gray-500 text-sm italic">L'historique des modifications sera affiché ici</p>
+                                <div id="history-panel-${id}" class="bg-gray-50 rounded-md overflow-auto max-h-96">
+                                    <div class="p-3 text-sm text-gray-500">Chargement de l'historique...</div>
                                 </div>
                             </div>
                         </div>
@@ -593,6 +594,11 @@ function renderDeficienciesDirectly(deficiencies) {
     // Set the HTML to the container
     container.innerHTML = html;
     console.log('[DEBUG] Rendered', filteredDeficiencies.length, 'deficiency cards');
+    // Fetch history for each issue
+    filteredDeficiencies.forEach(item => {
+        fetchIssueHistory(window.issueData.activeProjectId, item.id);
+    });
+
 }
 
 // Render items (observations, instructions) directly
@@ -727,8 +733,8 @@ function renderItemsDirectly(items, containerId, itemType) {
                             <!-- Right column: Issue history -->
                             <div class="md:w-1/2 mt-4 md:mt-0 border-t md:border-t-0 md:border-l border-gray-200 md:pl-4 pt-4 md:pt-0">
                                 <h4 class="text-sm font-semibold text-gray-700 mb-2">Historique</h4>
-                                <div class="bg-gray-50 rounded-md p-3">
-                                    <p class="text-gray-500 text-sm italic">L'historique des modifications sera affiché ici</p>
+                                <div id="history-panel-${id}" class="bg-gray-50 rounded-md overflow-auto max-h-96">
+                                    <div class="p-3 text-sm text-gray-500">Chargement de l'historique...</div>
                                 </div>
                             </div>
                         </div>
@@ -741,6 +747,10 @@ function renderItemsDirectly(items, containerId, itemType) {
     // Set the HTML to the container
     container.innerHTML = html;
     console.log(`[DEBUG] Rendered ${filteredItems.length} ${itemType.toLowerCase()} cards`);
+    // Fetch history for each issue
+    filteredItems.forEach(item => {
+        fetchIssueHistory(window.issueData.activeProjectId, item.id);
+    });
 }
 
 // Show loading state
@@ -828,136 +838,304 @@ function filterOutClosedIssues(issues) {
 
         // Include issue if not closed
         return true;
-    });
-}
+    })
+};
 
 function fetchIssueHistory(projectId, issueId) {
-    console.log(`[DEBUG] Fetching history for issue ID: ${issueId} in project: ${projectId}`);
+console.log(`[DEBUG] Fetching history for issue ID: ${issueId} in project: ${projectId}`);
 
-    // Show loading state in the history panel
-    const historyPanel = document.querySelector(`.issue-card[data-issue-id="${issueId}"] .issue-history-panel`);
-    if (historyPanel) {
-        historyPanel.innerHTML = `
-            <div class="flex justify-center items-center p-4">
-                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                <span class="ml-2 text-gray-600">Chargement de l'historique...</span>
-            </div>
-        `;
-    }
+const historyPanelId = `history-panel-${issueId}`;
+const historyPanel = document.getElementById(historyPanelId);
 
-    fetch(`/api/projects/${projectId}/issues/${issueId}/comments/`)
-        .then(response => {
-            console.log('[DEBUG] Issue history response status:', response.status);
-            return response.json();
-        })
-        .then(data => {
-            console.log('[DEBUG] Issue history response data:', data);
+if (!historyPanel) {
+    console.error(`[DEBUG] History panel not found with ID: ${historyPanelId}`);
+    return;
+}
 
-            // Extract comments from the response
-            let comments = [];
+// Show loading state
+historyPanel.innerHTML = `
+    <div class="p-3">
+        <div class="flex items-center">
+            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
+            <span class="text-sm text-gray-500">Chargement de l'historique...</span>
+        </div>
+    </div>
+`;
 
-            // Check if we have a proper response
-            if (data && data.result === 0) {
-                // The data could be directly in data property or nested
-                if (Array.isArray(data.data)) {
-                    comments = data.data;
-                } else if (data.data && Array.isArray(data.data.items)) {
-                    comments = data.data.items;
-                }
+fetch(`/api/projects/${projectId}/issues/${issueId}/comments/`)
+    .then(response => {
+        console.log(`[DEBUG] Comment history response status for issue ${issueId}:`, response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log(`[DEBUG] Comment history data for issue ${issueId}:`, data);
 
-                console.log(`[DEBUG] Found ${comments.length} comments for issue ${issueId}`);
-            }
+        // Extract comments from the response
+        let comments = [];
 
-            // Store in global state
-            window.issueData.history[issueId] = comments;
+        // Check for data in the expected structure
+        if (data && data.result === 0 && data.data && data.data.data) {
+            comments = data.data.data;
+            console.log(`[DEBUG] Found ${comments.length} comments for issue ${issueId}`);
+        }
 
-            // Render the history
-            renderIssueHistory(issueId, comments);
-        })
-        .catch(error => {
-            console.error(`[DEBUG] Error fetching history for issue ${issueId}:`, error);
-            if (historyPanel) {
-                historyPanel.innerHTML = `
-                    <div class="p-4 text-red-600">
-                        <p>Erreur lors du chargement de l'historique.</p>
-                    </div>
-                `;
-            }
-        });
+        if (!comments || comments.length === 0) {
+            historyPanel.innerHTML = '<div class="p-3 text-sm text-gray-500">Aucun historique disponible.</div>';
+            return;
+        }
+
+        // Render the comments
+        renderComments(historyPanel, comments);
+    })
+    .catch(error => {
+        console.error(`[DEBUG] Error fetching comments for issue ${issueId}:`, error);
+        historyPanel.innerHTML = '<div class="p-3 text-sm text-red-500">Erreur lors du chargement de l\'historique.</div>';
+    });
 }
 
 function renderIssueHistory(issueId, comments) {
-    console.log(`[DEBUG] Rendering history for issue ${issueId} with ${comments.length} comments`);
+console.log(`[DEBUG] Rendering history for issue ${issueId} with ${comments.length} comments`);
 
-    const historyPanel = document.querySelector(`.issue-card[data-issue-id="${issueId}"] .issue-history-panel`);
+const historyPanel = document.querySelector(`.issue-history-panel-${issueId}`);
 
-    if (!historyPanel) {
-        console.error(`[DEBUG] History panel not found for issue ${issueId}`);
-        return;
-    }
+if (!historyPanel) {
+    console.error(`[DEBUG] History panel not found for issue ${issueId}`);
+    return;
+}
 
-    if (!comments || comments.length === 0) {
-        historyPanel.innerHTML = '<p class="p-4 text-gray-500">Aucun historique disponible.</p>';
-        return;
-    }
+if (!comments || comments.length === 0) {
+    historyPanel.innerHTML = '<p class="p-4 text-gray-500">Aucun historique disponible.</p>';
+    return;
+}
 
-    // Sort comments by date (newest first)
-    comments.sort((a, b) => {
-        const dateA = new Date(a.date || a.created || 0);
-        const dateB = new Date(b.date || b.created || 0);
-        return dateB - dateA;
-    });
+// Sort comments by date (newest first)
+comments.sort((a, b) => {
+    const dateA = new Date(a.created || 0);
+    const dateB = new Date(b.created || 0);
+    return dateB - dateA;
+});
 
-    // Create timeline HTML
-    let html = '<div class="p-4"><h4 class="text-lg font-medium mb-4">Historique</h4>';
-    html += '<ul class="space-y-4">';
+// Create timeline HTML
+let html = '<div class="space-y-4 p-4">';
 
-    comments.forEach(comment => {
-        // Extract data from comment
-        const author = comment.author ? comment.author.name || comment.author : 'Unknown';
-        const timestamp = comment.date || comment.created || '';
-        const formattedDate = formatDate(timestamp);
-        let content = comment.text || comment.content || comment.message || 'No content';
-
-        // Get action type if available
-        let actionType = comment.type || comment.action || '';
-
-        // Format different types of comments
-        let actionClass = 'bg-gray-100';
-        let actionIcon = '';
-
-        if (actionType.toLowerCase().includes('status') || content.toLowerCase().includes('status')) {
-            actionClass = 'bg-yellow-100';
-            actionIcon = '<svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>';
-        } else if (actionType.toLowerCase().includes('create') || content.toLowerCase().includes('created')) {
-            actionClass = 'bg-green-100';
-            actionIcon = '<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>';
-        } else if (actionType.toLowerCase().includes('comment') || content.length > 30) {
-            actionClass = 'bg-blue-100';
-            actionIcon = '<svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>';
+comments.forEach(comment => {
+    // Extract author information
+    let authorName = 'Utilisateur inconnu';
+    if (comment.author) {
+        if (typeof comment.author === 'string') {
+            authorName = comment.author;
+        } else if (comment.author.firstname && comment.author.lastname) {
+            authorName = `${comment.author.firstname} ${comment.author.lastname}`;
+        } else if (comment.author.email) {
+            authorName = comment.author.email;
         }
+    }
 
-        // Add to timeline
+    const created = comment.created ? new Date(comment.created).toLocaleString('fr-CA') : 'Date inconnue';
+
+    // Start building the comment HTML
+    html += `
+        <div class="border-l-2 border-gray-200 pl-4 relative">
+            <div class="absolute w-3 h-3 bg-blue-500 rounded-full -left-1.5 top-2"></div>
+            <div class="mb-1">
+                <span class="font-medium">${authorName}</span>
+                <span class="text-sm text-gray-500 ml-2">${created}</span>
+            </div>
+    `;
+
+    // Handle different comment types
+    switch (comment.type) {
+        case 'diff':
+            html += renderDiffComment(comment);
+            break;
+        case 'text':
+            html += `<p class="text-gray-700">${comment.text || ''}</p>`;
+            break;
+        case 'file':
+            html += renderFileComment(comment);
+            break;
+        case 'markup':
+            html += renderMarkupComment(comment);
+            break;
+        default:
+            html += `<p class="text-gray-700 italic">Activité: ${comment.type || 'Action non spécifiée'}</p>`;
+    }
+
+    html += '</div>';
+});
+
+html += '</div>';
+historyPanel.innerHTML = html;
+}
+
+function renderCommentsHTML(comments) {
+// Sort comments by date (newest first)
+comments.sort((a, b) => {
+    const dateA = new Date(a.created || 0);
+    const dateB = new Date(b.created || 0);
+    return dateB - dateA;
+});
+
+let html = '<div class="space-y-3 p-3">';
+
+comments.forEach(comment => {
+    // Get author info
+    let authorName = 'Utilisateur inconnu';
+    if (comment.author) {
+        if (typeof comment.author === 'string') {
+            authorName = comment.author;
+        } else if (comment.author.firstname && comment.author.lastname) {
+            authorName = `${comment.author.firstname} ${comment.author.lastname}`;
+        } else if (comment.author.email) {
+            authorName = comment.author.email;
+        }
+    }
+
+    // Format date
+    const created = comment.created ? new Date(comment.created).toLocaleString('fr-CA') : 'Date inconnue';
+
+    // Start comment container
+    html += `
+        <div class="border-l-2 border-gray-200 pl-3">
+            <div class="flex justify-between items-center text-sm mb-1">
+                <span class="font-medium">${authorName}</span>
+                <span class="text-gray-500">${created}</span>
+            </div>
+    `;
+
+    // Handle different comment types
+    switch (comment.type) {
+        case 'diff':
+            html += renderDiffComment(comment);
+            break;
+        case 'text':
+            html += `<p class="text-gray-700 text-sm">${comment.text || ''}</p>`;
+            break;
+        case 'file':
+            html += renderFileComment(comment);
+            break;
+        case 'markup':
+            html += renderMarkupComment(comment);
+            break;
+        default:
+            html += `<p class="text-gray-700 text-sm italic">Activité: ${comment.type || 'Action non spécifiée'}</p>`;
+    }
+
+    html += '</div>';
+});
+
+html += '</div>';
+return html;
+}
+
+function renderDiffComment(comment) {
+if (!comment.diff) return '<p class="text-gray-500 text-sm italic">Modification non spécifiée</p>';
+
+let html = '<div class="bg-gray-50 p-2 rounded-md text-sm">';
+
+// Go through each changed property
+Object.keys(comment.diff).forEach(key => {
+    const change = comment.diff[key];
+
+    // Format the key to be more readable
+    let readableKey = key.replace(/([A-Z])/g, ' $1').toLowerCase();
+    readableKey = readableKey.charAt(0).toUpperCase() + readableKey.slice(1);
+
+    // Get old and new values
+    const oldValue = change.old || '-';
+    const newValue = change.new || '-';
+
+    // Handle specific keys specially
+    if (key === 'customStatus' || key === 'status') {
         html += `
-            <li class="relative pl-6 border-l-2 border-gray-200">
-                <div class="absolute -left-2 mt-1 w-4 h-4 rounded-full ${actionClass} flex items-center justify-center">
-                    ${actionIcon}
-                </div>
-                <div class="bg-white rounded-lg border border-gray-200 p-3 shadow-sm">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="font-medium text-gray-900">${author}</span>
-                        <span class="text-sm text-gray-500">${formattedDate}</span>
-                    </div>
-                    <p class="text-gray-700 whitespace-pre-line">${content}</p>
-                </div>
-            </li>
+            <div class="mb-1">
+                <span class="font-medium">État:</span> 
+                <span class="line-through text-red-600">${formatStatusValue(oldValue)}</span> → 
+                <span class="text-green-600">${formatStatusValue(newValue)}</span>
+            </div>
         `;
-    });
+    } else if (key === 'assignee') {
+        html += `
+            <div class="mb-1">
+                <span class="font-medium">Assigné à:</span> 
+                <span class="line-through text-red-600">${oldValue}</span> → 
+                <span class="text-green-600">${newValue}</span>
+            </div>
+        `;
+    } else if (key === 'customType') {
+        html += `
+            <div class="mb-1">
+                <span class="font-medium">Type:</span> 
+                <span class="line-through text-red-600">${oldValue}</span> → 
+                <span class="text-green-600">${newValue}</span>
+            </div>
+        `;
+    } else {
+        html += `
+            <div class="mb-1">
+                <span class="font-medium">${readableKey}:</span> 
+                <span class="line-through text-red-600">${oldValue}</span> → 
+                <span class="text-green-600">${newValue}</span>
+            </div>
+        `;
+    }
+});
 
-    html += '</ul></div>';
+html += '</div>';
+return html;
+}
 
-    // Set the HTML
-    historyPanel.innerHTML = html;
+function renderFileComment(comment) {
+if (!comment.filename) return '<p class="text-gray-500 text-sm italic">Fichier joint</p>';
+
+// Check if it's an image
+const isImage = comment.mimetype && comment.mimetype.startsWith('image/');
+
+if (isImage && comment.preview && comment.preview.small) {
+    return `
+        <div>
+            <p class="text-sm text-gray-700 mb-1">Fichier: ${comment.filename}</p>
+            <img src="${comment.preview.small}" alt="${comment.filename}" class="border border-gray-200 rounded-md">
+        </div>
+    `;
+} else {
+    return `
+        <div class="flex items-center">
+            <svg class="w-4 h-4 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <span class="text-gray-700 text-sm">${comment.filename}</span>
+        </div>
+    `;
+}
+}
+
+function renderMarkupComment(comment) {
+if (!comment.preview || !comment.preview.small) return '<p class="text-gray-500 text-sm italic">Markup ajouté</p>';
+
+return `
+    <div>
+        <p class="text-sm text-gray-700 mb-1">Markup ajouté</p>
+        <img src="${comment.preview.small}" alt="Markup" class="border border-gray-200 rounded-md">
+    </div>
+`;
+}
+
+function formatStatusValue(value) {
+// Try to map status UUIDs to display names if available
+if (window.statusMap && window.statusMap[value]) {
+    return window.statusMap[value].displayName || window.statusMap[value].name;
+}
+
+// Basic status translations
+if (typeof value === 'string') {
+    if (value.toLowerCase() === 'open') return 'Ouvert';
+    if (value.toLowerCase() === 'solved') return 'Résolu';
+    if (value.toLowerCase() === 'closed') return 'Fermé';
+    if (value.toLowerCase() === 'in_progress') return 'En cours';
+}
+
+return value;
 }
 
 function formatDate(dateString) {
