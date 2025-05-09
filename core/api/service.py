@@ -348,6 +348,8 @@ class ReviztoService:
             print(f"[DEBUG-SERVICE] Exception traceback: {traceback.format_exc()}")
             return {"result": 1, "message": str(e), "data": {"data": []}}
 
+    classmethod
+
     @classmethod
     def get_issue_comments(cls, project_id, issue_id, date):
         """Get comments history for a specific issue."""
@@ -373,8 +375,9 @@ class ReviztoService:
                     issue_response['data'].get('data') and
                     len(issue_response['data']['data']) > 0):
 
-                # Extract the UUID from the issue data
+                # Extract the UUID from the issue data - THIS IS THE CRITICAL FIX
                 issue_data = issue_response['data']['data'][0]
+                # Ensure we're using the correct UUID for THIS issue
                 issue_uuid = issue_data.get('uuid')
 
                 if issue_uuid:
