@@ -575,7 +575,7 @@ function renderDeficienciesDirectly(deficiencies) {
                             </div>
                             
                             <!-- Right column: Issue history -->
-                            <div class="md:w-1/2 mt-4 md:mt-0 border-t md:border-t-0 md:border-l border-gray-200 md:pl-4 pt-4 md:pt-0">
+                            <div class="md:w-1/2 mt-4 md:mt-0 border-t md:border-t-0 md:border-l border-gray-200 md:px-4 pt-4 md:pt-0">
                                 <h4 class="text-sm font-semibold text-gray-700 mb-2">Historique</h4>
                                 <div id="history-panel-${id}" class="bg-gray-50 rounded-md">
                                     <div class="p-3 text-sm text-gray-500">Chargement de l'historique...</div>
@@ -678,10 +678,10 @@ function renderItemsDirectly(items, containerId, itemType) {
                 <div class="p-4">
                     <div class="flex flex-col md:flex-row">
                         ${imageUrl ? 
-                            `<div class="max-w-200 md:w-1/4 mb-4 md:mb-0 md:pr-4">
+                            `<div class="max-w-75 md:w-1/4 mb-4 md:mb-0 md:pr-4">
                                 <img src="${imageUrl}" alt="Preview" class="w-full h-auto rounded-md border border-gray-200">
                             </div>` : 
-                            `<div class="max-w-200 md:w-1/4 mb-4 md:mb-0 md:pr-4">
+                            `<div class="max-w-75 md:w-1/4 mb-4 md:mb-0 md:pr-4">
                                 <div class="w-full h-40 bg-gray-100 rounded-md flex items-center justify-center">
                                     <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -995,7 +995,7 @@ function renderDiffComment(comment) {
       html += `
         <div class="mb-1">
           <span class="font-medium">État:</span> 
-          <span class="line-through">${formatStatusValue(oldValue)}</span> → 
+          <span class="text">${formatStatusValue(oldValue)}</span> → 
           <span class="text">${formatStatusValue(newValue)}</span>
         </div>
       `;
@@ -1009,7 +1009,7 @@ function renderDiffComment(comment) {
       html += `
         <div class="mb-1">
           <span class="font-medium">Assigné à:</span> 
-          <span class="line-through">${oldValue}</span> → 
+          <span class="text">${oldValue}</span> → 
           <span class="text">${newValue}</span>
         </div>
       `;
@@ -1018,7 +1018,7 @@ function renderDiffComment(comment) {
       html += `
         <div class="mb-1">
           <span class="font-medium">Type:</span> 
-          <span class="line-through ">${oldValue}</span> → 
+          <span class="text">${oldValue}</span> → 
           <span class="text">${newValue}</span>
         </div>
       `;
@@ -1027,7 +1027,7 @@ function renderDiffComment(comment) {
       html += `
         <div class="mb-1">
           <span class="font-medium">${readableKey}:</span> 
-          <span class="line-through">${oldValue}</span> → 
+          <span class="text">${oldValue}</span> → 
           <span class="text">${newValue}</span>
         </div>
       `;
