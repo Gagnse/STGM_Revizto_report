@@ -348,8 +348,6 @@ class ReviztoService:
             print(f"[DEBUG-SERVICE] Exception traceback: {traceback.format_exc()}")
             return {"result": 1, "message": str(e), "data": {"data": []}}
 
-    classmethod
-
     @classmethod
     def get_issue_comments(cls, project_id, issue_id, date):
         """Get comments history for a specific issue."""
@@ -360,9 +358,9 @@ class ReviztoService:
             # Step 1: First we need to fetch the issue data to get its UUID
             endpoint = f"project/{project_id}/issue-filter/filter"
             params = {
-                "issueidFiltersDTO[0][expr]": "=",
-                "issueidFiltersDTO[0][value]": issue_id,
-                "sendFullIssueData": "true"
+                "anyFiltersDTO[0][type]": "id",
+                "anyFiltersDTO[0][expr]": "1",
+                "issueidFiltersDTO[0][value]": issue_id  # Use the specific issue ID
             }
 
             # Get issue details to extract UUID
@@ -375,15 +373,14 @@ class ReviztoService:
                     issue_response['data'].get('data') and
                     len(issue_response['data']['data']) > 0):
 
-                # Extract the UUID from the issue data - THIS IS THE CRITICAL FIX
+                # Extract the UUID from the issue data for THIS specific issue
                 issue_data = issue_response['data']['data'][0]
-                # Ensure we're using the correct UUID for THIS issue
                 issue_uuid = issue_data.get('uuid')
 
                 if issue_uuid:
                     print(f"[DEBUG-SERVICE] Found issue UUID: {issue_uuid}")
 
-                    # Step 2: Now use the UUID to fetch comments with the correct URL format
+                    # Step 2: Now use THIS issue's UUID to fetch comments
                     comments_endpoint = f"issue/{issue_uuid}/comments/date"
 
                     # Include the required parameters
@@ -396,28 +393,20 @@ class ReviztoService:
                     comments_response = ReviztoAPI.get(comments_endpoint, comments_params)
                     print(f"[DEBUG-SERVICE] API call successful")
 
-                    # Log response info
-                    if isinstance(comments_response, dict):
-                        print(f"[DEBUG-SERVICE] Response has keys: {list(comments_response.keys())}")
-
-                        if comments_response.get('result') == 0 and 'data' in comments_response:
-                            print(f"[DEBUG-SERVICE] Comments found for issue UUID: {issue_uuid}")
-
-                            # Add the issue ID to the response for reference on the client side
-                            comments_response['issueId'] = issue_id
+                    # Add the issue ID to the response for reference on the client side
+                    comments_response['issueId'] = issue_id
 
                     print(f"[DEBUG-SERVICE] ===== END FETCHING ISSUE COMMENTS =====\n")
                     return comments_response
                 else:
                     print(f"[DEBUG-SERVICE] Issue found but UUID is missing")
-                    return {"result": 1, "message": "Issue UUID not found", "data": {"data": []}, "issueId": issue_id}
+                    return {"result": 1, "message": "Issue UUID not found", "data": [], "issueId": issue_id}
             else:
                 print(f"[DEBUG-SERVICE] Issue not found with ID: {issue_id}")
-                return {"result": 1, "message": f"Issue not found with ID: {issue_id}", "data": {"data": []},
-                        "issueId": issue_id}
+                return {"result": 1, "message": f"Issue not found with ID: {issue_id}", "data": [], "issueId": issue_id}
 
         except Exception as e:
             print(f"[DEBUG-SERVICE] Error in get_issue_comments: {e}")
             import traceback
             print(f"[DEBUG-SERVICE] Traceback: {traceback.format_exc()}")
-            return {"result": 1, "message": str(e), "data": {"data": []}, "issueId": issue_id}
+            return {"result": 1, "message": str(e), "data": [], "issueId": issue_id}
