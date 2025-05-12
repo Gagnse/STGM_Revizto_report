@@ -225,8 +225,26 @@ class ReviztoPDF(FPDF):
         # Check if we have comments to determine the total height
         comment_section_height = 0
         if comments and len(comments) > 0:
-            # Estimate about 10mm per comment, with a minimum of 30mm
-            comment_section_height = max(30, min(100, len(comments) * 10))  # min 30mm, max 100mm
+            # Ensure comments is a list of dicts, not strings
+            valid_comments = []
+            for comment in comments:
+                if isinstance(comment, dict):
+                    valid_comments.append(comment)
+                elif isinstance(comment, str):
+                    try:
+                        # If it's a JSON string, try to parse it
+                        import json
+                        comment_dict = json.loads(comment)
+                        if isinstance(comment_dict, dict):
+                            valid_comments.append(comment_dict)
+                    except:
+                        # If parsing fails, skip this comment
+                        logger.warning(f"Skipping invalid comment format: {comment[:50]}...")
+
+            # Only proceed if we have valid comments
+            if valid_comments:
+                # Estimate about 10mm per comment, with a minimum of 30mm
+                comment_section_height = max(30, min(100, len(valid_comments) * 10))  # min 30mm, max 100mm
 
         # Estimate card height - this is an important step to avoid page breaks within cards
         estimated_card_height = 120 + comment_section_height  # Base height + comment height
@@ -234,7 +252,7 @@ class ReviztoPDF(FPDF):
         # Force a page break if the card won't fit on the current page
         if self.get_y() + estimated_card_height > self.h - self.b_margin:
             self.add_page()
-            # Set a proper top margin after page break (adjust this value as needed)
+            # Set a proper top margin after page break
             self.set_y(self.t_margin + 30)
 
         # Remember the start position of the card
@@ -471,105 +489,130 @@ class ReviztoPDF(FPDF):
 
         # Show comments if available
         if comments and len(comments) > 0:
-            # Sort comments by date (newest first)
-            sorted_comments = sorted(comments, key=lambda x: x.get('created', ''), reverse=True)
-
-            # Start position for comments
-            comment_y = self.get_y() + 2
-            self.set_xy(self.l_margin + 5, comment_y)
-
-            # Display comments (limit to first 5 to save space)
-            for i, comment in enumerate(sorted_comments[:5]):
-                if i > 0:
-                    # Add a light separator line between comments
-                    self.set_draw_color(200, 200, 200)  # Light gray
-                    self.line(self.l_margin + 10, self.get_y() - 1, self.l_margin + page_width - 10, self.get_y() - 1)
-                    self.set_draw_color(0, 0, 0)  # Reset to black
-
-                # Extract author info
-                author_name = 'Utilisateur inconnu'
-                if comment.get('author'):
-                    if isinstance(comment['author'], str):
-                        author_name = comment['author']
-                    elif isinstance(comment['author'], dict):
-                        if comment['author'].get('firstname') and comment['author'].get('lastname'):
-                            author_name = f"{comment['author']['firstname']} {comment['author']['lastname']}"
-                        elif comment['author'].get('email'):
-                            author_name = comment['author']['email']
-
-                # Format date
-                comment_date = "Date inconnue"
-                if comment.get('created'):
+            # Ensure comments is a list of dicts, not strings
+            valid_comments = []
+            for comment in comments:
+                if isinstance(comment, dict):
+                    valid_comments.append(comment)
+                elif isinstance(comment, str):
                     try:
-                        date_obj = datetime.fromisoformat(comment['created'].replace('Z', '+00:00'))
-                        comment_date = date_obj.strftime('%d/%m/%Y %H:%M')
+                        # If it's a JSON string, try to parse it
+                        import json
+                        comment_dict = json.loads(comment)
+                        if isinstance(comment_dict, dict):
+                            valid_comments.append(comment_dict)
                     except:
-                        comment_date = comment['created']
+                        # If parsing fails, skip this comment
+                        logger.warning(f"Skipping invalid comment format: {comment[:50]}...")
 
-                # Author and date header
-                self.set_font('helvetica', 'B', 8)
-                self.cell(50, 4, author_name, 0, 0, 'L')
-                self.set_font('helvetica', 'I', 7)
-                self.cell(page_width - 65, 4, comment_date, 0, 1, 'R')
+            # Only proceed if we have valid comments
+            if valid_comments:
+                # Sort comments by date (newest first)
+                sorted_comments = sorted(valid_comments, key=lambda x: x.get('created', ''), reverse=True)
 
-                # Comment content based on type
-                comment_type = comment.get('type', 'unknown')
+                # Start position for comments
+                comment_y = self.get_y() + 2
+                self.set_xy(self.l_margin + 5, comment_y)
 
-                if comment_type == 'text':
-                    # Text comment
-                    self.set_font('helvetica', '', 8)
-                    self.set_xy(self.l_margin + 10, self.get_y())
-                    self.multi_cell(page_width - 20, 4, comment.get('text', ''), 0, 'L')
+                # Display comments (limit to first 5 to save space)
+                for i, comment in enumerate(sorted_comments[:5]):
+                    if i > 0:
+                        # Add a light separator line between comments
+                        self.set_draw_color(200, 200, 200)  # Light gray
+                        self.line(self.l_margin + 10, self.get_y() - 1, self.l_margin + page_width - 10,
+                                  self.get_y() - 1)
+                        self.set_draw_color(0, 0, 0)  # Reset to black
 
-                elif comment_type == 'diff':
-                    # Handle diff comment (status changes, etc.)
-                    if comment.get('diff'):
+                    # Extract author info
+                    author_name = 'Utilisateur inconnu'
+                    if comment.get('author'):
+                        if isinstance(comment['author'], str):
+                            author_name = comment['author']
+                        elif isinstance(comment['author'], dict):
+                            if comment['author'].get('firstname') and comment['author'].get('lastname'):
+                                author_name = f"{comment['author']['firstname']} {comment['author']['lastname']}"
+                            elif comment['author'].get('email'):
+                                author_name = comment['author']['email']
+
+                    # Format date
+                    comment_date = "Date inconnue"
+                    if comment.get('created'):
+                        try:
+                            date_obj = datetime.fromisoformat(comment['created'].replace('Z', '+00:00'))
+                            comment_date = date_obj.strftime('%d/%m/%Y %H:%M')
+                        except:
+                            comment_date = comment['created']
+
+                    # Author and date header
+                    self.set_font('helvetica', 'B', 8)
+                    self.cell(50, 4, author_name, 0, 0, 'L')
+                    self.set_font('helvetica', 'I', 7)
+                    self.cell(page_width - 65, 4, comment_date, 0, 1, 'R')
+
+                    # Comment content based on type
+                    comment_type = comment.get('type', 'unknown')
+
+                    if comment_type == 'text':
+                        # Text comment
                         self.set_font('helvetica', '', 8)
                         self.set_xy(self.l_margin + 10, self.get_y())
+                        self.multi_cell(page_width - 20, 4, comment.get('text', ''), 0, 'L')
 
-                        diff_text = ""
-                        for key, change in comment['diff'].items():
-                            # Format change description
-                            if key == 'customStatus':
-                                old_status = format_status_value(change.get('old', '-'))
-                                new_status = format_status_value(change.get('new', '-'))
-                                diff_text += f"État: {old_status} → {new_status}\n"
-                            elif key == 'assignee':
-                                diff_text += f"Assigné à: {change.get('old', '-')} → {change.get('new', '-')}\n"
-                            elif key not in ['status', 'statusAuto']:  # Skip these fields
-                                # Format other field names
-                                field_name = re.sub(r'([A-Z])', r' \1', key).lower()
-                                field_name = field_name[0].upper() + field_name[1:] if field_name else key
-                                diff_text += f"{field_name}: {change.get('old', '-')} → {change.get('new', '-')}\n"
+                    elif comment_type == 'diff':
+                        # Handle diff comment (status changes, etc.)
+                        if comment.get('diff'):
+                            self.set_font('helvetica', '', 8)
+                            self.set_xy(self.l_margin + 10, self.get_y())
 
-                        self.multi_cell(page_width - 20, 4, diff_text.strip(), 0, 'L')
+                            diff_text = ""
+                            for key, change in comment['diff'].items():
+                                # Format change description
+                                if key == 'customStatus':
+                                    old_status = format_status_value(change.get('old', '-'))
+                                    new_status = format_status_value(change.get('new', '-'))
+                                    diff_text += f"État: {old_status} → {new_status}\n"
+                                elif key == 'assignee':
+                                    diff_text += f"Assigné à: {change.get('old', '-')} → {change.get('new', '-')}\n"
+                                elif key not in ['status', 'statusAuto']:  # Skip these fields
+                                    # Format other field names
+                                    field_name = re.sub(r'([A-Z])', r' \1', key).lower()
+                                    field_name = field_name[0].upper() + field_name[1:] if field_name else key
+                                    diff_text += f"{field_name}: {change.get('old', '-')} → {change.get('new', '-')}\n"
 
-                elif comment_type == 'file' or comment_type == 'markup':
-                    # Just show a simple indication for files and markups
-                    self.set_font('helvetica', 'I', 8)
-                    self.set_xy(self.l_margin + 10, self.get_y())
+                            self.multi_cell(page_width - 20, 4, diff_text.strip(), 0, 'L')
 
-                    if comment_type == 'file':
-                        file_text = f"Fichier joint: {comment.get('filename', 'Sans nom')}"
-                        self.cell(page_width - 20, 4, file_text, 0, 1, 'L')
+                    elif comment_type == 'file' or comment_type == 'markup':
+                        # Just show a simple indication for files and markups
+                        self.set_font('helvetica', 'I', 8)
+                        self.set_xy(self.l_margin + 10, self.get_y())
+
+                        if comment_type == 'file':
+                            file_text = f"Fichier joint: {comment.get('filename', 'Sans nom')}"
+                            self.cell(page_width - 20, 4, file_text, 0, 1, 'L')
+                        else:
+                            self.cell(page_width - 20, 4, "Markup ajouté", 0, 1, 'L')
+
                     else:
-                        self.cell(page_width - 20, 4, "Markup ajouté", 0, 1, 'L')
+                        # Default for unknown types
+                        self.set_font('helvetica', 'I', 8)
+                        self.set_xy(self.l_margin + 10, self.get_y())
+                        self.cell(page_width - 20, 4, f"Activité: {comment_type}", 0, 1, 'L')
 
-                else:
-                    # Default for unknown types
-                    self.set_font('helvetica', 'I', 8)
-                    self.set_xy(self.l_margin + 10, self.get_y())
-                    self.cell(page_width - 20, 4, f"Activité: {comment_type}", 0, 1, 'L')
+                    # Add space after each comment
+                    self.ln(2)
 
-                # Add space after each comment
-                self.ln(2)
+                # If there are more comments than shown
+                if len(sorted_comments) > 5:
+                    self.set_font('helvetica', 'I', 7)
+                    self.set_xy(self.l_margin + 5, self.get_y())
+                    self.cell(page_width - 10, 4,
+                              f"+ {len(sorted_comments) - 5} commentaires supplémentaires dans Revizto", 0, 1, 'R')
 
-            # If there are more comments than shown
-            if len(sorted_comments) > 5:
-                self.set_font('helvetica', 'I', 7)
-                self.set_xy(self.l_margin + 5, self.get_y())
-                self.cell(page_width - 10, 4, f"+ {len(sorted_comments) - 5} commentaires supplémentaires dans Revizto",
-                          0, 1, 'R')
+            else:
+                # Default message if no valid comments
+                self.set_xy(self.l_margin + 5, self.get_y() + 2)
+                self.set_font('helvetica', 'I', 8)
+                self.multi_cell(page_width - 10, 4, "Aucun historique disponible pour cet élément.", 0, 'L')
 
         else:
             # Default message if no comments

@@ -508,9 +508,16 @@ def generate_pdf(request, project_id):
                     # Use a fixed date in the past to ensure we get all comments
                     comments_response = ReviztoService.get_issue_comments(project_id, obs['id'], '2018-05-30')
                     if comments_response and comments_response.get('result') == 0 and comments_response.get('data'):
-                        # Store comments in the dictionary keyed by issue ID
-                        issue_comments[str(obs['id'])] = comments_response['data']
-                        print(f"[DEBUG] Found {len(comments_response['data'])} comments for observation {obs['id']}")
+                        # Make sure we have a list of comments
+                        comments_data = comments_response.get('data', [])
+                        if isinstance(comments_data, list):
+                            # Store comments in the dictionary keyed by issue ID
+                            issue_comments[str(obs['id'])] = comments_data
+                            print(f"[DEBUG] Found {len(comments_data)} comments for observation {obs['id']}")
+                        else:
+                            print(
+                                f"[DEBUG] Comments data for observation {obs['id']} is not a list: {type(comments_data)}")
+                            issue_comments[str(obs['id'])] = []
 
         # Get instructions
         instructions_response = ReviztoService.get_instructions(project_id)
@@ -525,9 +532,16 @@ def generate_pdf(request, project_id):
                     # Use a fixed date in the past to ensure we get all comments
                     comments_response = ReviztoService.get_issue_comments(project_id, ins['id'], '2018-05-30')
                     if comments_response and comments_response.get('result') == 0 and comments_response.get('data'):
-                        # Store comments in the dictionary keyed by issue ID
-                        issue_comments[str(ins['id'])] = comments_response['data']
-                        print(f"[DEBUG] Found {len(comments_response['data'])} comments for instruction {ins['id']}")
+                        # Make sure we have a list of comments
+                        comments_data = comments_response.get('data', [])
+                        if isinstance(comments_data, list):
+                            # Store comments in the dictionary keyed by issue ID
+                            issue_comments[str(ins['id'])] = comments_data
+                            print(f"[DEBUG] Found {len(comments_data)} comments for instruction {ins['id']}")
+                        else:
+                            print(
+                                f"[DEBUG] Comments data for instruction {ins['id']} is not a list: {type(comments_data)}")
+                            issue_comments[str(ins['id'])] = []
 
         # Get deficiencies
         deficiencies_response = ReviztoService.get_deficiencies(project_id)
@@ -542,10 +556,16 @@ def generate_pdf(request, project_id):
                     # Use a fixed date in the past to ensure we get all comments
                     comments_response = ReviztoService.get_issue_comments(project_id, def_item['id'], '2018-05-30')
                     if comments_response and comments_response.get('result') == 0 and comments_response.get('data'):
-                        # Store comments in the dictionary keyed by issue ID
-                        issue_comments[str(def_item['id'])] = comments_response['data']
-                        print(
-                            f"[DEBUG] Found {len(comments_response['data'])} comments for deficiency {def_item['id']}")
+                        # Make sure we have a list of comments
+                        comments_data = comments_response.get('data', [])
+                        if isinstance(comments_data, list):
+                            # Store comments in the dictionary keyed by issue ID
+                            issue_comments[str(def_item['id'])] = comments_data
+                            print(f"[DEBUG] Found {len(comments_data)} comments for deficiency {def_item['id']}")
+                        else:
+                            print(
+                                f"[DEBUG] Comments data for deficiency {def_item['id']} is not a list: {type(comments_data)}")
+                            issue_comments[str(def_item['id'])] = []
 
         # Import the PDF generator
         from .pdf_generator import generate_report_pdf
