@@ -23,6 +23,8 @@ class CoreConfig(AppConfig):
         try:
             from django.conf import settings
             from .api.client import ReviztoAPI
+            # Import our token refresher
+            from .api import token_refresher
 
             # Get tokens from settings
             access_token = getattr(settings, 'REVIZTO_ACCESS_TOKEN', None)
@@ -32,6 +34,10 @@ class CoreConfig(AppConfig):
                 # Initialize the API client with tokens
                 ReviztoAPI.initialize(access_token, refresh_token)
                 print("Revizto API client initialized")
+
+                # Start the token refresher
+                token_refresher.initialize(ReviztoAPI)
+                print("Revizto API token refresher started - tokens will refresh every 30 minutes")
             else:
                 print("Warning: Revizto API tokens not configured in settings")
         except Exception as e:

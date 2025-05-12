@@ -54,12 +54,28 @@ class ReviztoAPI:
             headers = {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
+
+            # Format the data exactly as required by the Revizto API
             data = {
                 'grant_type': 'refresh_token',
-                'refresh_token': cls.REFRESH_TOKEN
+                'refresh_token': cls.REFRESH_TOKEN,
+                'client_id': getattr(settings, 'REVIZTO_CLIENT_ID', None),  # Add if required
+                'client_secret': getattr(settings, 'REVIZTO_CLIENT_SECRET', None)  # Add if required
             }
 
+            # Remove any None values from the data
+            data = {k: v for k, v in data.items() if v is not None}
+
+            print(f"[DEBUG] Refreshing token with data: {data}")
+
             response = requests.post(url, headers=headers, data=data)
+            print(f"[DEBUG] Token refresh response status: {response.status_code}")
+            print(f"[DEBUG] Token refresh response headers: {response.headers}")
+
+            # Print response content for debugging
+            response_text = response.text[:500]  # Limit to first 500 chars
+            print(f"[DEBUG] Token refresh response: {response_text}")
+
             response.raise_for_status()
 
             # Parse response
