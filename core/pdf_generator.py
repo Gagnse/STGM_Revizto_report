@@ -631,27 +631,27 @@ class ReviztoPDF(FPDF):
         # Move to the end of the card with extra spacing to prevent overlap
         self.set_y(card_start_y + total_card_height + 5)  # 5px gap between cards
 
-    def add_instruction(self, instruction):
+    def add_instruction(self, instruction, comments=None):
         """
         Add an instruction to the report with a layout matching the HTML version
-        Same implementation as add_observation
 
         Args:
             instruction (dict): The instruction data
+            comments (list, optional): List of comments for this instruction
         """
         # We can reuse the same implementation as add_observation
-        self.add_observation(instruction)
+        self.add_observation(instruction, comments)
 
-    def add_deficiency(self, deficiency):
+    def add_deficiency(self, deficiency, comments=None):
         """
         Add a deficiency to the report with a layout matching the HTML version
-        Same implementation as add_observation
 
         Args:
             deficiency (dict): The deficiency data
+            comments (list, optional): List of comments for this deficiency
         """
         # We can reuse the same implementation as add_observation
-        self.add_observation(deficiency)
+        self.add_observation(deficiency, comments)
 
     def add_general_notes(self):
         """
