@@ -32,6 +32,7 @@ class ReviztoPDF(FPDF):
         self.project_name = ""
         self.report_date = ""
 
+
     def header(self):
         """
         Custom header for each page
@@ -41,7 +42,7 @@ class ReviztoPDF(FPDF):
             # Check if using a custom logo from static folder
             logo_path = os.path.join('static', 'images', 'STGM_Logotype_RVB_Architecture_Noir.png')
             if os.path.exists(logo_path):
-                self.image(logo_path, 15, 8, 50)
+                self.image(logo_path, 6, 8, 50)
             else:
                 # Default behavior if no logo found
                 self.set_font('helvetica', 'B', 15)
@@ -55,14 +56,29 @@ class ReviztoPDF(FPDF):
         # Project info
         self.set_font('helvetica', 'B', 12)
         if self.project_name:
-            self.cell(0, 10, f'Projet: {self.project_name}', 0, 1, 'R')
+            self.cell(0, 10, f'{self.project_name}', 0, 1, 'R')
         if self.report_date:
-            self.cell(0, 5, f'Date: {self.report_date}', 0, 1, 'R')
+            self.cell(0, 5, f'{self.report_date}', 0, 1, 'R')
+
+        # Set line thickness (width) - default is 0.2 mm
+        current_line_width = self.line_width
+        self.set_line_width(0.75)  # Adjust this value to your preferred thickness
+
+        # Define line position with padding
+        padding_top = 35  # Adjust this value for more/less top padding
 
         # Draw a line
-        self.line(15, 30, 195, 30)
-        # Line break after header
-        self.ln(15)
+        self.line(15, padding_top, 195, padding_top)
+
+        # Reset line width to previous value
+        self.set_line_width(current_line_width)
+
+        # Line break
+        self.ln(4)  # You might want to adjust this too based on your padding
+
+        self.set_font('helvetica', 'B', 10)
+        self.cell(0, 10, "NOTE DE VISITE DE CHANTIER", 0, 0, 'R')
+        self.ln(5)
 
     def footer(self):
         """
@@ -545,13 +561,14 @@ class ReviztoPDF(FPDF):
             project_data (dict): The project data dictionary
         """
         self.add_page()
-        self.set_font('helvetica', 'B', 14)
-        self.cell(0, 10, "Rapport de visite", 0, 1, 'C')
+
+        self.set_font('helvetica', 'B', 15)
+        self.cell(0, 10, Numéro de la visite, 0, 0, 'L')
         self.ln(5)
 
         # Project information
         self.set_font('helvetica', 'B', 12)
-        self.cell(0, 10, "Information du projet", 0, 1, 'L')
+        self.cell(0, 10, "Notes", 0, 1, 'L')
 
         # Table for project details
         self.set_font('helvetica', '', 10)
@@ -617,28 +634,13 @@ class ReviztoPDF(FPDF):
                     # Create temporary file
                     with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp:
                         temp_file = temp.name
-                        temp.write(base64.b64decode(img_data))  # <-- Fix this line: Complete the parenthesis
+                        temp.write(base64.b64decode(img_data))
                     # Add to PDF
                     self.image(temp_file, x=None, y=None, w=120)
                     # Clean up
                     os.unlink(temp_file)
             except Exception as e:
                 logger.error(f"Error adding project image: {e}")
-
-        # Extract the base64 data if it's a data URL
-        image_url = project_data['imageUrl']
-        if image_url.startswith('data:image'):
-            img_data = re.sub('^data:image/.+;base64,', '', image_url)
-        # Create temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp:
-            temp_file = temp.name
-        temp.write(base64.b64decode(img_data))
-        # Add to PDF
-        self.image(temp_file, x=None, y=None, w=120)
-        # Clean up
-        os.unlink(temp_file)
-        except Exception as e:
-        logger.error(f"Error adding project image: {e}")
 
         # Project description if available
         if project_data.get('description'):
@@ -648,7 +650,7 @@ class ReviztoPDF(FPDF):
             self.set_font('helvetica', '', 10)
             self.multi_cell(0, 5, project_data.get('description', ''))
 
-            # Distribution if available
+        # Distribution if available
         if project_data.get('distribution'):
             self.ln(5)
             self.set_font('helvetica', 'B', 10)
@@ -656,131 +658,131 @@ class ReviztoPDF(FPDF):
             self.set_font('helvetica', '', 10)
             self.multi_cell(0, 5, project_data.get('distribution', ''))
 
-    def generate_report_pdf(project_id, project_data, observations, instructions, deficiencies):
-        """
-        Generate a PDF report for the project
+def generate_report_pdf(project_id, project_data, observations, instructions, deficiencies):
+    """
+    Generate a PDF report for the project
 
-        Args:
-            project_id (int): Project ID
-            project_data (dict): Project information
-            observations (list): List of observations
-            instructions (list): List of instructions
-            deficiencies (list): List of deficiencies
+    Args:
+        project_id (int): Project ID
+        project_data (dict): Project information
+        observations (list): List of observations
+        instructions (list): List of instructions
+        deficiencies (list): List of deficiencies
 
-        Returns:
-            BytesIO: PDF file as a BytesIO object
-        """
-        # Create PDF
-        pdf = ReviztoPDF()
+    Returns:
+        BytesIO: PDF file as a BytesIO object
+    """
+    # Create PDF
+    pdf = ReviztoPDF()
 
-        # Set metadata
-        pdf.set_title(f"Rapport de visite - Projet {project_data.get('projectName', project_id)}")
-        pdf.set_author("STGM Architecture")
-        pdf.set_creator("STGM Revizto Report Generator")
+    # Set metadata
+    pdf.set_title(f"Rapport de visite - Projet {project_data.get('projectName', project_id)}")
+    pdf.set_author("STGM Architecture")
+    pdf.set_creator("STGM Revizto Report Generator")
 
-        # Set PDF properties
-        pdf.project_name = project_data.get('projectName', f"Projet {project_id}")
-        if project_data.get('reportDate'):
-            try:
-                pdf.report_date = datetime.strptime(project_data['reportDate'], '%Y-%m-%d').strftime(
-                    '%d/%m/%Y')
-            except:
-                pdf.report_date = project_data['reportDate']
+    # Set PDF properties
+    pdf.project_name = project_data.get('projectName', f"Projet {project_id}")
+    if project_data.get('reportDate'):
+        try:
+            pdf.report_date = datetime.strptime(project_data['reportDate'], '%Y-%m-%d').strftime(
+                '%d/%m/%Y')
+        except:
+            pdf.report_date = project_data['reportDate']
 
-        # Add project information page
-        pdf.add_info_page(project_data)
+    # Add project information page
+    pdf.add_info_page(project_data)
 
-        # Add general notes
-        pdf.add_general_notes()
+    # Add general notes
+    pdf.add_general_notes()
 
-        # Add observations section if any observations
-        if observations and len(observations) > 0:
-            pdf.add_page()
-            pdf.chapter_title("1 - Observations")
+    # Add observations section if any observations
+    if observations and len(observations) > 0:
+        pdf.add_page()
+        pdf.chapter_title("1 - Observations")
 
-            # Filter out closed issues
-            open_observations = [obs for obs in observations if not is_closed_issue(obs)]
+        # Filter out closed issues
+        open_observations = [obs for obs in observations if not is_closed_issue(obs)]
 
-            if len(open_observations) > 0:
-                for observation in open_observations:
-                    pdf.add_observation(observation)
-            else:
-                pdf.set_font('helvetica', 'I', 10)
-                pdf.cell(0, 6, "Aucune observation trouvée", 0, 1, 'L')
+        if len(open_observations) > 0:
+            for observation in open_observations:
+                pdf.add_observation(observation)
+        else:
+            pdf.set_font('helvetica', 'I', 10)
+            pdf.cell(0, 6, "Aucune observation trouvée", 0, 1, 'L')
 
-        # Add instructions section if any instructions
-        if instructions and len(instructions) > 0:
-            pdf.add_page()
-            pdf.chapter_title("2 - Instructions")
+    # Add instructions section if any instructions
+    if instructions and len(instructions) > 0:
+        pdf.add_page()
+        pdf.chapter_title("2 - Instructions")
 
-            # Filter out closed issues
-            open_instructions = [ins for ins in instructions if not is_closed_issue(ins)]
+        # Filter out closed issues
+        open_instructions = [ins for ins in instructions if not is_closed_issue(ins)]
 
-            if len(open_instructions) > 0:
-                for instruction in open_instructions:
-                    pdf.add_instruction(instruction)
-            else:
-                pdf.set_font('helvetica', 'I', 10)
-                pdf.cell(0, 6, "Aucune instruction trouvée", 0, 1, 'L')
+        if len(open_instructions) > 0:
+            for instruction in open_instructions:
+                pdf.add_instruction(instruction)
+        else:
+            pdf.set_font('helvetica', 'I', 10)
+            pdf.cell(0, 6, "Aucune instruction trouvée", 0, 1, 'L')
 
-        # Add deficiencies section if any deficiencies
-        if deficiencies and len(deficiencies) > 0:
-            pdf.add_page()
-            pdf.chapter_title("3 - Déficiences")
+    # Add deficiencies section if any deficiencies
+    if deficiencies and len(deficiencies) > 0:
+        pdf.add_page()
+        pdf.chapter_title("3 - Déficiences")
 
-            # Filter out closed issues
-            open_deficiencies = [df for df in deficiencies if not is_closed_issue(df)]
+        # Filter out closed issues
+        open_deficiencies = [df for df in deficiencies if not is_closed_issue(df)]
 
-            if len(open_deficiencies) > 0:
-                for deficiency in open_deficiencies:
-                    pdf.add_deficiency(deficiency)
-            else:
-                pdf.set_font('helvetica', 'I', 10)
-                pdf.cell(0, 6, "Aucune déficience trouvée", 0, 1, 'L')
+        if len(open_deficiencies) > 0:
+            for deficiency in open_deficiencies:
+                pdf.add_deficiency(deficiency)
+        else:
+            pdf.set_font('helvetica', 'I', 10)
+            pdf.cell(0, 6, "Aucune déficience trouvée", 0, 1, 'L')
 
-        # Create a BytesIO object to store the PDF
-        pdf_buffer = BytesIO()
+    # Create a BytesIO object to store the PDF
+    pdf_buffer = BytesIO()
 
-        # Save PDF to BytesIO object
-        pdf.output(pdf_buffer)
+    # Save PDF to BytesIO object
+    pdf.output(pdf_buffer)
 
-        # Reset buffer position to the beginning
-        pdf_buffer.seek(0)
+    # Reset buffer position to the beginning
+    pdf_buffer.seek(0)
 
-        return pdf_buffer
+    return pdf_buffer
 
-    def is_closed_issue(issue):
-        """
-        Check if an issue is closed
+def is_closed_issue(issue):
+    """
+    Check if an issue is closed
 
-        Args:
-            issue (dict): Issue data
+    Args:
+        issue (dict): Issue data
 
-        Returns:
-            bool: True if issue is closed, False otherwise
-        """
-        # Check for status id from customStatus or status
-        status_id = None
+    Returns:
+        bool: True if issue is closed, False otherwise
+    """
+    # Check for status id from customStatus or status
+    status_id = None
 
-        if issue.get('customStatus'):
-            if isinstance(issue['customStatus'], str):
-                status_id = issue['customStatus']
-            elif isinstance(issue['customStatus'], dict) and issue['customStatus'].get('value'):
-                status_id = issue['customStatus']['value']
-        elif issue.get('status'):
-            if isinstance(issue['status'], str):
-                status_id = issue['status']
-            elif isinstance(issue['status'], dict) and issue['status'].get('value'):
-                status_id = issue['status']['value']
+    if issue.get('customStatus'):
+        if isinstance(issue['customStatus'], str):
+            status_id = issue['customStatus']
+        elif isinstance(issue['customStatus'], dict) and issue['customStatus'].get('value'):
+            status_id = issue['customStatus']['value']
+    elif issue.get('status'):
+        if isinstance(issue['status'], str):
+            status_id = issue['status']
+        elif isinstance(issue['status'], dict) and issue['status'].get('value'):
+            status_id = issue['status']['value']
 
-        # Check if status is "Closed" (UUID match or string match)
-        if status_id:
-            # Direct UUID match for Closed
-            if status_id == "135b58c6-1e14-4716-a134-bbba2bbc90a7":
-                return True
+    # Check if status is "Closed" (UUID match or string match)
+    if status_id:
+        # Direct UUID match for Closed
+        if status_id == "135b58c6-1e14-4716-a134-bbba2bbc90a7":
+            return True
 
-            # String comparison for "closed"
-            if isinstance(status_id, str) and status_id.lower() == "closed":
-                return True
+        # String comparison for "closed"
+        if isinstance(status_id, str) and status_id.lower() == "closed":
+            return True
 
-        return False
+    return False
