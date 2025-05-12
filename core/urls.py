@@ -18,6 +18,9 @@ urlpatterns = [
     path('api/projects/<int:project_id>/workflow-settings/', views.get_project_workflow_settings, name='project_workflow_settings'),
     path('api/projects/<int:project_id>/issues/<int:issue_id>/comments/', views.get_issue_comments, name='issue_comments'),
 
+    # PDF generation endpoint
+    path('api/projects/<int:project_id>/generate-pdf/', views.generate_pdf, name='generate_pdf'),
+
     # Debug endpoint for session information
     path('api/debug/session/', views.debug_session, name='debug_session'),
 ]

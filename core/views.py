@@ -449,3 +449,95 @@ def get_issue_comments(request, project_id, issue_id):
         import traceback
         print(f"[DEBUG] Traceback: {traceback.format_exc()}")
         return JsonResponse({"result": 1, "message": str(e), "data": []})
+
+
+def generate_pdf(request, project_id):
+    """
+    Generate a PDF report for the project
+    """
+    print(f"[DEBUG] PDF generation requested for project: {project_id}")
+
+    try:
+        # Get project data from the database
+        project_data = ProjectData.objects.filter(id=project_id).first()
+
+        if not project_data:
+            print(f"[DEBUG] No project data found for project ID: {project_id}")
+            return JsonResponse({'error': 'Project data not found'}, status=404)
+
+        # Convert ProjectData to a dictionary format similar to what would be returned by load_project_data
+        report_date = ''
+        if project_data.rapportDate:
+            report_date = project_data.rapportDate.strftime('%Y-%m-%d')
+
+        visit_date = ''
+        if project_data.dateVisite:
+            visit_date = project_data.dateVisite.strftime('%Y-%m-%d')
+
+        project_info = {
+            'architectFile': project_data.noDossier or '',
+            'projectName': project_data.noProjet or '',
+            'projectOwner': project_data.maitreOuvragge or '',
+            'contractor': project_data.entrepreneur or '',
+            'visitNumber': project_data.noVisite or '',
+            'visitBy': project_data.visitePar or '',
+            'visitDate': visit_date,
+            'inPresenceOf': project_data.presence or '',
+            'reportDate': report_date,
+            'description': project_data.description or '',
+            'distribution': project_data.distribution or '',
+            'imageUrl': project_data.image or '',
+        }
+
+        # Get observations, instructions, and deficiencies from the API
+        observations = []
+        instructions = []
+        deficiencies = []
+
+        # Get observations
+        observations_response = ReviztoService.get_observations(project_id)
+        if observations_response and observations_response.get('result') == 0 and observations_response.get('data') and \
+                observations_response['data'].get('data'):
+            observations = observations_response['data']['data']
+            print(f"[DEBUG] Found {len(observations)} observations")
+
+        # Get instructions
+        instructions_response = ReviztoService.get_instructions(project_id)
+        if instructions_response and instructions_response.get('result') == 0 and instructions_response.get('data') and \
+                instructions_response['data'].get('data'):
+            instructions = instructions_response['data']['data']
+            print(f"[DEBUG] Found {len(instructions)} instructions")
+
+        # Get deficiencies
+        deficiencies_response = ReviztoService.get_deficiencies(project_id)
+        if deficiencies_response and deficiencies_response.get('result') == 0 and deficiencies_response.get('data') and \
+                deficiencies_response['data'].get('data'):
+            deficiencies = deficiencies_response['data']['data']
+            print(f"[DEBUG] Found {len(deficiencies)} deficiencies")
+
+        # Import the PDF generator
+        from .pdf_generator import generate_report_pdf
+
+        # Generate PDF
+        print(
+            f"[DEBUG] Generating PDF with {len(observations)} observations, {len(instructions)} instructions, and {len(deficiencies)} deficiencies")
+        pdf_buffer = generate_report_pdf(project_id, project_info, observations, instructions, deficiencies)
+
+        # Create a response with PDF content
+        from django.http import HttpResponse
+        response = HttpResponse(pdf_buffer.getvalue(), content_type='application/pdf')
+
+        # Set filename
+        project_name = project_info['projectName'] or f"Projet_{project_id}"
+        project_name = project_name.replace(' ', '_')
+
+        response['Content-Disposition'] = f'attachment; filename="Rapport_Visite_{project_name}.pdf"'
+
+        print(f"[DEBUG] PDF successfully generated for project {project_id}")
+        return response
+
+    except Exception as e:
+        import traceback
+        print(f"[DEBUG] Error generating PDF: {e}")
+        print(f"[DEBUG] Traceback: {traceback.format_exc()}")
+        return JsonResponse({'error': str(e)}, status=500)
