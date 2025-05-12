@@ -568,7 +568,7 @@ class ReviztoPDF(FPDF):
         self.cell(0, 5, "Classement des couleurs des pastilles:", 0, 1)
         self.set_font('helvetica', '', 10)
         self.multi_cell(0, 5,
-                        "Rouge (Ouvert) : Nouvelle observation/instruction/déficience constatée par l'Architecte.\n Orange (En cours) : observation/instruction/déficience d'une visite précédente dont l'entrepreneur travaille à sa résolution.\nMauve (Corrigé) : déficience traitée par l'entrepreneur, prête à être validée par l'Architecte.\nJaune (En attente) : Status lorsque le problème dépend d'une décision externe à l'entrepreneur.\nVert (Résolu) : déficience dont la correction est approuvée par l'Architecte.")
+                        "Rouge (Ouvert) : Nouvelle observation/instruction/déficience constatée par l'Architecte.\nOrange (En cours) : observation/instruction/déficience d'une visite précédente dont l'entrepreneur travaille à sa résolution.\nMauve (Corrigé) : déficience traitée par l'entrepreneur, prête à être validée par l'Architecte.\nJaune (En attente) : Status lorsque le problème dépend d'une décision externe à l'entrepreneur.\nVert (Résolu) : déficience dont la correction est approuvée par l'Architecte.")
 
     def add_info_page(self, project_data):
         """
