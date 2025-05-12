@@ -493,6 +493,7 @@ def generate_pdf(request, project_id):
         observations = []
         instructions = []
         deficiencies = []
+        issue_comments = {}  # Dictionary to store comments for each issue
 
         # Get observations
         observations_response = ReviztoService.get_observations(project_id)
@@ -501,12 +502,32 @@ def generate_pdf(request, project_id):
             observations = observations_response['data']['data']
             print(f"[DEBUG] Found {len(observations)} observations")
 
+            # Fetch comments for each observation
+            for obs in observations:
+                if obs.get('id'):
+                    # Use a fixed date in the past to ensure we get all comments
+                    comments_response = ReviztoService.get_issue_comments(project_id, obs['id'], '2018-05-30')
+                    if comments_response and comments_response.get('result') == 0 and comments_response.get('data'):
+                        # Store comments in the dictionary keyed by issue ID
+                        issue_comments[str(obs['id'])] = comments_response['data']
+                        print(f"[DEBUG] Found {len(comments_response['data'])} comments for observation {obs['id']}")
+
         # Get instructions
         instructions_response = ReviztoService.get_instructions(project_id)
         if instructions_response and instructions_response.get('result') == 0 and instructions_response.get('data') and \
                 instructions_response['data'].get('data'):
             instructions = instructions_response['data']['data']
             print(f"[DEBUG] Found {len(instructions)} instructions")
+
+            # Fetch comments for each instruction
+            for ins in instructions:
+                if ins.get('id'):
+                    # Use a fixed date in the past to ensure we get all comments
+                    comments_response = ReviztoService.get_issue_comments(project_id, ins['id'], '2018-05-30')
+                    if comments_response and comments_response.get('result') == 0 and comments_response.get('data'):
+                        # Store comments in the dictionary keyed by issue ID
+                        issue_comments[str(ins['id'])] = comments_response['data']
+                        print(f"[DEBUG] Found {len(comments_response['data'])} comments for instruction {ins['id']}")
 
         # Get deficiencies
         deficiencies_response = ReviztoService.get_deficiencies(project_id)
@@ -515,13 +536,25 @@ def generate_pdf(request, project_id):
             deficiencies = deficiencies_response['data']['data']
             print(f"[DEBUG] Found {len(deficiencies)} deficiencies")
 
+            # Fetch comments for each deficiency
+            for def_item in deficiencies:
+                if def_item.get('id'):
+                    # Use a fixed date in the past to ensure we get all comments
+                    comments_response = ReviztoService.get_issue_comments(project_id, def_item['id'], '2018-05-30')
+                    if comments_response and comments_response.get('result') == 0 and comments_response.get('data'):
+                        # Store comments in the dictionary keyed by issue ID
+                        issue_comments[str(def_item['id'])] = comments_response['data']
+                        print(
+                            f"[DEBUG] Found {len(comments_response['data'])} comments for deficiency {def_item['id']}")
+
         # Import the PDF generator
         from .pdf_generator import generate_report_pdf
 
-        # Generate PDF
+        # Generate PDF with comments
         print(
-            f"[DEBUG] Generating PDF with {len(observations)} observations, {len(instructions)} instructions, and {len(deficiencies)} deficiencies")
-        pdf_buffer = generate_report_pdf(project_id, project_info, observations, instructions, deficiencies)
+            f"[DEBUG] Generating PDF with {len(observations)} observations, {len(instructions)} instructions, {len(deficiencies)} deficiencies, and comments for {len(issue_comments)} issues")
+        pdf_buffer = generate_report_pdf(project_id, project_info, observations, instructions, deficiencies,
+                                         issue_comments)
 
         # Create a response with PDF content
         from django.http import HttpResponse

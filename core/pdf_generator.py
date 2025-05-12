@@ -164,7 +164,7 @@ class ReviztoPDF(FPDF):
 
         self.set_xy(x + width + 5, y)
 
-    def add_observation(self, observation):
+    def add_observation(self, observation, comments=None):
         """
         Add an observation to the report with the layout:
         - Top: Two columns (image + information)
@@ -173,6 +173,7 @@ class ReviztoPDF(FPDF):
 
         Args:
             observation (dict): The observation data
+            comments (list, optional): List of comments/history for this observation
         """
         # Check required fields
         if not observation.get('id'):
@@ -221,8 +222,14 @@ class ReviztoPDF(FPDF):
         # Calculate page dimensions
         page_width = self.w - 2 * self.l_margin
 
+        # Check if we have comments to determine the total height
+        comment_section_height = 0
+        if comments and len(comments) > 0:
+            # Estimate about 10mm per comment, with a minimum of 30mm
+            comment_section_height = max(30, min(100, len(comments) * 10))  # min 30mm, max 100mm
+
         # Estimate card height - this is an important step to avoid page breaks within cards
-        estimated_card_height = 120  # Estimated total card height
+        estimated_card_height = 120 + comment_section_height  # Base height + comment height
 
         # Force a page break if the card won't fit on the current page
         if self.get_y() + estimated_card_height > self.h - self.b_margin:
@@ -297,14 +304,25 @@ class ReviztoPDF(FPDF):
                 image_url = observation['preview']['original']
 
         # Add image if available
-        if image_url and image_url.startswith('data:image'):
+        if image_url:
             try:
-                # Extract the base64 data
-                img_data = re.sub('^data:image/.+;base64,', '', image_url)
-                # Create temporary file
-                with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp:
-                    temp_file = temp.name
-                    temp.write(base64.b64decode(img_data))
+                # Handle base64 data URLs
+                if image_url.startswith('data:image'):
+                    # Extract the base64 data
+                    img_data = re.sub('^data:image/.+;base64,', '', image_url)
+                    # Create temporary file
+                    with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp:
+                        temp_file = temp.name
+                        temp.write(base64.b64decode(img_data))
+                # Handle HTTP URLs by downloading the image
+                elif image_url.startswith(('http://', 'https://')):
+                    import urllib.request
+                    with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp:
+                        temp_file = temp.name
+                        urllib.request.urlretrieve(image_url, temp_file)
+                else:
+                    # Assume it's a local file path
+                    temp_file = image_url
 
                 # Calculate image dimensions to fit in column
                 image_width = image_col_width - 10  # Leave 5px padding on each side
@@ -319,8 +337,9 @@ class ReviztoPDF(FPDF):
                 # Add image to PDF
                 self.image(temp_file, x=image_x, y=image_y, w=image_width)
 
-                # Clean up
-                os.unlink(temp_file)
+                # Clean up if we created a temp file
+                if image_url.startswith(('data:image', 'http://', 'https://')):
+                    os.unlink(temp_file)
             except Exception as e:
                 logger.error(f"Error adding image: {e}")
                 # Display placeholder if image fails
@@ -434,10 +453,12 @@ class ReviztoPDF(FPDF):
 
         # History section start position
         history_y = top_section_y + top_section_height
-        history_height = 30
+
+        # Dynamic height based on comments
+        history_height = max(30, comment_section_height)
 
         # Set light gray background for history section
-        self.set_fill_color(255, 255, 255)
+        self.set_fill_color(250, 250, 250)  # Very light gray
         self.rect(self.l_margin, history_y, page_width, history_height, 'FD')
 
         # Horizontal divider between top section and history
@@ -448,14 +469,117 @@ class ReviztoPDF(FPDF):
         self.set_font('helvetica', 'B', 9)
         self.cell(page_width - 10, 5, "Historique", 0, 1, 'L')
 
-        # History placeholder text
-        self.set_xy(self.l_margin + 5, self.get_y() + 2)
-        self.set_font('helvetica', 'I', 8)
-        self.multi_cell(page_width - 10, 4, "Veuillez consulter Revizto pour l'historique complet.", 0, 'L')
+        # Show comments if available
+        if comments and len(comments) > 0:
+            # Sort comments by date (newest first)
+            sorted_comments = sorted(comments, key=lambda x: x.get('created', ''), reverse=True)
+
+            # Start position for comments
+            comment_y = self.get_y() + 2
+            self.set_xy(self.l_margin + 5, comment_y)
+
+            # Display comments (limit to first 5 to save space)
+            for i, comment in enumerate(sorted_comments[:5]):
+                if i > 0:
+                    # Add a light separator line between comments
+                    self.set_draw_color(200, 200, 200)  # Light gray
+                    self.line(self.l_margin + 10, self.get_y() - 1, self.l_margin + page_width - 10, self.get_y() - 1)
+                    self.set_draw_color(0, 0, 0)  # Reset to black
+
+                # Extract author info
+                author_name = 'Utilisateur inconnu'
+                if comment.get('author'):
+                    if isinstance(comment['author'], str):
+                        author_name = comment['author']
+                    elif isinstance(comment['author'], dict):
+                        if comment['author'].get('firstname') and comment['author'].get('lastname'):
+                            author_name = f"{comment['author']['firstname']} {comment['author']['lastname']}"
+                        elif comment['author'].get('email'):
+                            author_name = comment['author']['email']
+
+                # Format date
+                comment_date = "Date inconnue"
+                if comment.get('created'):
+                    try:
+                        date_obj = datetime.fromisoformat(comment['created'].replace('Z', '+00:00'))
+                        comment_date = date_obj.strftime('%d/%m/%Y %H:%M')
+                    except:
+                        comment_date = comment['created']
+
+                # Author and date header
+                self.set_font('helvetica', 'B', 8)
+                self.cell(50, 4, author_name, 0, 0, 'L')
+                self.set_font('helvetica', 'I', 7)
+                self.cell(page_width - 65, 4, comment_date, 0, 1, 'R')
+
+                # Comment content based on type
+                comment_type = comment.get('type', 'unknown')
+
+                if comment_type == 'text':
+                    # Text comment
+                    self.set_font('helvetica', '', 8)
+                    self.set_xy(self.l_margin + 10, self.get_y())
+                    self.multi_cell(page_width - 20, 4, comment.get('text', ''), 0, 'L')
+
+                elif comment_type == 'diff':
+                    # Handle diff comment (status changes, etc.)
+                    if comment.get('diff'):
+                        self.set_font('helvetica', '', 8)
+                        self.set_xy(self.l_margin + 10, self.get_y())
+
+                        diff_text = ""
+                        for key, change in comment['diff'].items():
+                            # Format change description
+                            if key == 'customStatus':
+                                old_status = format_status_value(change.get('old', '-'))
+                                new_status = format_status_value(change.get('new', '-'))
+                                diff_text += f"État: {old_status} → {new_status}\n"
+                            elif key == 'assignee':
+                                diff_text += f"Assigné à: {change.get('old', '-')} → {change.get('new', '-')}\n"
+                            elif key not in ['status', 'statusAuto']:  # Skip these fields
+                                # Format other field names
+                                field_name = re.sub(r'([A-Z])', r' \1', key).lower()
+                                field_name = field_name[0].upper() + field_name[1:] if field_name else key
+                                diff_text += f"{field_name}: {change.get('old', '-')} → {change.get('new', '-')}\n"
+
+                        self.multi_cell(page_width - 20, 4, diff_text.strip(), 0, 'L')
+
+                elif comment_type == 'file' or comment_type == 'markup':
+                    # Just show a simple indication for files and markups
+                    self.set_font('helvetica', 'I', 8)
+                    self.set_xy(self.l_margin + 10, self.get_y())
+
+                    if comment_type == 'file':
+                        file_text = f"Fichier joint: {comment.get('filename', 'Sans nom')}"
+                        self.cell(page_width - 20, 4, file_text, 0, 1, 'L')
+                    else:
+                        self.cell(page_width - 20, 4, "Markup ajouté", 0, 1, 'L')
+
+                else:
+                    # Default for unknown types
+                    self.set_font('helvetica', 'I', 8)
+                    self.set_xy(self.l_margin + 10, self.get_y())
+                    self.cell(page_width - 20, 4, f"Activité: {comment_type}", 0, 1, 'L')
+
+                # Add space after each comment
+                self.ln(2)
+
+            # If there are more comments than shown
+            if len(sorted_comments) > 5:
+                self.set_font('helvetica', 'I', 7)
+                self.set_xy(self.l_margin + 5, self.get_y())
+                self.cell(page_width - 10, 4, f"+ {len(sorted_comments) - 5} commentaires supplémentaires dans Revizto",
+                          0, 1, 'R')
+
+        else:
+            # Default message if no comments
+            self.set_xy(self.l_margin + 5, self.get_y() + 2)
+            self.set_font('helvetica', 'I', 8)
+            self.multi_cell(page_width - 10, 4, "Aucun historique disponible pour cet élément.", 0, 'L')
 
         # ===== CARD BOTTOM BORDER =====
 
-        # Calculate total card height
+        # Calculate total card height (dynamic based on content)
         total_card_height = header_height + top_section_height + history_height
 
         # Draw a border around the entire card
@@ -699,7 +823,7 @@ class ReviztoPDF(FPDF):
         # Reset line width to default
         self.set_line_width(0.2)
 
-def generate_report_pdf(project_id, project_data, observations, instructions, deficiencies):
+def generate_report_pdf(project_id, project_data, observations, instructions, deficiencies, issue_comments=None):
     """
     Generate a PDF report for the project
 
@@ -709,6 +833,7 @@ def generate_report_pdf(project_id, project_data, observations, instructions, de
         observations (list): List of observations
         instructions (list): List of instructions
         deficiencies (list): List of deficiencies
+        issue_comments (dict, optional): Dictionary mapping issue IDs to comments
 
     Returns:
         BytesIO: PDF file as a BytesIO object
@@ -730,6 +855,10 @@ def generate_report_pdf(project_id, project_data, observations, instructions, de
         except:
             pdf.report_date = project_data['reportDate']
 
+    # Initialize issue_comments dict if not provided
+    if issue_comments is None:
+        issue_comments = {}
+
     # Add project information page
     pdf.add_info_page(project_data)
 
@@ -746,7 +875,9 @@ def generate_report_pdf(project_id, project_data, observations, instructions, de
 
         if len(open_observations) > 0:
             for observation in open_observations:
-                pdf.add_observation(observation)
+                # Get comments for this observation if available
+                obs_comments = issue_comments.get(str(observation.get('id')), [])
+                pdf.add_observation(observation, obs_comments)
         else:
             pdf.set_font('helvetica', 'I', 10)
             pdf.cell(0, 6, "Aucune observation trouvée", 0, 1, 'L')
@@ -761,7 +892,9 @@ def generate_report_pdf(project_id, project_data, observations, instructions, de
 
         if len(open_instructions) > 0:
             for instruction in open_instructions:
-                pdf.add_instruction(instruction)
+                # Get comments for this instruction if available
+                ins_comments = issue_comments.get(str(instruction.get('id')), [])
+                pdf.add_instruction(instruction, ins_comments)
         else:
             pdf.set_font('helvetica', 'I', 10)
             pdf.cell(0, 6, "Aucune instruction trouvée", 0, 1, 'L')
@@ -776,7 +909,9 @@ def generate_report_pdf(project_id, project_data, observations, instructions, de
 
         if len(open_deficiencies) > 0:
             for deficiency in open_deficiencies:
-                pdf.add_deficiency(deficiency)
+                # Get comments for this deficiency if available
+                def_comments = issue_comments.get(str(deficiency.get('id')), [])
+                pdf.add_deficiency(deficiency, def_comments)
         else:
             pdf.set_font('helvetica', 'I', 10)
             pdf.cell(0, 6, "Aucune déficience trouvée", 0, 1, 'L')
@@ -827,3 +962,54 @@ def is_closed_issue(issue):
             return True
 
     return False
+
+
+def format_status_value(value):
+    """
+    Format a status ID or value object to a display string.
+
+    Args:
+        value: Status ID (string) or value object
+
+    Returns:
+        str: Formatted display string
+    """
+    # If value is None or empty, return default
+    if not value:
+        return "Inconnu"
+
+    # If value is an object with 'value' property (from API)
+    if isinstance(value, dict) and 'value' in value:
+        value = value['value']
+
+    # Status ID to display name mapping
+    status_map = {
+        "2ed005c6-43cd-4907-a4d6-807dbd0197d5": "Ouvert",
+        "cd52ac3e-f345-4f99-870f-5be95dc33245": "En cours",
+        "b8504242-3489-43a2-9831-54f64053b226": "Résolu",
+        "135b58c6-1e14-4716-a134-bbba2bbc90a7": "Fermé",
+        "5947b7d1-70b9-425b-aba6-7187eb0251ff": "En attente",
+        "912abbbf-3155-4e3c-b437-5778bdfd73f4": "Non-problème",
+        "337e2fe6-e2a3-4e3f-b098-30aac68a191c": "Corrigé",
+    }
+
+    # Check if the value is a known UUID
+    if isinstance(value, str) and value in status_map:
+        return status_map[value]
+
+    # Basic string translations
+    if isinstance(value, str):
+        lower_value = value.lower()
+        if lower_value == "open" or lower_value == "opened":
+            return "Ouvert"
+        elif lower_value == "closed":
+            return "Fermé"
+        elif lower_value == "solved":
+            return "Résolu"
+        elif lower_value == "in progress" or lower_value == "in_progress":
+            return "En cours"
+        # Return the value as is if no translation
+        return value
+
+    # If we still don't know how to handle it, convert to string
+    return str(value)
