@@ -98,10 +98,11 @@ class ReviztoPDF(FPDF):
         """
         Add a chapter title
         """
+        self.ln(2)
         self.set_font('helvetica', 'B', 12)
-        self.set_fill_color(200, 220, 255)
-        self.cell(0, 6, title, 0, 1, 'L', 1)
-        self.ln(4)
+        self.set_fill_color(255, 225, 255)
+        self.cell(30, 6, title, 0, 1, 'L', 0)
+        self.ln(2)
 
     def chapter_body(self, body):
         """
@@ -520,7 +521,7 @@ class ReviztoPDF(FPDF):
         Add the general notes section to the PDF
         """
         self.add_page()
-        self.chapter_title("Notes générales")
+        self.chapter_title("NOTES GÉNÉRALES")
 
         # Section A: Observations
         self.section_title("A. Observations")
@@ -567,7 +568,7 @@ class ReviztoPDF(FPDF):
         self.cell(0, 5, "Classement des couleurs des pastilles:", 0, 1)
         self.set_font('helvetica', '', 10)
         self.multi_cell(0, 5,
-                        "Bleu (posée): nouvelle observation/instruction/déficience constatée par l'Architecte.\nRouge / orange (posée): observation/instruction/déficience d'une visite précédente.\nMauve (traitée): déficience traitée par l'entrepreneur, prête à être validée par l'Architecte.\nNoir (refusée): correction de déficience refusée par l'Architecte, à corriger de nouveau, adéquatement.\nGris (levée): déficience dont la correction est approuvée par l'Architecte.")
+                        "Rouge (Ouvert) : Nouvelle observation/instruction/déficience constatée par l'Architecte.\n Orange (En cours) : observation/instruction/déficience d'une visite précédente dont l'entrepreneur travaille à sa résolution.\nMauve (Corrigé) : déficience traitée par l'entrepreneur, prête à être validée par l'Architecte.\nJaune (En attente) : Status lorsque le problème dépend d'une décision externe à l'entrepreneur.\nVert (Résolu) : déficience dont la correction est approuvée par l'Architecte.")
 
     def add_info_page(self, project_data):
         """
@@ -659,26 +660,10 @@ class ReviztoPDF(FPDF):
         self.cell(label_width, row_height, "En présence de:", 0, 0, 'L', 1)
         self.cell(field_width, row_height, project_data.get('inPresenceOf', ''), 0, 1, 'L')
 
-        # Project description if available
-        if project_data.get('description'):
-            self.ln(5)
-            self.set_font('helvetica', 'B', 10)
-            self.cell(info_column_width, 5, "Description du projet:", 0, 1, 'L')
-            self.set_font('helvetica', '', 10)
-            self.multi_cell(info_column_width, 5, project_data.get('description', ''))
-
-        # Distribution if available
-        if project_data.get('distribution'):
-            self.ln(5)
-            self.set_font('helvetica', 'B', 10)
-            self.cell(info_column_width, 5, "Distribution:", 0, 1, 'L')
-            self.set_font('helvetica', '', 10)
-            self.multi_cell(info_column_width, 5, project_data.get('distribution', ''))
-
         # -- RIGHT COLUMN (Project Image) --
 
         # Save current position before moving to image column
-        end_y = self.get_y()
+        info_end_y = self.get_y()
 
         # Project image
         if project_data.get('imageUrl'):
@@ -708,50 +693,41 @@ class ReviztoPDF(FPDF):
                 logger.error(f"Error adding project image: {e}")
 
         # Move cursor position back to the end of the left column content
-        self.set_y(max(self.get_y(), end_y) + 10)
+        self.set_y(max(self.get_y(), info_end_y) + 10)
 
-        # Set line thickness (width) - default is 0.2 mm
-        current_line_width = self.line_width
-        self.set_line_width(0.75)  # Adjust this value to your preferred thickness
+        # Add horizontal line
+        self.set_line_width(0.2)
+        self.line(self.l_margin, self.get_y(), self.l_margin + page_width, self.get_y())
+        self.ln(1)  # Add space after the line
 
-        # Define line position with padding
-        padding_top = 35  # Adjust this value for more/less top padding
-
-        # Draw a line
-        self.line(15, padding_top, 195, padding_top)
-
-        # Reset line width to previous value
-        self.set_line_width(current_line_width)
-
-        # Line break
-        self.ln(4)  # You might want to adjust this too based on your padding
-
+        # Description section
         self.set_font('helvetica', 'B', 10)
-        self.cell(0, 10, "DESCRIPTION", 0, 0, 'L')
-        self.ln(5)
+        self.cell(0, 10, "DESCRIPTION DU PROJET", 0, 1, 'L')
 
-        # Move cursor position back to the end of the left column content
-        self.set_y(max(self.get_y(), end_y) + 10)
+        # Project description if available
+        if project_data.get('description'):
+            self.set_font('helvetica', '', 10)
+            self.multi_cell(page_width, 5, project_data.get('description', ''))
+        else:
+            self.ln(5)  # Add some space if no description
 
-        # Set line thickness (width) - default is 0.2 mm
-        current_line_width = self.line_width
-        self.set_line_width(0.75)  # Adjust this value to your preferred thickness
+        # Add another horizontal line
+        self.ln(3)
+        self.set_line_width(0.2)
+        self.line(self.l_margin, self.get_y(), self.l_margin + page_width, self.get_y())
+        self.ln(1)  # Add space after the line
 
-        # Define line position with padding
-        padding_top = 35  # Adjust this value for more/less top padding
-
-        # Draw a line
-        self.line(15, padding_top, 195, padding_top)
-
-        # Reset line width to previous value
-        self.set_line_width(current_line_width)
-
-        # Line break
-        self.ln(4)  # You might want to adjust this too based on your padding
-
+        # Distribution section
         self.set_font('helvetica', 'B', 10)
-        self.cell(0, 10, "LISTE DE DISTRIBUTION", 0, 0, 'L')
-        self.ln(5)
+        self.cell(0, 10, "LISTE DE DISTRIBUTION", 0, 1, 'L')
+
+        # Distribution content if available
+        if project_data.get('distribution'):
+            self.set_font('helvetica', '', 10)
+            self.multi_cell(page_width, 5, project_data.get('distribution', ''))
+
+        # Reset line width to default
+        self.set_line_width(0.2)
 
 def generate_report_pdf(project_id, project_data, observations, instructions, deficiencies):
     """
@@ -793,7 +769,7 @@ def generate_report_pdf(project_id, project_data, observations, instructions, de
     # Add observations section if any observations
     if observations and len(observations) > 0:
         pdf.add_page()
-        pdf.chapter_title("1 - Observations")
+        pdf.chapter_title("1 - OBSERVATIONS")
 
         # Filter out closed issues
         open_observations = [obs for obs in observations if not is_closed_issue(obs)]
@@ -808,7 +784,7 @@ def generate_report_pdf(project_id, project_data, observations, instructions, de
     # Add instructions section if any instructions
     if instructions and len(instructions) > 0:
         pdf.add_page()
-        pdf.chapter_title("2 - Instructions")
+        pdf.chapter_title("2 - INSTRUCTIONS")
 
         # Filter out closed issues
         open_instructions = [ins for ins in instructions if not is_closed_issue(ins)]
@@ -823,7 +799,7 @@ def generate_report_pdf(project_id, project_data, observations, instructions, de
     # Add deficiencies section if any deficiencies
     if deficiencies and len(deficiencies) > 0:
         pdf.add_page()
-        pdf.chapter_title("3 - Déficiences")
+        pdf.chapter_title("3 - DÉFICIENCES")
 
         # Filter out closed issues
         open_deficiencies = [df for df in deficiencies if not is_closed_issue(df)]
