@@ -31,6 +31,7 @@ class ReviztoPDF(FPDF):
         self.title = ""
         self.project_name = ""
         self.report_date = ""
+        self.visitNumber = ""
 
 
     def header(self):
@@ -129,8 +130,12 @@ class ReviztoPDF(FPDF):
         """
         # Save current position and properties
         x, y = self.get_x(), self.get_y()
-        fill_color = self.fill_color
-        text_color_orig = self.text_color
+
+        # Store original fill and text colors
+        # The fill_color and text_color properties return dictionaries with 'r', 'g', 'b' keys
+        # We need to convert them to a format we can use later
+        original_fill_color = self.fill_color
+        original_text_color = self.text_color
 
         # Set new colors
         self.set_fill_color(bg_color[0], bg_color[1], bg_color[2])
@@ -143,8 +148,19 @@ class ReviztoPDF(FPDF):
         self.cell(width, 5, status_name, 0, 0, 'C')
 
         # Restore colors and move position
-        self.set_fill_color(fill_color['r'], fill_color['g'], fill_color['b'])
-        self.set_text_color(text_color_orig['r'], text_color_orig['g'], text_color_orig['b'])
+        # Check if original colors are dictionaries with 'r', 'g', 'b' keys
+        if isinstance(original_fill_color, dict) and 'r' in original_fill_color:
+            self.set_fill_color(original_fill_color['r'], original_fill_color['g'], original_fill_color['b'])
+        else:
+            # Default to black if original fill color format is unexpected
+            self.set_fill_color(0, 0, 0)
+
+        if isinstance(original_text_color, dict) and 'r' in original_text_color:
+            self.set_text_color(original_text_color['r'], original_text_color['g'], original_text_color['b'])
+        else:
+            # Default to black if original text color format is unexpected
+            self.set_text_color(0, 0, 0)
+
         self.set_xy(x + width + 5, y)
 
     def add_observation(self, observation):
@@ -555,24 +571,32 @@ class ReviztoPDF(FPDF):
 
     def add_info_page(self, project_data):
         """
-        Add the project information page
+        Add the project information page with information in a single column on the left
+        and the image on the right
 
         Args:
             project_data (dict): The project data dictionary
         """
         self.add_page()
 
-        self.set_font('helvetica', 'B', 15)
-        self.cell(0, 10, Numéro de la visite, 0, 0, 'L')
-        self.ln(5)
+        # Set up page layout
+        page_width = self.w - 2 * self.l_margin
+        info_column_width = page_width * 0.55  # 55% of page width for information
+        image_column_width = page_width * 0.45  # 45% of page width for image
+
+        # Visit number at the top
+        self.set_font('helvetica', 'B', 25)
+        self.cell(0, 10, project_data.get('visitNumber', ''), 0, 1, 'L')
+        self.ln(10)
+
+        # Save starting y position for the image column
+        starting_y = self.get_y()
+
+        # -- LEFT COLUMN (Project Information) --
 
         # Project information
         self.set_font('helvetica', 'B', 12)
-        self.cell(0, 10, "Notes", 0, 1, 'L')
-
-        # Table for project details
-        self.set_font('helvetica', '', 10)
-        self.set_fill_color(240, 240, 240)
+        self.cell(info_column_width, 10, "NOTES", 0, 1, 'L')
 
         # Format dates if provided
         report_date = project_data.get('reportDate', '')
@@ -589,74 +613,145 @@ class ReviztoPDF(FPDF):
             except:
                 pass
 
-        # Project details in a table
-        col_width = 85
+        # Project details in a table (single column format)
+        self.set_font('helvetica', '', 10)
+        self.set_fill_color(255, 255, 255)
         row_height = 7
 
-        # Row 1
-        self.cell(35, row_height, "Dossier Architecte:", 1, 0, 'L', 1)
-        self.cell(col_width, row_height, project_data.get('architectFile', ''), 1, 0, 'L')
-        self.cell(35, row_height, "Projet:", 1, 0, 'L', 1)
-        self.cell(col_width, row_height, project_data.get('projectName', ''), 1, 1, 'L')
+        # Row settings
+        label_width = 35
+        field_width = info_column_width - label_width
 
-        # Row 2
-        self.cell(35, row_height, "Maitre de l'ouvrage:", 1, 0, 'L', 1)
-        self.cell(col_width, row_height, project_data.get('projectOwner', ''), 1, 0, 'L')
-        self.cell(35, row_height, "Entrepreneur:", 1, 0, 'L', 1)
-        self.cell(col_width, row_height, project_data.get('contractor', ''), 1, 1, 'L')
+        # Dossier Architecte
+        self.set_fill_color(255, 255, 255)
+        self.cell(label_width, row_height, "Dossier Architecte:", 0, 0, 'L', 1)
+        self.cell(field_width, row_height, project_data.get('architectFile', ''), 0, 1, 'L')
 
-        # Row 3
-        self.cell(35, row_height, "Visite no.:", 1, 0, 'L', 1)
-        self.cell(col_width, row_height, project_data.get('visitNumber', ''), 1, 0, 'L')
-        self.cell(35, row_height, "Date du rapport:", 1, 0, 'L', 1)
-        self.cell(col_width, row_height, report_date, 1, 1, 'L')
+        # Projet
+        self.cell(label_width, row_height, "Projet:", 0, 0, 'L', 1)
+        self.cell(field_width, row_height, project_data.get('projectName', ''), 0, 1, 'L')
 
-        # Row 4
-        self.cell(35, row_height, "Visite effectuée par:", 1, 0, 'L', 1)
-        self.cell(col_width, row_height, project_data.get('visitBy', ''), 1, 0, 'L')
-        self.cell(35, row_height, "Date de la visite:", 1, 0, 'L', 1)
-        self.cell(col_width, row_height, visit_date, 1, 1, 'L')
+        # Maitre de l'ouvrage
+        self.cell(label_width, row_height, "Maitre de l'ouvrage:", 0, 0, 'L', 1)
+        self.cell(field_width, row_height, project_data.get('projectOwner', ''), 0, 1, 'L')
 
-        # Row 5
-        self.cell(35, row_height, "En présence de:", 1, 0, 'L', 1)
-        self.cell(col_width * 2 + 35, row_height, project_data.get('inPresenceOf', ''), 1, 1, 'L')
+        # Entrepreneur
+        self.cell(label_width, row_height, "Entrepreneur:", 0, 0, 'L', 1)
+        self.cell(field_width, row_height, project_data.get('contractor', ''), 0, 1, 'L')
 
-        # Project image
-        if project_data.get('imageUrl'):
-            self.ln(5)
-            self.cell(0, 10, "Image du projet:", 0, 1, 'L')
+        # Visite no.
+        self.cell(label_width, row_height, "Visite no.:", 0, 0, 'L', 1)
+        self.cell(field_width, row_height, project_data.get('visitNumber', ''), 0, 1, 'L')
 
-            try:
-                # Extract the base64 data if it's a data URL
-                image_url = project_data['imageUrl']
-                if image_url.startswith('data:image'):
-                    img_data = re.sub('^data:image/.+;base64,', '', image_url)
-                    # Create temporary file
-                    with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp:
-                        temp_file = temp.name
-                        temp.write(base64.b64decode(img_data))
-                    # Add to PDF
-                    self.image(temp_file, x=None, y=None, w=120)
-                    # Clean up
-                    os.unlink(temp_file)
-            except Exception as e:
-                logger.error(f"Error adding project image: {e}")
+        # Date du rapport
+        self.cell(label_width, row_height, "Date du rapport:", 0, 0, 'L', 1)
+        self.cell(field_width, row_height, report_date, 0, 1, 'L')
+
+        # Visite effectuée par
+        self.cell(label_width, row_height, "Visite effectuée par:", 0, 0, 'L', 1)
+        self.cell(field_width, row_height, project_data.get('visitBy', ''), 0, 1, 'L')
+
+        # Date de la visite
+        self.cell(label_width, row_height, "Date de la visite:", 0, 0, 'L', 1)
+        self.cell(field_width, row_height, visit_date, 0, 1, 'L')
+
+        # En présence de
+        self.cell(label_width, row_height, "En présence de:", 0, 0, 'L', 1)
+        self.cell(field_width, row_height, project_data.get('inPresenceOf', ''), 0, 1, 'L')
 
         # Project description if available
         if project_data.get('description'):
             self.ln(5)
             self.set_font('helvetica', 'B', 10)
-            self.cell(0, 5, "Description du projet:", 0, 1, 'L')
+            self.cell(info_column_width, 5, "Description du projet:", 0, 1, 'L')
             self.set_font('helvetica', '', 10)
-            self.multi_cell(0, 5, project_data.get('description', ''))
+            self.multi_cell(info_column_width, 5, project_data.get('description', ''))
 
         # Distribution if available
         if project_data.get('distribution'):
             self.ln(5)
             self.set_font('helvetica', 'B', 10)
-            self.cell(0, 5, "Distribution:", 0, 1, 'L')
+            self.cell(info_column_width, 5, "Distribution:", 0, 1, 'L')
             self.set_font('helvetica', '', 10)
-            self.multi_cell(0, 5, project_data.get('distribution', ''))
+            self.multi_cell(info_column_width, 5, project_data.get('distribution', ''))
+
+        # -- RIGHT COLUMN (Project Image) --
+
+        # Save current position before moving to image column
+        end_y = self.get_y()
+
+        # Project image
+        if project_data.get('imageUrl'):
+            try:
+                # Move to the right column position at the same starting Y
+                self.set_xy(self.l_margin + info_column_width + 10, starting_y + 10)
+
+                # Extract the base64 data if it's a data URL
+                image_url = project_data['imageUrl']
+                if image_url.startswith('data:image'):
+                    img_data = re.sub('^data:image/.+;base64,', '', image_url)
+
+                    # Create temporary file
+                    with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp:
+                        temp_file = temp.name
+                        temp.write(base64.b64decode(img_data))
+
+                    # Calculate image dimensions to fit in the right column
+                    image_width = image_column_width - 10  # Leave some margin
+
+                    # Add to PDF
+                    self.image(temp_file, x=self.l_margin + info_column_width + 10, y=None, w=image_width)
+
+                    # Clean up
+                    os.unlink(temp_file)
+            except Exception as e:
+                logger.error(f"Error adding project image: {e}")
+
+        # Move cursor position back to the end of the left column content
+        self.set_y(max(self.get_y(), end_y) + 10)
+
+        # Set line thickness (width) - default is 0.2 mm
+        current_line_width = self.line_width
+        self.set_line_width(0.75)  # Adjust this value to your preferred thickness
+
+        # Define line position with padding
+        padding_top = 35  # Adjust this value for more/less top padding
+
+        # Draw a line
+        self.line(15, padding_top, 195, padding_top)
+
+        # Reset line width to previous value
+        self.set_line_width(current_line_width)
+
+        # Line break
+        self.ln(4)  # You might want to adjust this too based on your padding
+
+        self.set_font('helvetica', 'B', 10)
+        self.cell(0, 10, "DESCRIPTION", 0, 0, 'L')
+        self.ln(5)
+
+        # Move cursor position back to the end of the left column content
+        self.set_y(max(self.get_y(), end_y) + 10)
+
+        # Set line thickness (width) - default is 0.2 mm
+        current_line_width = self.line_width
+        self.set_line_width(0.75)  # Adjust this value to your preferred thickness
+
+        # Define line position with padding
+        padding_top = 35  # Adjust this value for more/less top padding
+
+        # Draw a line
+        self.line(15, padding_top, 195, padding_top)
+
+        # Reset line width to previous value
+        self.set_line_width(current_line_width)
+
+        # Line break
+        self.ln(4)  # You might want to adjust this too based on your padding
+
+        self.set_font('helvetica', 'B', 10)
+        self.cell(0, 10, "LISTE DE DISTRIBUTION", 0, 0, 'L')
+        self.ln(5)
 
 def generate_report_pdf(project_id, project_data, observations, instructions, deficiencies):
     """
