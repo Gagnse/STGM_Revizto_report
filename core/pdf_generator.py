@@ -166,7 +166,10 @@ class ReviztoPDF(FPDF):
 
     def add_observation(self, observation):
         """
-        Add an observation to the report
+        Add an observation to the report with the layout:
+        - Top: Two columns (image + information)
+        - Bottom: Full-width history section
+        - Ensures no card is ever split between pages
 
         Args:
             observation (dict): The observation data
@@ -176,7 +179,7 @@ class ReviztoPDF(FPDF):
             return
 
         # Get title - either string or object with value
-        title = 'No Title'
+        title = 'Sans titre'
         if observation.get('title'):
             if isinstance(observation['title'], str):
                 title = observation['title']
@@ -184,7 +187,7 @@ class ReviztoPDF(FPDF):
                 title = observation['title']['value']
 
         # Get status info
-        status_text = "Unknown"
+        status_text = "Inconnu"
         bg_color = (110, 110, 110)  # Default gray
 
         if observation.get('customStatus'):
@@ -205,19 +208,87 @@ class ReviztoPDF(FPDF):
             elif status_id == "135b58c6-1e14-4716-a134-bbba2bbc90a7":  # Closed
                 status_text = "Fermé"
                 bg_color = (184, 184, 184)  # Gray
+            elif status_id == "5947b7d1-70b9-425b-aba6-7187eb0251ff":  # En attente
+                status_text = "En attente"
+                bg_color = (255, 211, 46)  # Yellow
+            elif status_id == "912abbbf-3155-4e3c-b437-5778bdfd73f4":  # non-problème
+                status_text = "Non-problème"
+                bg_color = (43, 43, 43)  # Dark gray
+            elif status_id == "337e2fe6-e2a3-4e3f-b098-30aac68a191c":  # Corrigé
+                status_text = "Corrigé"
+                bg_color = (137, 46, 251)  # Purple
 
-        # Start observation
-        self.set_font('helvetica', 'B', 10)
-        self.cell(10, 6, f"#{observation['id']}", 0, 0, 'L')
-        self.add_status_badge(status_text, bg_color)
-        self.ln(8)
+        # Calculate page dimensions
+        page_width = self.w - 2 * self.l_margin
 
-        # Title and description
-        self.set_font('helvetica', 'B', 10)
-        self.cell(0, 6, title, 0, 1, 'L')
-        self.ln(2)
+        # Estimate card height - this is an important step to avoid page breaks within cards
+        estimated_card_height = 120  # Estimated total card height
 
-        # If there's a preview image, add it
+        # Force a page break if the card won't fit on the current page
+        if self.get_y() + estimated_card_height > self.h - self.b_margin:
+            self.add_page()
+            # Set a proper top margin after page break (adjust this value as needed)
+            self.set_y(self.t_margin + 30)
+
+        # Remember the start position of the card
+        card_start_y = self.get_y()
+
+        # ===== HEADER SECTION =====
+
+        # Header height
+        header_height = 10
+
+        # Header background (light gray)
+        self.set_fill_color(240, 240, 240)
+        self.rect(self.l_margin, card_start_y, page_width, header_height, 'F')
+
+        # Header border
+        self.rect(self.l_margin, card_start_y, page_width, header_height)
+
+        # ID in header
+        self.set_font('helvetica', 'B', 11)
+        self.set_text_color(50, 50, 50)
+        self.set_xy(self.l_margin + 4, card_start_y + 2)
+        self.cell(25, 6, f"#{observation['id']}", 0, 0, 'L')
+
+        # Status badge in header
+        badge_width = self.get_string_width(status_text) + 10
+        badge_x = self.w - self.r_margin - badge_width - 5
+
+        self.set_xy(badge_x, card_start_y + 2)
+        self.set_fill_color(bg_color[0], bg_color[1], bg_color[2])
+        self.set_text_color(255, 255, 255)
+        self.set_font('helvetica', 'B', 9)
+        self.rect(badge_x, card_start_y + 2, badge_width, 6, 'F')
+        self.cell(badge_width, 6, status_text, 0, 0, 'C')
+
+        # Reset text color
+        self.set_text_color(0, 0, 0)
+
+        # ===== TOP SECTION - TWO COLUMNS =====
+
+        # Top section starts below header
+        top_section_y = card_start_y + header_height
+        top_section_height = 60
+
+        # Column widths
+        image_col_width = page_width * 0.25  # 25% for image
+        info_col_width = page_width * 0.75  # 75% for information
+
+        # Column positions
+        image_col_x = self.l_margin
+        info_col_x = image_col_x + image_col_width
+
+        # Top section background (white)
+        self.set_fill_color(255, 255, 255)
+        self.rect(self.l_margin, top_section_y, page_width, top_section_height, 'FD')
+
+        # Vertical divider between image and info
+        self.line(info_col_x, top_section_y, info_col_x, top_section_y + top_section_height)
+
+        # ===== IMAGE COLUMN =====
+
+        # Check if there's a preview image
         image_url = None
         if observation.get('preview'):
             if isinstance(observation['preview'], str):
@@ -225,6 +296,7 @@ class ReviztoPDF(FPDF):
             elif isinstance(observation['preview'], dict) and observation['preview'].get('original'):
                 image_url = observation['preview']['original']
 
+        # Add image if available
         if image_url and image_url.startswith('data:image'):
             try:
                 # Extract the base64 data
@@ -233,16 +305,35 @@ class ReviztoPDF(FPDF):
                 with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp:
                     temp_file = temp.name
                     temp.write(base64.b64decode(img_data))
-                # Add to PDF
-                self.image(temp_file, x=15, y=None, w=80)
+
+                # Calculate image dimensions to fit in column
+                image_width = image_col_width - 10  # Leave 5px padding on each side
+
+                # Calculate image height while maintaining aspect ratio, but not taller than section
+                image_height = min(image_width * 0.75, top_section_height - 10)
+
+                # Center the image in its column
+                image_x = image_col_x + 5
+                image_y = top_section_y + (top_section_height - image_height) / 2
+
+                # Add image to PDF
+                self.image(temp_file, x=image_x, y=image_y, w=image_width)
+
                 # Clean up
                 os.unlink(temp_file)
             except Exception as e:
                 logger.error(f"Error adding image: {e}")
+                # Display placeholder if image fails
+                self.set_xy(image_col_x + 5, top_section_y + (top_section_height / 2) - 5)
+                self.set_font('helvetica', 'I', 8)
+                self.cell(image_col_width - 10, 10, "Image non disponible", 0, 0, 'C')
+        else:
+            # Display placeholder if no image
+            self.set_xy(image_col_x + 5, top_section_y + (top_section_height / 2) - 5)
+            self.set_font('helvetica', 'I', 8)
+            self.cell(image_col_width - 10, 10, "Pas d'image", 0, 0, 'C')
 
-        # Add additional information
-        self.ln(5)
-        self.set_font('helvetica', '', 9)
+        # ===== INFORMATION COLUMN =====
 
         # Format creation date if available
         created_date = "N/A"
@@ -256,265 +347,144 @@ class ReviztoPDF(FPDF):
             except:
                 pass
 
-        # Add metadata table
-        self.set_fill_color(240, 240, 240)
-        self.cell(40, 5, "Posée le:", 1, 0, 'L', 1)
-        self.cell(50, 5, created_date, 1, 1, 'L')
+        # Get assignee
+        assignee = "Non assignée"
+        if observation.get('assignee'):
+            if isinstance(observation['assignee'], str):
+                assignee = observation['assignee']
+            elif isinstance(observation['assignee'], dict) and observation['assignee'].get('value'):
+                assignee = observation['assignee']['value']
 
         # Sheet information
         sheet_number = "N/A"
+        sheet_name = "N/A"
         if observation.get('sheet'):
             if isinstance(observation['sheet'], dict) and observation['sheet'].get('value'):
                 sheet = observation['sheet']['value']
                 if sheet.get('number'):
                     sheet_number = sheet['number']
+                if sheet.get('name'):
+                    sheet_name = sheet['name']
             elif isinstance(observation['sheet'], str):
                 sheet_number = observation['sheet']
 
-        self.cell(40, 5, "Numéro de la feuille:", 1, 0, 'L', 1)
-        self.cell(50, 5, str(sheet_number), 1, 1, 'L')
+        # Title at the top of info column
+        self.set_xy(info_col_x + 5, top_section_y + 5)
+        self.set_font('helvetica', 'B', 10)
+        self.multi_cell(info_col_width - 10, 5, title, 0, 'L')
 
-        # End observation section
-        self.ln(10)
+        # Start position for metadata
+        info_y = self.get_y() + 2
+
+        # Metadata layout - using a more compact two-column layout
+        field_width = 30
+        value_width = (info_col_width - 20) / 2 - field_width
+
+        # First row - Left: State, Right: Date
+
+        self.set_xy(info_col_x + 5 + field_width + value_width + 10, info_y)
+        self.set_font('helvetica', 'B', 8)
+        self.cell(field_width, 5, "Posée le:", 0, 0, 'L')
+        self.set_font('helvetica', '', 8)
+        self.cell(value_width, 5, created_date, 0, 1, 'L')
+
+        self.set_xy(info_col_x + 5, info_y)
+        self.set_font('helvetica', 'B', 8)
+        self.cell(field_width, 5, "Assignée à:", 0, 0, 'L')
+        self.set_font('helvetica', '', 8)
+        self.cell(value_width, 5, assignee, 0, 0, 'L')
+
+        # Second row - Left: Assignee, Right: Sheet Number
+        info_y += 7
+
+        self.set_xy(info_col_x + 5 + field_width + value_width + 10, info_y)
+        self.set_font('helvetica', 'B', 8)
+        self.cell(field_width, 5, "No feuille:", 0, 0, 'L')
+        self.set_font('helvetica', '', 8)
+        self.cell(value_width, 5, str(sheet_number), 0, 1, 'L')
+
+        self.set_xy(info_col_x + 5, info_y)
+        self.set_font('helvetica', 'B', 8)
+        self.cell(field_width, 5, "Nom feuille:", 0, 0, 'L')
+        self.set_font('helvetica', '', 8)
+        self.cell(value_width, 5, str(sheet_name), 0, 0, 'L')
+
+        # Third row - Left: Sheet Name, Right: Revizto links
+        info_y += 7
+
+        # Revizto links
+        links = []
+        if observation.get('openLinks'):
+            if isinstance(observation['openLinks'], dict):
+                if observation['openLinks'].get('desktop'):
+                    links.append("Application")
+                if observation['openLinks'].get('web'):
+                    links.append("Web")
+
+        if links:
+            self.set_xy(info_col_x + 5 + field_width + value_width + 10, info_y)
+            self.set_font('helvetica', 'B', 8)
+            self.cell(field_width, 5, "Ouvrir dans Revizto:", 0, 0, 'L')
+            self.set_font('helvetica', '', 8)
+            self.set_text_color(0, 0, 255)  # Blue for links
+            self.cell(value_width, 5, ", ".join(links), 0, 1, 'L')
+            self.set_text_color(0, 0, 0)  # Reset to black
+
+        # ===== HISTORY SECTION (FULL WIDTH) =====
+
+        # History section start position
+        history_y = top_section_y + top_section_height
+        history_height = 30
+
+        # Set light gray background for history section
+        self.set_fill_color(255, 255, 255)
+        self.rect(self.l_margin, history_y, page_width, history_height, 'FD')
+
+        # Horizontal divider between top section and history
+        self.line(self.l_margin, history_y, self.l_margin + page_width, history_y)
+
+        # History title
+        self.set_xy(self.l_margin + 5, history_y + 3)
+        self.set_font('helvetica', 'B', 9)
+        self.cell(page_width - 10, 5, "Historique", 0, 1, 'L')
+
+        # History placeholder text
+        self.set_xy(self.l_margin + 5, self.get_y() + 2)
+        self.set_font('helvetica', 'I', 8)
+        self.multi_cell(page_width - 10, 4, "Veuillez consulter Revizto pour l'historique complet.", 0, 'L')
+
+        # ===== CARD BOTTOM BORDER =====
+
+        # Calculate total card height
+        total_card_height = header_height + top_section_height + history_height
+
+        # Draw a border around the entire card
+        self.rect(self.l_margin, card_start_y, page_width, total_card_height)
+
+        # Move to the end of the card with extra spacing to prevent overlap
+        self.set_y(card_start_y + total_card_height + 5)  # 5px gap between cards
 
     def add_instruction(self, instruction):
         """
-        Add an instruction to the report
+        Add an instruction to the report with a layout matching the HTML version
+        Same implementation as add_observation
 
         Args:
             instruction (dict): The instruction data
         """
-        # Same structure as observation with slight modifications
-        # Check required fields
-        if not instruction.get('id'):
-            return
-
-        # Get title
-        title = 'No Title'
-        if instruction.get('title'):
-            if isinstance(instruction['title'], str):
-                title = instruction['title']
-            elif isinstance(instruction['title'], dict) and instruction['title'].get('value'):
-                title = instruction['title']['value']
-
-        # Get status info
-        status_text = "Unknown"
-        bg_color = (110, 110, 110)  # Default gray
-
-        if instruction.get('customStatus'):
-            status_id = instruction['customStatus']
-            if isinstance(status_id, dict) and status_id.get('value'):
-                status_id = status_id['value']
-
-            # Status colors match those in issue-data.js
-            if status_id == "2ed005c6-43cd-4907-a4d6-807dbd0197d5":  # Open
-                status_text = "Ouvert"
-                bg_color = (204, 41, 41)  # Red
-            elif status_id == "cd52ac3e-f345-4f99-870f-5be95dc33245":  # In progress
-                status_text = "En cours"
-                bg_color = (255, 170, 0)  # Orange
-            elif status_id == "b8504242-3489-43a2-9831-54f64053b226":  # Solved
-                status_text = "Résolu"
-                bg_color = (66, 190, 101)  # Green
-            elif status_id == "135b58c6-1e14-4716-a134-bbba2bbc90a7":  # Closed
-                status_text = "Fermé"
-                bg_color = (184, 184, 184)  # Gray
-
-        # Start instruction
-        self.set_font('helvetica', 'B', 10)
-        self.cell(10, 6, f"#{instruction['id']}", 0, 0, 'L')
-        self.add_status_badge(status_text, bg_color)
-        self.ln(8)
-
-        # Title and description
-        self.set_font('helvetica', 'B', 10)
-        self.cell(0, 6, title, 0, 1, 'L')
-        self.ln(2)
-
-        # If there's a preview image, add it
-        image_url = None
-        if instruction.get('preview'):
-            if isinstance(instruction['preview'], str):
-                image_url = instruction['preview']
-            elif isinstance(instruction['preview'], dict) and instruction['preview'].get('original'):
-                image_url = instruction['preview']['original']
-
-        if image_url and image_url.startswith('data:image'):
-            try:
-                # Extract the base64 data
-                img_data = re.sub('^data:image/.+;base64,', '', image_url)
-                # Create temporary file
-                with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp:
-                    temp_file = temp.name
-                    temp.write(base64.b64decode(img_data))
-                # Add to PDF
-                self.image(temp_file, x=15, y=None, w=80)
-                # Clean up
-                os.unlink(temp_file)
-            except Exception as e:
-                logger.error(f"Error adding image: {e}")
-
-        # Add additional information
-        self.ln(5)
-        self.set_font('helvetica', '', 9)
-
-        # Format creation date if available
-        created_date = "N/A"
-        if instruction.get('created'):
-            if isinstance(instruction['created'], str):
-                created_date = instruction['created']
-            elif isinstance(instruction['created'], dict) and instruction['created'].get('value'):
-                created_date = instruction['created']['value']
-            try:
-                created_date = datetime.fromisoformat(created_date.replace('Z', '+00:00')).strftime('%d/%m/%Y %H:%M')
-            except:
-                pass
-
-        # Add metadata table
-        self.set_fill_color(240, 240, 240)
-        self.cell(40, 5, "Posée le:", 1, 0, 'L', 1)
-        self.cell(50, 5, created_date, 1, 1, 'L')
-
-        # Sheet information
-        sheet_number = "N/A"
-        if instruction.get('sheet'):
-            if isinstance(instruction['sheet'], dict) and instruction['sheet'].get('value'):
-                sheet = instruction['sheet']['value']
-                if sheet.get('number'):
-                    sheet_number = sheet['number']
-            elif isinstance(instruction['sheet'], str):
-                sheet_number = instruction['sheet']
-
-        self.cell(40, 5, "Numéro de la feuille:", 1, 0, 'L', 1)
-        self.cell(50, 5, str(sheet_number), 1, 1, 'L')
-
-        # End instruction section
-        self.ln(10)
+        # We can reuse the same implementation as add_observation
+        self.add_observation(instruction)
 
     def add_deficiency(self, deficiency):
         """
-        Add a deficiency to the report
+        Add a deficiency to the report with a layout matching the HTML version
+        Same implementation as add_observation
 
         Args:
             deficiency (dict): The deficiency data
         """
-        # Similar structure to observations and instructions
-        # Check required fields
-        if not deficiency.get('id'):
-            return
-
-        # Get title
-        title = 'No Title'
-        if deficiency.get('title'):
-            if isinstance(deficiency['title'], str):
-                title = deficiency['title']
-            elif isinstance(deficiency['title'], dict) and deficiency['title'].get('value'):
-                title = deficiency['title']['value']
-
-        # Get status info
-        status_text = "Unknown"
-        bg_color = (110, 110, 110)  # Default gray
-
-        if deficiency.get('customStatus'):
-            status_id = deficiency['customStatus']
-            if isinstance(status_id, dict) and status_id.get('value'):
-                status_id = status_id['value']
-
-            # Status colors match those in issue-data.js
-            if status_id == "2ed005c6-43cd-4907-a4d6-807dbd0197d5":  # Open
-                status_text = "Ouvert"
-                bg_color = (204, 41, 41)  # Red
-            elif status_id == "cd52ac3e-f345-4f99-870f-5be95dc33245":  # In progress
-                status_text = "En cours"
-                bg_color = (255, 170, 0)  # Orange
-            elif status_id == "b8504242-3489-43a2-9831-54f64053b226":  # Solved
-                status_text = "Résolu"
-                bg_color = (66, 190, 101)  # Green
-            elif status_id == "135b58c6-1e14-4716-a134-bbba2bbc90a7":  # Closed
-                status_text = "Fermé"
-                bg_color = (184, 184, 184)  # Gray
-
-        # Start deficiency
-        self.set_font('helvetica', 'B', 10)
-        self.cell(10, 6, f"#{deficiency['id']}", 0, 0, 'L')
-        self.add_status_badge(status_text, bg_color)
-        self.ln(8)
-
-        # Title and description
-        self.set_font('helvetica', 'B', 10)
-        self.cell(0, 6, title, 0, 1, 'L')
-        self.ln(2)
-
-        # If there's a preview image, add it
-        image_url = None
-        if deficiency.get('preview'):
-            if isinstance(deficiency['preview'], str):
-                image_url = deficiency['preview']
-            elif isinstance(deficiency['preview'], dict) and deficiency['preview'].get('original'):
-                image_url = deficiency['preview']['original']
-
-        if image_url and image_url.startswith('data:image'):
-            try:
-                # Extract the base64 data
-                img_data = re.sub('^data:image/.+;base64,', '', image_url)
-                # Create temporary file
-                with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp:
-                    temp_file = temp.name
-                    temp.write(base64.b64decode(img_data))
-                # Add to PDF
-                self.image(temp_file, x=15, y=None, w=80)
-                # Clean up
-                os.unlink(temp_file)
-            except Exception as e:
-                logger.error(f"Error adding image: {e}")
-
-        # Add additional information
-        self.ln(5)
-        self.set_font('helvetica', '', 9)
-
-        # Format creation date if available
-        created_date = "N/A"
-        if deficiency.get('created'):
-            if isinstance(deficiency['created'], str):
-                created_date = deficiency['created']
-            elif isinstance(deficiency['created'], dict) and deficiency['created'].get('value'):
-                created_date = deficiency['created']['value']
-            try:
-                created_date = datetime.fromisoformat(created_date.replace('Z', '+00:00')).strftime('%d/%m/%Y %H:%M')
-            except:
-                pass
-
-        # Add metadata table
-        self.set_fill_color(240, 240, 240)
-        self.cell(40, 5, "Posée le:", 1, 0, 'L', 1)
-        self.cell(50, 5, created_date, 1, 1, 'L')
-
-        # Sheet information
-        sheet_number = "N/A"
-        if deficiency.get('sheet'):
-            if isinstance(deficiency['sheet'], dict) and deficiency['sheet'].get('value'):
-                sheet = deficiency['sheet']['value']
-                if sheet.get('number'):
-                    sheet_number = sheet['number']
-            elif isinstance(deficiency['sheet'], str):
-                sheet_number = deficiency['sheet']
-
-        self.cell(40, 5, "Numéro de la feuille:", 1, 0, 'L', 1)
-        self.cell(50, 5, str(sheet_number), 1, 1, 'L')
-
-        # Add assignee if available
-        assignee = "Non assignée"
-        if deficiency.get('assignee'):
-            if isinstance(deficiency['assignee'], str):
-                assignee = deficiency['assignee']
-            elif isinstance(deficiency['assignee'], dict) and deficiency['assignee'].get('value'):
-                assignee = deficiency['assignee']['value']
-
-        self.cell(40, 5, "Assignée à:", 1, 0, 'L', 1)
-        self.cell(50, 5, assignee, 1, 1, 'L')
-
-        # End deficiency section
-        self.ln(10)
+        # We can reuse the same implementation as add_observation
+        self.add_observation(deficiency)
 
     def add_general_notes(self):
         """
