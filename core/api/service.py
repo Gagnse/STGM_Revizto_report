@@ -350,12 +350,22 @@ class ReviztoService:
 
     @classmethod
     def get_issue_comments(cls, project_id, issue_id, date):
-        """Get comments history for a specific issue."""
+        """
+        Get comments history for a specific issue.
+
+        Args:
+            project_id (int): Project ID
+            issue_id (int): Issue ID
+            date (str): Date in YYYY-MM-DD format to filter comments
+
+        Returns:
+            dict: Response with comments data
+        """
         print(f"\n[DEBUG-SERVICE] ===== FETCHING ISSUE COMMENTS =====")
         print(f"[DEBUG-SERVICE] Fetching comments for issue ID: {issue_id} in project: {project_id}")
 
         try:
-            # Step 1: First we need to fetch the issue data to get its UUID
+            # Step 1: First fetch the issue data to get its UUID
             endpoint = f"project/{project_id}/issue-filter/filter"
             params = {
                 "anyFiltersDTO[0][type]": "id",
@@ -391,7 +401,55 @@ class ReviztoService:
 
                     # Make API request with the correct parameters
                     comments_response = ReviztoAPI.get(comments_endpoint, comments_params)
-                    print(f"[DEBUG-SERVICE] API call successful")
+                    print(f"[DEBUG-SERVICE] API call successful for comments endpoint")
+
+                    # Check response structure and format
+                    if isinstance(comments_response, dict):
+                        print(f"[DEBUG-SERVICE] Comments response has keys: {list(comments_response.keys())}")
+
+                        # Make sure we extract the comments data correctly
+                        if comments_response.get('result') == 0:
+                            comments_data = comments_response.get('data')
+
+                            # Handle different possible formats for the data
+                            if comments_data is None:
+                                print(f"[DEBUG-SERVICE] Comments data is None")
+                                comments_response['data'] = []
+                            elif isinstance(comments_data, list):
+                                print(f"[DEBUG-SERVICE] Found {len(comments_data)} comments in list format")
+                                # Leave as is - already in the correct format
+                            elif isinstance(comments_data, dict):
+                                print(
+                                    f"[DEBUG-SERVICE] Comments data is a dict with keys: {list(comments_data.keys())}")
+
+                                # Try to extract comments from different possible dict structures
+                                if 'items' in comments_data and isinstance(comments_data['items'], list):
+                                    # Format 1: data = { items: [...comments] }
+                                    print(f"[DEBUG-SERVICE] Found {len(comments_data['items'])} comments in data.items")
+                                    comments_response['data'] = comments_data['items']
+                                elif 'data' in comments_data and isinstance(comments_data['data'], list):
+                                    # Format 2: data = { data: [...comments] }
+                                    print(f"[DEBUG-SERVICE] Found {len(comments_data['data'])} comments in data.data")
+                                    comments_response['data'] = comments_data['data']
+                                else:
+                                    # If we can't find a list of comments, try using the dict as a single comment
+                                    # (rare, but possible for single comments)
+                                    if 'type' in comments_data and 'created' in comments_data:
+                                        print(f"[DEBUG-SERVICE] Treating dict as a single comment")
+                                        comments_response['data'] = [comments_data]
+                                    else:
+                                        print(f"[DEBUG-SERVICE] Could not identify comments in dict structure")
+                                        comments_response['data'] = []
+                            else:
+                                print(f"[DEBUG-SERVICE] Comments data has unexpected type: {type(comments_data)}")
+                                comments_response['data'] = []
+                        else:
+                            print(
+                                f"[DEBUG-SERVICE] Comments response has non-zero result: {comments_response.get('result')}")
+                            comments_response['data'] = []
+                    else:
+                        print(f"[DEBUG-SERVICE] Comments response is not a dict: {type(comments_response)}")
+                        comments_response = {"result": 1, "message": "Invalid response format", "data": []}
 
                     # Add the issue ID to the response for reference on the client side
                     comments_response['issueId'] = issue_id

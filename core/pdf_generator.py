@@ -326,72 +326,95 @@ class ReviztoPDF(FPDF):
         # Add image if available
         if image_url:
             try:
-                # Handle base64 data URLs
-                if image_url.startswith('data:image'):
-                    # Extract the base64 data
-                    img_data = re.sub('^data:image/.+;base64,', '', image_url)
-                    # Create temporary file
-                    with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp:
-                        temp_file = temp.name
-                        temp.write(base64.b64decode(img_data))
-                # Handle HTTP URLs by downloading the image
-                elif image_url.startswith(('http://', 'https://')):
-                    import urllib.request
-                    with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp:
-                        temp_file = temp.name
-                        urllib.request.urlretrieve(image_url, temp_file)
-                else:
-                    # Assume it's a local file path
-                    temp_file = image_url
-
-                # Fixed top padding
-                top_padding = 2  # Space from the top edge of column
-                side_padding = 2  # Space from the sides
-
-                # Maximum available space for the image
-                max_width = image_col_width - (side_padding * 2)
-                max_height = top_section_height - (top_padding * 2)
-
-                # Get original image dimensions to maintain aspect ratio
+                temp_file = None
                 try:
-                    from PIL import Image
-                    img = Image.open(temp_file)
-                    img_width, img_height = img.size
-                    aspect_ratio = img_width / img_height
-                except:
-                    # If PIL not available or error, use a default aspect ratio
-                    aspect_ratio = 4 / 3  # Common default
+                    # Handle base64 data URLs
+                    if image_url.startswith('data:image'):
+                        # Extract the base64 data
+                        img_data = re.sub('^data:image/.+;base64,', '', image_url)
+                        # Create temporary file with unique name
+                        import uuid
+                        temp_file = os.path.join(tempfile.gettempdir(), f"revizto_img_{uuid.uuid4()}.png")
+                        with open(temp_file, 'wb') as f:
+                            f.write(base64.b64decode(img_data))
+                    # Handle HTTP URLs by downloading the image
+                    elif image_url.startswith(('http://', 'https://')):
+                        import urllib.request
+                        import uuid
+                        temp_file = os.path.join(tempfile.gettempdir(), f"revizto_img_{uuid.uuid4()}.png")
+                        urllib.request.urlretrieve(image_url, temp_file)
+                    else:
+                        # Assume it's a local file path
+                        temp_file = image_url
 
-                # Calculate dimensions while preserving aspect ratio
-                if aspect_ratio > 1:  # Wider than tall
-                    # Width is the limiting factor
-                    image_width = max_width
-                    image_height = image_width / aspect_ratio
-                    # Check if height exceeds maximum
-                    if image_height > max_height:
-                        image_height = max_height
-                        image_width = image_height * aspect_ratio
-                else:  # Taller than wide or square
-                    # Height is the limiting factor
-                    image_height = max_height
-                    image_width = image_height * aspect_ratio
-                    # Check if width exceeds maximum
-                    if image_width > max_width:
+                    # Fixed top padding
+                    top_padding = 2  # Space from the top edge of column
+                    side_padding = 2  # Space from the sides
+
+                    # Maximum available space for the image
+                    max_width = image_col_width - (side_padding * 2)
+                    max_height = top_section_height - (top_padding * 2)
+
+                    # Get original image dimensions to maintain aspect ratio
+                    try:
+                        from PIL import Image
+                        img = Image.open(temp_file)
+                        img_width, img_height = img.size
+                        aspect_ratio = img_width / img_height
+                        img.close()  # Important: Close the PIL Image after getting dimensions
+                    except Exception as img_err:
+                        logger.error(f"Error getting image dimensions: {img_err}")
+                        # If PIL not available or error, use a default aspect ratio
+                        aspect_ratio = 4 / 3  # Common default
+
+                    # Calculate dimensions while preserving aspect ratio
+                    if aspect_ratio > 1:  # Wider than tall
+                        # Width is the limiting factor
                         image_width = max_width
                         image_height = image_width / aspect_ratio
+                        # Check if height exceeds maximum
+                        if image_height > max_height:
+                            image_height = max_height
+                            image_width = image_height * aspect_ratio
+                    else:  # Taller than wide or square
+                        # Height is the limiting factor
+                        image_height = max_height
+                        image_width = image_height * aspect_ratio
+                        # Check if width exceeds maximum
+                        if image_width > max_width:
+                            image_width = max_width
+                            image_height = image_width / aspect_ratio
 
-                # Calculate Y position - fixed at top with padding
-                image_y = top_section_y + top_padding
+                    # Calculate Y position - fixed at top with padding
+                    image_y = top_section_y + top_padding
 
-                # Center the image horizontally
-                image_x = image_col_x + ((image_col_width - image_width) / 2)
+                    # Center the image horizontally
+                    image_x = image_col_x + ((image_col_width - image_width) / 2)
 
-                # Add image to PDF (without specifying height will maintain aspect ratio)
-                self.image(temp_file, x=image_x, y=image_y, w=image_width)
+                    # Add image to PDF (without specifying height will maintain aspect ratio)
+                    self.image(temp_file, x=image_x, y=image_y, w=image_width)
 
-                # Clean up if we created a temp file
-                if image_url.startswith(('data:image', 'http://', 'https://')):
-                    os.unlink(temp_file)
+                finally:
+                    # Clean up temp file in a finally block to ensure it happens even if there was an error
+                    if temp_file and temp_file != image_url and os.path.exists(temp_file):
+                        try:
+                            # Close any open file handles before deleting
+                            import gc
+                            gc.collect()  # Force garbage collection to release any file handles
+
+                            # Try to remove the temp file
+                            os.remove(temp_file)
+                            logger.info(f"Successfully removed temp file: {temp_file}")
+                        except Exception as cleanup_err:
+                            logger.warning(f"Could not remove temp file {temp_file}: {cleanup_err}")
+                            # If we can't remove it, try to use the Windows del command as a fallback
+                            if os.name == 'nt':  # Windows
+                                try:
+                                    import subprocess
+                                    subprocess.run(f'del /f /q "{temp_file}"', shell=True)
+                                    logger.info(f"Used del command to remove temp file: {temp_file}")
+                                except Exception as del_err:
+                                    logger.warning(f"Windows del command also failed: {del_err}")
             except Exception as e:
                 logger.error(f"Error adding image: {e}")
 
@@ -581,9 +604,16 @@ class ReviztoPDF(FPDF):
 
         # Show comments if available
         if comments and len(comments) > 0:
-            # Ensure comments is a list of dicts, not strings
+            # Debug comments information
+            print(f"[DEBUG PDF] Processing {len(comments)} comments for issue {observation.get('id')}")
+            print(f"[DEBUG PDF] First comment type: {type(comments[0]) if comments else 'None'}")
+
+            # Process the comments list
             valid_comments = []
+
+            # First, ensure we have valid comments data
             for comment in comments:
+                # Handle both string and dict formats
                 if isinstance(comment, dict):
                     valid_comments.append(comment)
                 elif isinstance(comment, str):
@@ -595,36 +625,46 @@ class ReviztoPDF(FPDF):
                             valid_comments.append(comment_dict)
                     except:
                         # If parsing fails, skip this comment
-                        logger.warning(f"Skipping invalid comment format: {comment[:50]}...")
+                        continue
 
             # Only proceed if we have valid comments
             if valid_comments:
-                # Filter and sort comments like in the JavaScript version
-                # First filter out camera, sheet, etc. comments that aren't useful
+                print(f"[DEBUG PDF] Valid comments: {len(valid_comments)}")
+
+                # First filter out unwanted comments (camera, sheet, etc.)
                 filtered_comments = []
                 for comment in valid_comments:
                     # Skip comments that are only about camera, sheet, etc.
+                    is_unwanted = False
                     if comment.get('type') == 'diff' and comment.get('diff'):
                         # Get all keys from the diff object
                         diff_keys = list(comment['diff'].keys())
 
-                        # Check if any key is in our "unwanted" list
+                        # List of diff keys that we don't want to show
                         unwanted_diff_types = [
                             'camera', 'type', 'sheet', 'snapshot', 'backgroundtype',
                             'comparesheet', 'comparesheets', 'compareSheet', 'background'
                         ]
 
-                        # Keep only if we have at least one "wanted" key
-                        has_wanted_changes = any(key.lower() not in unwanted_diff_types for key in diff_keys)
+                        # Check if ALL keys are in our "unwanted" list
+                        all_unwanted = True
+                        for key in diff_keys:
+                            if key.lower() not in unwanted_diff_types:
+                                all_unwanted = False
+                                break
 
-                        if not has_wanted_changes:
-                            continue
+                        is_unwanted = all_unwanted
 
-                    # Keep all non-diff comments and diff comments with wanted changes
-                    filtered_comments.append(comment)
+                    # Keep the comment if it's not unwanted
+                    if not is_unwanted:
+                        filtered_comments.append(comment)
 
                 # Sort comments by date (newest first)
-                sorted_comments = sorted(filtered_comments, key=lambda x: x.get('created', ''), reverse=True)
+                sorted_comments = sorted(filtered_comments,
+                                         key=lambda x: x.get('created', ''),
+                                         reverse=True)
+
+                print(f"[DEBUG PDF] Filtered and sorted comments: {len(sorted_comments)}")
 
                 # Start position for comments
                 comment_y = self.get_y() + 2
@@ -643,12 +683,14 @@ class ReviztoPDF(FPDF):
                     author_name = 'Utilisateur inconnu'
                     if comment.get('author'):
                         if isinstance(comment['author'], str):
-                            author_name = comment['author']
+                            author_name = sanitize_text_for_pdf(comment['author'])
                         elif isinstance(comment['author'], dict):
                             if comment['author'].get('firstname') and comment['author'].get('lastname'):
-                                author_name = f"{comment['author']['firstname']} {comment['author']['lastname']}"
+                                author_name = sanitize_text_for_pdf(
+                                    f"{comment['author']['firstname']} {comment['author']['lastname']}"
+                                )
                             elif comment['author'].get('email'):
-                                author_name = comment['author']['email']
+                                author_name = sanitize_text_for_pdf(comment['author']['email'])
 
                     # Format date
                     comment_date = "Date inconnue"
@@ -672,7 +714,9 @@ class ReviztoPDF(FPDF):
                         # Text comment
                         self.set_font('helvetica', '', 8)
                         self.set_xy(self.l_margin + 10, self.get_y())
-                        self.multi_cell(page_width - 20, 4, comment.get('text', ''), 0, 'L')
+                        # Sanitize the text before adding to PDF
+                        safe_text = sanitize_text_for_pdf(comment.get('text', ''))
+                        self.multi_cell(page_width - 20, 4, safe_text, 0, 'L')
 
                     elif comment_type == 'diff':
                         # Handle diff comment (status changes, etc.)
@@ -682,18 +726,27 @@ class ReviztoPDF(FPDF):
 
                             diff_text = ""
                             for key, change in comment['diff'].items():
-                                # Format change description
+                                # Skip unwanted keys
+                                if key.lower() in ['camera', 'type', 'sheet', 'snapshot', 'backgroundtype',
+                                                   'comparesheet', 'comparesheets', 'comparesheet', 'background']:
+                                    continue
+
+                                # Format change description with ASCII arrow "-->"
                                 if key == 'customStatus':
                                     old_status = format_status_value(change.get('old', '-'))
                                     new_status = format_status_value(change.get('new', '-'))
-                                    diff_text += f"État: {old_status} → {new_status}\n"
+                                    diff_text += f"Etat: {old_status} --> {new_status}\n"  # Avoid "É" for PDF compatibility
                                 elif key == 'assignee':
-                                    diff_text += f"Assigné à: {change.get('old', '-')} → {change.get('new', '-')}\n"
+                                    old_val = format_diff_value(change.get('old', '-'))
+                                    new_val = format_diff_value(change.get('new', '-'))
+                                    diff_text += f"Assigne a: {old_val} --> {new_val}\n"  # Avoid "é" and "à" for PDF compatibility
                                 elif key not in ['status', 'statusAuto']:  # Skip these fields
                                     # Format other field names
                                     field_name = re.sub(r'([A-Z])', r' \1', key).lower()
                                     field_name = field_name[0].upper() + field_name[1:] if field_name else key
-                                    diff_text += f"{field_name}: {change.get('old', '-')} → {change.get('new', '-')}\n"
+                                    old_val = format_diff_value(change.get('old', '-'))
+                                    new_val = format_diff_value(change.get('new', '-'))
+                                    diff_text += f"{sanitize_text_for_pdf(field_name)}: {old_val} --> {new_val}\n"
 
                             self.multi_cell(page_width - 20, 4, diff_text.strip(), 0, 'L')
 
@@ -703,16 +756,18 @@ class ReviztoPDF(FPDF):
                         self.set_xy(self.l_margin + 10, self.get_y())
 
                         if comment_type == 'file':
-                            file_text = f"Fichier joint: {comment.get('filename', 'Sans nom')}"
+                            filename = sanitize_text_for_pdf(comment.get('filename', 'Sans nom'))
+                            file_text = f"Fichier joint: {filename}"
                             self.cell(page_width - 20, 4, file_text, 0, 1, 'L')
                         else:
-                            self.cell(page_width - 20, 4, "Markup ajouté", 0, 1, 'L')
+                            self.cell(page_width - 20, 4, "Markup ajoute", 0, 1, 'L')  # Avoid "é" for PDF compatibility
 
                     else:
                         # Default for unknown types
                         self.set_font('helvetica', 'I', 8)
                         self.set_xy(self.l_margin + 10, self.get_y())
-                        self.cell(page_width - 20, 4, f"Activité: {comment_type}", 0, 1, 'L')
+                        self.cell(page_width - 20, 4, f"Activite: {comment_type}", 0, 1,
+                                  'L')  # Avoid "é" for PDF compatibility
 
                     # Add space after each comment
                     self.ln(2)
@@ -722,19 +777,22 @@ class ReviztoPDF(FPDF):
                     self.set_font('helvetica', 'I', 7)
                     self.set_xy(self.l_margin + 5, self.get_y())
                     self.cell(page_width - 10, 4,
-                              f"+ {len(sorted_comments) - 5} commentaires supplémentaires dans Revizto", 0, 1, 'R')
+                              f"+ {len(sorted_comments) - 5} commentaires supplementaires dans Revizto", 0, 1,
+                              'R')  # Avoid "é" for PDF compatibility
 
             else:
                 # Default message if no valid comments
                 self.set_xy(self.l_margin + 5, self.get_y() + 2)
                 self.set_font('helvetica', 'I', 8)
-                self.multi_cell(page_width - 10, 4, "Aucun historique disponible pour cet élément.", 0, 'L')
+                self.multi_cell(page_width - 10, 4, "Aucun historique disponible pour cet element.", 0,
+                                'L')  # Avoid "é" for PDF compatibility
 
         else:
             # Default message if no comments
             self.set_xy(self.l_margin + 5, self.get_y() + 2)
             self.set_font('helvetica', 'I', 8)
-            self.multi_cell(page_width - 10, 4, "Aucun historique disponible pour cet élément.", 0, 'L')
+            self.multi_cell(page_width - 10, 4, "Aucun historique disponible pour cet element.", 0,
+                            'L')  # Avoid "é" for PDF compatibility
 
         # ===== CARD BOTTOM BORDER =====
 
@@ -1145,11 +1203,11 @@ def format_status_value(value):
     status_map = {
         "2ed005c6-43cd-4907-a4d6-807dbd0197d5": "Ouvert",
         "cd52ac3e-f345-4f99-870f-5be95dc33245": "En cours",
-        "b8504242-3489-43a2-9831-54f64053b226": "Résolu",
-        "135b58c6-1e14-4716-a134-bbba2bbc90a7": "Fermé",
+        "b8504242-3489-43a2-9831-54f64053b226": "Resolu",  # Avoid "é" for PDF compatibility
+        "135b58c6-1e14-4716-a134-bbba2bbc90a7": "Ferme",   # Avoid "é" for PDF compatibility
         "5947b7d1-70b9-425b-aba6-7187eb0251ff": "En attente",
-        "912abbbf-3155-4e3c-b437-5778bdfd73f4": "Non-problème",
-        "337e2fe6-e2a3-4e3f-b098-30aac68a191c": "Corrigé",
+        "912abbbf-3155-4e3c-b437-5778bdfd73f4": "Non-probleme",  # Avoid "è" for PDF compatibility
+        "337e2fe6-e2a3-4e3f-b098-30aac68a191c": "Corrige",  # Avoid "é" for PDF compatibility
     }
 
     # Check if the value is a known UUID
@@ -1162,9 +1220,9 @@ def format_status_value(value):
         if lower_value == "open" or lower_value == "opened":
             return "Ouvert"
         elif lower_value == "closed":
-            return "Fermé"
+            return "Ferme"  # Avoid "é" for PDF compatibility
         elif lower_value == "solved":
-            return "Résolu"
+            return "Resolu"  # Avoid "é" for PDF compatibility
         elif lower_value == "in progress" or lower_value == "in_progress":
             return "En cours"
         # Return the value as is if no translation
@@ -1195,19 +1253,20 @@ def format_diff_value(value):
 
         # If it has name or display fields, use those
         if 'name' in value:
-            return value['name']
+            return sanitize_text_for_pdf(value['name'])
         if 'displayName' in value:
-            return value['displayName']
+            return sanitize_text_for_pdf(value['displayName'])
 
         # If it has firstname/lastname fields (for users)
         if 'firstname' in value and 'lastname' in value:
-            return f"{value['firstname']} {value['lastname']}".strip()
+            return sanitize_text_for_pdf(f"{value['firstname']} {value['lastname']}".strip())
 
         # If we still have a dict but don't know how to handle it, convert to string
-        return str(value)
+        return sanitize_text_for_pdf(str(value))
 
-    # Convert to string for display
-    return str(value)
+    # Convert to string for display and sanitize
+    return sanitize_text_for_pdf(str(value))
+
 
 def filter_comments_for_display(comments):
     """
@@ -1221,10 +1280,35 @@ def filter_comments_for_display(comments):
         list: Filtered and sorted list of comments
     """
     if not comments or not isinstance(comments, list):
+        print("[DEBUG PDF] No comments to filter or invalid type")
         return []
 
+    # Debug
+    print(f"[DEBUG PDF] Filtering {len(comments)} comments")
+
+    # Process the comments list
+    valid_comments = []
+
+    # First, ensure we have valid comments data
+    for comment in comments:
+        # Handle both string and dict formats
+        if isinstance(comment, dict):
+            valid_comments.append(comment)
+        elif isinstance(comment, str):
+            try:
+                # If it's a JSON string, try to parse it
+                import json
+                comment_dict = json.loads(comment)
+                if isinstance(comment_dict, dict):
+                    valid_comments.append(comment_dict)
+            except:
+                # If parsing fails, skip this comment
+                continue
+
     # Sort comments by date (newest first)
-    sorted_comments = sorted(comments, key=lambda x: x.get('created', ''), reverse=True)
+    sorted_comments = sorted(valid_comments,
+                             key=lambda x: x.get('created', ''),
+                             reverse=True)
 
     # Filter out unwanted comments (camera, sheet, etc.)
     filtered_comments = []
@@ -1234,9 +1318,10 @@ def filter_comments_for_display(comments):
             continue
 
         # For diff comments, check if they have relevant changes
+        is_unwanted = False
         if comment.get('type') == 'diff' and comment.get('diff'):
             # Get all keys from the diff object
-            diff_keys = comment['diff'].keys()
+            diff_keys = list(comment['diff'].keys())
 
             # List of diff keys that we don't want to show
             unwanted_diff_types = [
@@ -1244,18 +1329,57 @@ def filter_comments_for_display(comments):
                 'comparesheet', 'comparesheets', 'compareSheet', 'background'
             ]
 
-            # Check if any key is NOT in our "unwanted" list
-            has_wanted_changes = False
+            # Check if ALL keys are in our "unwanted" list (not ANY)
+            all_unwanted = True
             for key in diff_keys:
                 if key.lower() not in unwanted_diff_types:
-                    has_wanted_changes = True
+                    all_unwanted = False
                     break
 
-            # Skip comment if it only has unwanted changes
-            if not has_wanted_changes:
-                continue
+            is_unwanted = all_unwanted
 
-        # Add the comment to the filtered list
-        filtered_comments.append(comment)
+        # Add the comment to the filtered list if it's not unwanted
+        if not is_unwanted:
+            filtered_comments.append(comment)
 
+    print(f"[DEBUG PDF] After filtering: {len(filtered_comments)} comments")
     return filtered_comments
+
+
+def sanitize_text_for_pdf(text):
+    """
+    Sanitize text by replacing problematic Unicode characters with ASCII alternatives
+
+    Args:
+        text (str): Text to sanitize
+
+    Returns:
+        str: Sanitized text
+    """
+    if not isinstance(text, str):
+        text = str(text)
+
+    # Replace problematic Unicode characters
+    replacements = {
+        '→': '-->',
+        '⟶': '-->',
+        '➜': '-->',
+        '⇒': '=>',
+        '⇨': '=>',
+        '–': '-',
+        '—': '--',
+        '"': '"',
+        '"': '"',
+        ''': "'",
+        ''': "'",
+        '…': '...',
+        '•': '*',
+        '·': '*',
+        '×': 'x',
+        '÷': '/'
+    }
+
+    for char, replacement in replacements.items():
+        text = text.replace(char, replacement)
+
+    return text
