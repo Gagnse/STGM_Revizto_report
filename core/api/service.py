@@ -410,3 +410,4 @@ class ReviztoService:
             import traceback
             print(f"[DEBUG-SERVICE] Traceback: {traceback.format_exc()}")
             return {"result": 1, "message": str(e), "data": [], "issueId": issue_id}
+
