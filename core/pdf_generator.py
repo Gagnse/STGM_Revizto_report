@@ -297,8 +297,8 @@ class ReviztoPDF(FPDF):
         top_section_height = 60
 
         # Column widths
-        image_col_width = page_width * 0.33  # 25% for image
-        info_col_width = page_width * 0.66  # 75% for information
+        image_col_width = page_width * 0.33  # 33% for image
+        info_col_width = page_width * 0.66  # 66% for information
 
         # Column positions
         image_col_x = self.l_margin
@@ -342,17 +342,49 @@ class ReviztoPDF(FPDF):
                     # Assume it's a local file path
                     temp_file = image_url
 
-                # Increase the width to use more of the column space
-                image_width = image_col_width - 1  # Reduced padding for larger image
+                # Fixed top padding
+                top_padding = 2  # Space from the top edge of column
+                side_padding = 2  # Space from the sides
 
-                # Use more of the available top section height
-                image_height = min(top_section_height, image_width * 0.8)
+                # Maximum available space for the image
+                max_width = image_col_width - (side_padding * 2)
+                max_height = top_section_height - (top_padding * 2)
 
-                # UPDATED: Center the image in its column both horizontally and vertically
-                image_x = image_col_x + (image_col_width - image_width) / 2
-                image_y = top_section_y + (top_section_height - image_height) / 2
+                # Get original image dimensions to maintain aspect ratio
+                try:
+                    from PIL import Image
+                    img = Image.open(temp_file)
+                    img_width, img_height = img.size
+                    aspect_ratio = img_width / img_height
+                except:
+                    # If PIL not available or error, use a default aspect ratio
+                    aspect_ratio = 4 / 3  # Common default
 
-                # Add image to PDF
+                # Calculate dimensions while preserving aspect ratio
+                if aspect_ratio > 1:  # Wider than tall
+                    # Width is the limiting factor
+                    image_width = max_width
+                    image_height = image_width / aspect_ratio
+                    # Check if height exceeds maximum
+                    if image_height > max_height:
+                        image_height = max_height
+                        image_width = image_height * aspect_ratio
+                else:  # Taller than wide or square
+                    # Height is the limiting factor
+                    image_height = max_height
+                    image_width = image_height * aspect_ratio
+                    # Check if width exceeds maximum
+                    if image_width > max_width:
+                        image_width = max_width
+                        image_height = image_width / aspect_ratio
+
+                # Calculate Y position - fixed at top with padding
+                image_y = top_section_y + top_padding
+
+                # Center the image horizontally
+                image_x = image_col_x + ((image_col_width - image_width) / 2)
+
+                # Add image to PDF (without specifying height will maintain aspect ratio)
                 self.image(temp_file, x=image_x, y=image_y, w=image_width)
 
                 # Clean up if we created a temp file
@@ -360,13 +392,10 @@ class ReviztoPDF(FPDF):
                     os.unlink(temp_file)
             except Exception as e:
                 logger.error(f"Error adding image: {e}")
-                # Display placeholder if image fails
-                self.set_xy(image_col_x + 5, top_section_y + (top_section_height / 2) - 5)
-                self.set_font('helvetica', 'I', 8)
-                self.cell(image_col_width - 10, 10, "Image non disponible", 0, 0, 'C')
+
         else:
             # Display placeholder if no image
-            self.set_xy(image_col_x + 5, top_section_y + (top_section_height / 2) - 5)
+            self.set_xy(image_col_x + 5, top_section_y + 10)  # Fixed top position
             self.set_font('helvetica', 'I', 8)
             self.cell(image_col_width - 10, 10, "Pas d'image", 0, 0, 'C')
 
