@@ -515,8 +515,7 @@ def generate_pdf(request, project_id):
                             issue_comments[str(obs['id'])] = comments_data
                             print(f"[DEBUG] Found {len(comments_data)} comments for observation {obs['id']}")
                         else:
-                            print(
-                                f"[DEBUG] Comments data for observation {obs['id']} is not a list: {type(comments_data)}")
+                            print(f"[DEBUG] Comments data for observation {obs['id']} is not a list: {type(comments_data)}")
                             issue_comments[str(obs['id'])] = []
 
         # Get instructions
@@ -539,8 +538,7 @@ def generate_pdf(request, project_id):
                             issue_comments[str(ins['id'])] = comments_data
                             print(f"[DEBUG] Found {len(comments_data)} comments for instruction {ins['id']}")
                         else:
-                            print(
-                                f"[DEBUG] Comments data for instruction {ins['id']} is not a list: {type(comments_data)}")
+                            print(f"[DEBUG] Comments data for instruction {ins['id']} is not a list: {type(comments_data)}")
                             issue_comments[str(ins['id'])] = []
 
         # Get deficiencies
@@ -563,18 +561,15 @@ def generate_pdf(request, project_id):
                             issue_comments[str(def_item['id'])] = comments_data
                             print(f"[DEBUG] Found {len(comments_data)} comments for deficiency {def_item['id']}")
                         else:
-                            print(
-                                f"[DEBUG] Comments data for deficiency {def_item['id']} is not a list: {type(comments_data)}")
+                            print(f"[DEBUG] Comments data for deficiency {def_item['id']} is not a list: {type(comments_data)}")
                             issue_comments[str(def_item['id'])] = []
 
         # Import the PDF generator
         from .pdf_generator import generate_report_pdf
 
         # Generate PDF with comments
-        print(
-            f"[DEBUG] Generating PDF with {len(observations)} observations, {len(instructions)} instructions, {len(deficiencies)} deficiencies, and comments for {len(issue_comments)} issues")
-        pdf_buffer = generate_report_pdf(project_id, project_info, observations, instructions, deficiencies,
-                                         issue_comments)
+        print(f"[DEBUG] Generating PDF with {len(observations)} observations, {len(instructions)} instructions, {len(deficiencies)} deficiencies, and comments for {len(issue_comments)} issues")
+        pdf_buffer = generate_report_pdf(project_id, project_info, observations, instructions, deficiencies, issue_comments)
 
         # Create a response with PDF content
         from django.http import HttpResponse

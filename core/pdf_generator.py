@@ -170,7 +170,7 @@ class ReviztoPDF(FPDF):
         """
         Add an observation to the report with the layout:
         - Top: Two columns (image + information)
-        - Bottom: Full-width history section
+        - Bottom: Full-width history section with comments
         - Ensures no card is ever split between pages
 
         Args:
@@ -599,8 +599,32 @@ class ReviztoPDF(FPDF):
 
             # Only proceed if we have valid comments
             if valid_comments:
+                # Filter and sort comments like in the JavaScript version
+                # First filter out camera, sheet, etc. comments that aren't useful
+                filtered_comments = []
+                for comment in valid_comments:
+                    # Skip comments that are only about camera, sheet, etc.
+                    if comment.get('type') == 'diff' and comment.get('diff'):
+                        # Get all keys from the diff object
+                        diff_keys = list(comment['diff'].keys())
+
+                        # Check if any key is in our "unwanted" list
+                        unwanted_diff_types = [
+                            'camera', 'type', 'sheet', 'snapshot', 'backgroundtype',
+                            'comparesheet', 'comparesheets', 'compareSheet', 'background'
+                        ]
+
+                        # Keep only if we have at least one "wanted" key
+                        has_wanted_changes = any(key.lower() not in unwanted_diff_types for key in diff_keys)
+
+                        if not has_wanted_changes:
+                            continue
+
+                    # Keep all non-diff comments and diff comments with wanted changes
+                    filtered_comments.append(comment)
+
                 # Sort comments by date (newest first)
-                sorted_comments = sorted(valid_comments, key=lambda x: x.get('created', ''), reverse=True)
+                sorted_comments = sorted(filtered_comments, key=lambda x: x.get('created', ''), reverse=True)
 
                 # Start position for comments
                 comment_y = self.get_y() + 2
@@ -1148,3 +1172,90 @@ def format_status_value(value):
 
     # If we still don't know how to handle it, convert to string
     return str(value)
+
+
+def format_diff_value(value):
+    """
+    Format a diff value for display in a comment
+
+    Args:
+        value: Value to format
+
+    Returns:
+        str: Formatted value for display
+    """
+    # Handle None, empty strings, etc.
+    if value is None:
+        return "-"
+
+    # If value is a dictionary with 'value' key, extract it
+    if isinstance(value, dict):
+        if 'value' in value:
+            return format_diff_value(value['value'])  # Recursive call with the inner value
+
+        # If it has name or display fields, use those
+        if 'name' in value:
+            return value['name']
+        if 'displayName' in value:
+            return value['displayName']
+
+        # If it has firstname/lastname fields (for users)
+        if 'firstname' in value and 'lastname' in value:
+            return f"{value['firstname']} {value['lastname']}".strip()
+
+        # If we still have a dict but don't know how to handle it, convert to string
+        return str(value)
+
+    # Convert to string for display
+    return str(value)
+
+def filter_comments_for_display(comments):
+    """
+    Filter and sort comments for display in the PDF report
+    Filters out unwanted comments (camera, sheet, etc.) similar to the JavaScript code
+
+    Args:
+        comments (list): List of comments from the API
+
+    Returns:
+        list: Filtered and sorted list of comments
+    """
+    if not comments or not isinstance(comments, list):
+        return []
+
+    # Sort comments by date (newest first)
+    sorted_comments = sorted(comments, key=lambda x: x.get('created', ''), reverse=True)
+
+    # Filter out unwanted comments (camera, sheet, etc.)
+    filtered_comments = []
+    for comment in sorted_comments:
+        # Skip empty comments
+        if not comment:
+            continue
+
+        # For diff comments, check if they have relevant changes
+        if comment.get('type') == 'diff' and comment.get('diff'):
+            # Get all keys from the diff object
+            diff_keys = comment['diff'].keys()
+
+            # List of diff keys that we don't want to show
+            unwanted_diff_types = [
+                'camera', 'type', 'sheet', 'snapshot', 'backgroundtype',
+                'comparesheet', 'comparesheets', 'compareSheet', 'background'
+            ]
+
+            # Check if any key is NOT in our "unwanted" list
+            has_wanted_changes = False
+            for key in diff_keys:
+                if key.lower() not in unwanted_diff_types:
+                    has_wanted_changes = True
+                    break
+
+            # Skip comment if it only has unwanted changes
+            if not has_wanted_changes:
+                continue
+
+        # Add the comment to the filtered list
+        filtered_comments.append(comment)
+
+    return filtered_comments
