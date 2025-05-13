@@ -164,6 +164,8 @@ class ReviztoPDF(FPDF):
 
         self.set_xy(x + width + 5, y)
 
+    # In core/pdf_generator.py, update the add_observation method
+
     def add_observation(self, observation, comments=None):
         """
         Add an observation to the report with the layout:
@@ -442,43 +444,68 @@ class ReviztoPDF(FPDF):
         # Start position for metadata
         info_y = self.get_y() + 2
 
-        # Metadata layout - using a more compact two-column layout
-        field_width = 30
-        value_width = (info_col_width - 20) / 2 - field_width
+        # Metadata layout - using a more efficient layout with proper spacing
+        # UPDATED: Modified field widths and layout to bring values closer to labels
+        # and prevent overlapping by ensuring proper cell widths
 
-        # First row - Left: State, Right: Date
+        # Calculate optimal field widths for the two columns
+        col_padding = 5  # Padding for each column
+        col_width = (info_col_width - (col_padding * 2)) / 2  # Width of each column
 
-        self.set_xy(info_col_x + 5 + field_width + value_width + 10, info_y)
+        # Adjust label and value widths (make label width smaller to allow more space for values)
+        label_width = col_width * 0.4  # 40% of column width for label
+        value_width = col_width * 0.6  # 60% of column width for value
+
+        # First row
+        # Left column: Assignee
+        self.set_xy(info_col_x + col_padding, info_y)
         self.set_font('helvetica', 'B', 8)
-        self.cell(field_width, 5, "Posée le:", 0, 0, 'L')
+        self.cell(label_width, 5, "Assignée à:", 0, 0, 'L')
         self.set_font('helvetica', '', 8)
-        self.cell(value_width, 5, created_date, 0, 1, 'L')
+        # Use multi_cell for value to handle text wrapping for long values
+        current_x = self.get_x()
+        current_y = self.get_y()
+        self.multi_cell(value_width, 5, assignee, 0, 'L')
+        max_y1 = self.get_y()
 
-        self.set_xy(info_col_x + 5, info_y)
+        # Right column: Date created
+        self.set_xy(info_col_x + col_padding + col_width, info_y)
         self.set_font('helvetica', 'B', 8)
-        self.cell(field_width, 5, "Assignée à:", 0, 0, 'L')
+        self.cell(label_width, 5, "Posée le:", 0, 0, 'L')
         self.set_font('helvetica', '', 8)
-        self.cell(value_width, 5, assignee, 0, 0, 'L')
+        current_x = self.get_x()
+        current_y = self.get_y()
+        self.multi_cell(value_width, 5, created_date, 0, 'L')
+        max_y2 = self.get_y()
 
-        # Second row - Left: Assignee, Right: Sheet Number
-        info_y += 7
+        # Find max Y position after first row
+        info_y = max(max_y1, max_y2) + 2
 
-        self.set_xy(info_col_x + 5 + field_width + value_width + 10, info_y)
+        # Second row
+        # Left column: Sheet Name
+        self.set_xy(info_col_x + col_padding, info_y)
         self.set_font('helvetica', 'B', 8)
-        self.cell(field_width, 5, "No feuille:", 0, 0, 'L')
+        self.cell(label_width, 5, "Nom feuille:", 0, 0, 'L')
         self.set_font('helvetica', '', 8)
-        self.cell(value_width, 5, str(sheet_number), 0, 1, 'L')
+        current_x = self.get_x()
+        current_y = self.get_y()
+        self.multi_cell(value_width, 5, str(sheet_name), 0, 'L')
+        max_y1 = self.get_y()
 
-        self.set_xy(info_col_x + 5, info_y)
+        # Right column: Sheet Number
+        self.set_xy(info_col_x + col_padding + col_width, info_y)
         self.set_font('helvetica', 'B', 8)
-        self.cell(field_width, 5, "Nom feuille:", 0, 0, 'L')
+        self.cell(label_width, 5, "No feuille:", 0, 0, 'L')
         self.set_font('helvetica', '', 8)
-        self.cell(value_width, 5, str(sheet_name), 0, 0, 'L')
+        current_x = self.get_x()
+        current_y = self.get_y()
+        self.multi_cell(value_width, 5, str(sheet_number), 0, 'L')
+        max_y2 = self.get_y()
 
-        # Third row - Left: Sheet Name, Right: Revizto links
-        info_y += 7
+        # Find max Y position after second row
+        info_y = max(max_y1, max_y2) + 2
 
-        # Revizto links
+        # Third row - Revizto links
         links = []
         if observation.get('openLinks'):
             if isinstance(observation['openLinks'], dict):
@@ -488,9 +515,9 @@ class ReviztoPDF(FPDF):
                     links.append("Web")
 
         if links:
-            self.set_xy(info_col_x + 5 + field_width + value_width + 10, info_y)
+            self.set_xy(info_col_x + col_padding, info_y)
             self.set_font('helvetica', 'B', 8)
-            self.cell(field_width, 5, "Ouvrir dans Revizto:", 0, 0, 'L')
+            self.cell(label_width, 5, "Ouvrir dans :", 0, 0, 'L')
             self.set_font('helvetica', '', 8)
             self.set_text_color(0, 0, 255)  # Blue for links
             self.cell(value_width, 5, ", ".join(links), 0, 1, 'L')
