@@ -506,22 +506,58 @@ class ReviztoPDF(FPDF):
         info_y = max(max_y1, max_y2) + 2
 
         # Third row - Revizto links
-        links = []
+        links = {}
         if observation.get('openLinks'):
             if isinstance(observation['openLinks'], dict):
-                if observation['openLinks'].get('desktop'):
-                    links.append("Application")
+                # For the web link, use it directly
                 if observation['openLinks'].get('web'):
-                    links.append("Web")
+                    links["Web"] = observation['openLinks']['web']
+
+                # For the desktop/application link, prepend the Revizto API redirect URL
+                if observation['openLinks'].get('desktop'):
+                    desktop_link = observation['openLinks']['desktop']
+                    # Use the Revizto API redirect service to handle the custom protocol
+                    redirect_url = f"https://api.canada.revizto.com/v5/region/redirect?url={desktop_link}"
+                    links["Application"] = redirect_url
 
         if links:
             self.set_xy(info_col_x + col_padding, info_y)
             self.set_font('helvetica', 'B', 8)
             self.cell(label_width, 5, "Ouvrir dans :", 0, 0, 'L')
+
+            # Position for links
+            link_x = self.get_x()
+            link_y = self.get_y()
+
+            # Display and create clickable links
             self.set_font('helvetica', '', 8)
             self.set_text_color(0, 0, 255)  # Blue for links
-            self.cell(value_width, 5, ", ".join(links), 0, 1, 'L')
-            self.set_text_color(0, 0, 0)  # Reset to black
+
+            # Keep track of current x position
+            current_x = link_x
+
+            # Add each link as a separate clickable element
+            for i, (label, url) in enumerate(links.items()):
+                # Get width of this link text
+                link_width = self.get_string_width(label) + 1
+
+                # Add text with link - mark all links as clickable
+                self.set_xy(current_x, link_y)
+                # Use PDF link annotation to create the hyperlink
+                self.cell(link_width, 5, label, 0, 0, 'L', 0, url)
+
+                # Update x position
+                current_x += link_width
+
+                # Add separator comma if not the last link
+                if i < len(links) - 1:
+                    self.set_xy(current_x, link_y)
+                    self.cell(2, 5, ", ", 0, 0, 'L')
+                    current_x += 2
+
+            # Reset to black text color and move to next line
+            self.set_text_color(0, 0, 0)
+            self.ln(5)
 
         # ===== HISTORY SECTION (FULL WIDTH) =====
 
