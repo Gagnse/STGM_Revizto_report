@@ -8,6 +8,8 @@ import time
 import logging
 from datetime import datetime
 
+from DjangoProject import settings
+
 # Create a logger for this module
 logger = logging.getLogger(__name__)
 
@@ -93,10 +95,18 @@ refresher = None
 def initialize(api_client):
     """
     Initialize the token refresher with the API client.
+    Respects the REVIZTO_ENABLE_TOKEN_REFRESH setting.
 
     Args:
         api_client: The ReviztoAPI client class
     """
+    # Check if token refresh is enabled in settings
+    token_refresh_enabled = getattr(settings, 'REVIZTO_ENABLE_TOKEN_REFRESH', True)
+
+    if not token_refresh_enabled:
+        logger.info("Token refresh is disabled in settings. Skipping token refresher initialization.")
+        return False
+
     global refresher
     if refresher is None:
         refresher = TokenRefresher(api_client)
