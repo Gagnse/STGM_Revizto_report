@@ -919,7 +919,32 @@ function renderCommentsHTML(comments) {
         return html;
     }
 
-    comments.forEach(comment => {
+    // First, filter out unwanted comments (camera, sheet, etc.)
+    const filteredComments = comments.filter(comment => {
+        // Skip comments that are only about camera, sheet, etc.
+        if (comment.type === 'diff' && comment.diff) {
+            // Get all keys from the diff object
+            const diffKeys = Object.keys(comment.diff);
+
+            // Check if any key is in our "unwanted" list
+            const unwantedDiffTypes = [
+                'camera', 'type', 'sheet', 'snapshot', 'backgroundtype',
+                'comparesheet', 'comparesheets', 'compareSheet', 'background'
+            ];
+
+            // Keep only if we have at least one "wanted" key
+            const hasWantedChanges = diffKeys.some(key =>
+                !unwantedDiffTypes.includes(key.toLowerCase()));
+
+            return hasWantedChanges;
+        }
+
+        // Keep all non-diff comments
+        return true;
+    });
+
+    // Render filtered comments
+    filteredComments.forEach(comment => {
         // Get author info
         let authorName = 'Utilisateur inconnu';
         if (comment.author) {
@@ -932,8 +957,23 @@ function renderCommentsHTML(comments) {
             }
         }
 
-        // Format date
-        const created = comment.created ? new Date(comment.created).toLocaleString('fr-CA') : 'Date inconnue';
+        // Format date WITHOUT seconds
+        let created = 'Date inconnue';
+        if (comment.created) {
+            try {
+                const date = new Date(comment.created);
+                created = date.toLocaleString('fr-CA', {
+                    year: 'numeric',
+                    month: 'numeric',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric'
+                    // No seconds option
+                });
+            } catch (e) {
+                created = comment.created;
+            }
+        }
 
         // Start comment container
         html += `
@@ -947,7 +987,13 @@ function renderCommentsHTML(comments) {
         // Handle different comment types
         switch (comment.type) {
             case 'diff':
-                html += renderDiffComment(comment);
+                const diffHtml = renderDiffComment(comment);
+                if (diffHtml) {
+                    html += diffHtml;
+                } else {
+                    // If diff comment returns empty, add a generic message
+                    html += '<p class="text-gray-500 text-sm italic">Mise à jour du système</p>';
+                }
                 break;
             case 'text':
                 html += `<p class="text-gray-700 text-sm">${comment.text || ''}</p>`;
@@ -967,75 +1013,6 @@ function renderCommentsHTML(comments) {
 
     html += '</div>';
     return html;
-}
-
-function renderDiffComment(comment) {
-  if (!comment.diff) return '<p class="text-gray-500 text-sm italic">Modification non spécifiée</p>';
-
-  let html = '<div class="bg-gray-50 p-2 rounded-md text-sm">';
-
-  // Keep track of whether we've already shown a status change
-  let statusShown = false;
-
-  // Go through each changed property
-  Object.keys(comment.diff).forEach(key => {
-    const change = comment.diff[key];
-
-    // Format the key to be more readable
-    let readableKey = key.replace(/([A-Z])/g, ' $1').toLowerCase();
-    readableKey = readableKey.charAt(0).toUpperCase() + readableKey.slice(1);
-
-    // Get old and new values
-    const oldValue = change.old || '-';
-    const newValue = change.new || '-';
-
-    // Handle status changes - ONLY show customStatus
-    if (key === 'customStatus') {
-      statusShown = true;
-      html += `
-        <div class="mb-1">
-          <span class="font-medium">État:</span> 
-          <span class="text">${formatStatusValue(oldValue)}</span> → 
-          <span class="text">${formatStatusValue(newValue)}</span>
-        </div>
-      `;
-    }
-    // Skip all other status fields completely (status and statusAuto)
-    else if (key === 'status' || key === 'statusAuto') {
-      // Skip these fields entirely
-      return;
-    }
-    else if (key === 'assignee') {
-      html += `
-        <div class="mb-1">
-          <span class="font-medium">Assigné à:</span> 
-          <span class="text">${oldValue}</span> → 
-          <span class="text">${newValue}</span>
-        </div>
-      `;
-    }
-    else if (key === 'customType') {
-      html += `
-        <div class="mb-1">
-          <span class="font-medium">Type:</span> 
-          <span class="text">${oldValue}</span> → 
-          <span class="text">${newValue}</span>
-        </div>
-      `;
-    }
-    else {
-      html += `
-        <div class="mb-1">
-          <span class="font-medium">${readableKey}:</span> 
-          <span class="text">${oldValue}</span> → 
-          <span class="text">${newValue}</span>
-        </div>
-      `;
-    }
-  });
-
-  html += '</div>';
-  return html;
 }
 
 function renderFileComment(comment) {
@@ -1091,27 +1068,72 @@ if (typeof value === 'string') {
 return value;
 }
 
-function formatDate(dateString) {
-    if (!dateString) return '';
+function renderDiffComment(comment) {
+    if (!comment.diff) return null;
 
-    try {
-        const date = new Date(dateString);
+    // List of keys to exclude
+    const excludedKeys = [
+        'camera', 'type', 'sheet', 'snapshot', 'backgroundtype',
+        'comparesheet', 'comparesheets', 'compareSheet', 'background'
+    ];
 
-        // Check if date is valid
-        if (isNaN(date.getTime())) {
-            return 'Date invalide';
+    // Check if there are any non-excluded keys
+    const diffKeys = Object.keys(comment.diff);
+    const hasVisibleChanges = diffKeys.some(key =>
+        !excludedKeys.includes(key.toLowerCase()));
+
+    // If there are no visible changes, return null
+    if (!hasVisibleChanges) {
+        return null;
+    }
+
+    let html = '<div class="bg-gray-50 p-2 rounded-md text-sm">';
+
+    // Show only non-excluded changes
+    diffKeys.forEach(key => {
+        // Skip excluded keys
+        if (excludedKeys.includes(key.toLowerCase())) {
+            return;
         }
 
-        // Format the date
-        return date.toLocaleString('fr-CA', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    } catch (error) {
-        console.error('[DEBUG] Error formatting date:', error);
-        return dateString;
-    }
+        const change = comment.diff[key];
+
+        // Format key name
+        let readableKey = key.replace(/([A-Z])/g, ' $1').toLowerCase();
+        readableKey = readableKey.charAt(0).toUpperCase() + readableKey.slice(1);
+
+        // Format values
+        let oldValue = formatDiffValue(change.old);
+        let newValue = formatDiffValue(change.new);
+
+        // Handle specific keys
+        if (key === 'customStatus') {
+            html += `
+                <div class="mb-1">
+                    <span class="font-medium">État:</span> 
+                    <span class="text">${formatStatusValue(change.old)}</span> → 
+                    <span class="text">${formatStatusValue(change.new)}</span>
+                </div>
+            `;
+        } else if (key === 'assignee') {
+            html += `
+                <div class="mb-1">
+                    <span class="font-medium">Assigné à:</span> 
+                    <span class="text">${oldValue}</span> → 
+                    <span class="text">${newValue}</span>
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="mb-1">
+                    <span class="font-medium">${readableKey}:</span> 
+                    <span class="text">${oldValue}</span> → 
+                    <span class="text">${newValue}</span>
+                </div>
+            `;
+        }
+    });
+
+    html += '</div>';
+    return html;
 }
