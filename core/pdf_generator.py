@@ -297,8 +297,8 @@ class ReviztoPDF(FPDF):
         top_section_height = 60
 
         # Column widths
-        image_col_width = page_width * 0.25  # 25% for image
-        info_col_width = page_width * 0.75  # 75% for information
+        image_col_width = page_width * 0.33  # 25% for image
+        info_col_width = page_width * 0.66  # 75% for information
 
         # Column positions
         image_col_x = self.l_margin
@@ -342,14 +342,14 @@ class ReviztoPDF(FPDF):
                     # Assume it's a local file path
                     temp_file = image_url
 
-                # Calculate image dimensions to fit in column
-                image_width = image_col_width - 10  # Leave 5px padding on each side
+                # Increase the width to use more of the column space
+                image_width = image_col_width - 1  # Reduced padding for larger image
 
-                # Calculate image height while maintaining aspect ratio, but not taller than section
-                image_height = min(image_width * 0.75, top_section_height - 10)
+                # Use more of the available top section height
+                image_height = min(top_section_height, image_width * 0.8)
 
-                # Center the image in its column
-                image_x = image_col_x + 5
+                # UPDATED: Center the image in its column both horizontally and vertically
+                image_x = image_col_x + (image_col_width - image_width) / 2
                 image_y = top_section_y + (top_section_height - image_height) / 2
 
                 # Add image to PDF
