@@ -64,6 +64,8 @@ WSGI_APPLICATION = 'DjangoProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+db_from_env = dj_database_url.config(conn_max_age=600)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -129,6 +131,9 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',  # This points to your static files directory
 ]
 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -136,6 +141,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Revizto API Settings
 REVIZTO_API_BASE_URL = "https://api.canada.revizto.com/v5/"
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.herokuapp.com']
 
 # These should be set in your environment variables for security
 # You will need to provide these values
