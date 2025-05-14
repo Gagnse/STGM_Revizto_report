@@ -38,14 +38,27 @@ class ReviztoPDF(FPDF):
         """
         Custom header for each page
         """
-        # Logo
         try:
             # Check if using a custom logo from static folder
-            logo_path = find('images/STGM_Logotype_RVB_Architecture_Noir.png')
+            from django.conf import settings
+            import os
+
+            # Try to find logo in static files
+            logo_path = os.path.join(settings.STATIC_ROOT, 'images', 'STGM_Logotype_RVB_Architecture_Noir.png')
+
+            # If not in STATIC_ROOT, try STATICFILES_DIRS
+            if not os.path.exists(logo_path) and hasattr(settings, 'STATICFILES_DIRS'):
+                for static_dir in settings.STATICFILES_DIRS:
+                    test_path = os.path.join(static_dir, 'images', 'STGM_Logotype_RVB_Architecture_Noir.png')
+                    if os.path.exists(test_path):
+                        logo_path = test_path
+                        break
+
             if os.path.exists(logo_path):
                 self.image(logo_path, 6, 8, 50)
             else:
                 # Default behavior if no logo found
+                logger.warning(f"Logo file not found at {logo_path}")
                 self.set_font('helvetica', 'B', 15)
                 self.cell(0, 10, 'STGM Architecture', 0, 1, 'C')
         except Exception as e:
