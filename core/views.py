@@ -442,16 +442,26 @@ def get_issue_comments(request, project_id, issue_id):
         # Get comments from the API via service
         response_data = ReviztoService.get_issue_comments(project_id, issue_id, date_param)
 
-        # Return the raw API response
+        # Ensure a consistent response structure
+        if response_data.get('result') == 0:
+            # Extract comments array from potential nested structure
+            comments_data = response_data.get('data', [])
+
+            if isinstance(comments_data, dict) and 'data' in comments_data:
+                # If data is nested one level down in data.data
+                response_data['data'] = comments_data.get('data', [])
+            elif isinstance(comments_data, dict) and 'items' in comments_data:
+                # If data is in data.items
+                response_data['data'] = comments_data.get('items', [])
+            # Keep as is if it's already the expected array format
+
+        # Return the normalized API response
         return JsonResponse(response_data)
     except Exception as e:
         print(f"[DEBUG] Error in get_issue_comments: {e}")
         import traceback
         print(f"[DEBUG] Traceback: {traceback.format_exc()}")
         return JsonResponse({"result": 1, "message": str(e), "data": []})
-
-
-# Updated section in core/views.py to handle dict-formatted comments
 
 def generate_pdf(request, project_id):
     """

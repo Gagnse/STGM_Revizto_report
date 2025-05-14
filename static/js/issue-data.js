@@ -877,7 +877,18 @@ function fetchIssueHistory(projectId, issueId) {
                 if (Array.isArray(data.data)) {
                     comments = data.data;
                 } else if (data.data.data && Array.isArray(data.data.data)) {
+                    // Handle nested data.data structure
                     comments = data.data.data;
+                } else if (typeof data.data === 'object' && !Array.isArray(data.data)) {
+                    // Try to extract comments from unknown object structure
+                    if (data.data.items && Array.isArray(data.data.items)) {
+                        comments = data.data.items;
+                    } else {
+                        // If no recognizable array found, handle as a single comment if appropriate
+                        if (data.data.type && data.data.created) {
+                            comments = [data.data];
+                        }
+                    }
                 }
                 console.log(`[DEBUG] Found ${comments.length} comments for issue ${issueId}`);
             }
