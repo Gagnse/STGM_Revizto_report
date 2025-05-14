@@ -470,20 +470,20 @@ def generate_pdf(request, project_id):
 
         # Convert ProjectData to a dictionary format similar to what would be returned by load_project_data
         report_date = ''
-        if project_data.rapportDate:
-            report_date = project_data.rapportDate.strftime('%Y-%m-%d')
+        if project_data.rapportdate:
+            report_date = project_data.rapportdate.strftime('%Y-%m-%d')
 
         visit_date = ''
-        if project_data.dateVisite:
-            visit_date = project_data.dateVisite.strftime('%Y-%m-%d')
+        if project_data.datevisite:
+            visit_date = project_data.datevisite.strftime('%Y-%m-%d')
 
         project_info = {
-            'architectFile': project_data.noDossier or '',
-            'projectName': project_data.noProjet or '',
-            'projectOwner': project_data.maitreOuvragge or '',
+            'architectFile': project_data.nodossier or '',
+            'projectName': project_data.noprojet or '',
+            'projectOwner': project_data.maitreouvragge or '',
             'contractor': project_data.entrepreneur or '',
-            'visitNumber': project_data.noVisite or '',
-            'visitBy': project_data.visitePar or '',
+            'visitNumber': project_data.novisite or '',
+            'visitBy': project_data.visitepar or '',
             'visitDate': visit_date,
             'inPresenceOf': project_data.presence or '',
             'reportDate': report_date,
