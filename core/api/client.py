@@ -25,16 +25,31 @@ class ReviztoAPI:
     def initialize(cls, access_token, refresh_token, expires_in=3600):
         """
         Initialize the API with tokens.
-
-        Args:
-            access_token (str): The access token
-            refresh_token (str): The refresh token
-            expires_in (int): Token expiration time in seconds (default: 1 hour)
         """
+        print(f"[DEBUG-INIT] ===== API CLIENT INITIALIZATION =====")
+        print(f"[DEBUG-INIT] Access token provided: {'Yes' if access_token else 'No'}")
+        print(f"[DEBUG-INIT] Refresh token provided: {'Yes' if refresh_token else 'No'}")
+
+        # Set tokens directly
         cls.ACCESS_TOKEN = access_token
         cls.REFRESH_TOKEN = refresh_token
+
         # Calculate expiry time (current time + expires_in)
+        from datetime import datetime, timedelta
         cls.TOKEN_EXPIRY = datetime.now() + timedelta(seconds=expires_in)
+        print(f"[DEBUG-INIT] Token expiry set to: {cls.TOKEN_EXPIRY}")
+
+        # Debug environment
+        try:
+            print(f"[DEBUG-INIT] Base URL: {cls.BASE_URL}")
+            print(f"[DEBUG-INIT] License UUID available: {'Yes' if cls.LICENCE_UUID else 'No'}")
+            if cls.LICENCE_UUID:
+                preview = cls.LICENCE_UUID[:8] + "..." if len(cls.LICENCE_UUID) > 8 else cls.LICENCE_UUID
+                print(f"[DEBUG-INIT] License UUID preview: {preview}")
+        except Exception as e:
+            print(f"[DEBUG-INIT] Error checking environment: {e}")
+
+        print(f"[DEBUG-INIT] ===== API CLIENT INITIALIZATION COMPLETE =====")
         logger.info("API client initialized with tokens")
 
     @classmethod

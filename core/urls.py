@@ -17,6 +17,7 @@ urlpatterns = [
     path('api/projects/<int:project_id>/data/clear/', views.clear_project_data, name='clear_project_data'),
     path('api/projects/<int:project_id>/workflow-settings/', views.get_project_workflow_settings, name='project_workflow_settings'),
     path('api/projects/<int:project_id>/issues/<int:issue_id>/comments/', views.get_issue_comments, name='issue_comments'),
+    path('api/debug/token-state/', views.debug_token_state, name='debug_token_state'),
 
     # PDF generation endpoint
     path('api/projects/<int:project_id>/generate-pdf/', views.generate_pdf, name='generate_pdf'),

@@ -642,6 +642,60 @@ def generate_pdf(request, project_id):
         print(f"[DEBUG] Traceback: {traceback.format_exc()}")
         return JsonResponse({'error': str(e)}, status=500)
 
+def debug_token_state(request):
+    """
+    Debug endpoint that shows the current token state (without revealing the tokens)
+    """
+    from .api.client import ReviztoAPI
+    from datetime import datetime
+
+    # Get token state
+    token_state = {
+        'access_token_exists': bool(ReviztoAPI.ACCESS_TOKEN),
+        'access_token_length': len(ReviztoAPI.ACCESS_TOKEN) if ReviztoAPI.ACCESS_TOKEN else 0,
+        'access_token_prefix': ReviztoAPI.ACCESS_TOKEN[:10] + '...' if ReviztoAPI.ACCESS_TOKEN and len(
+            ReviztoAPI.ACCESS_TOKEN) > 10 else None,
+
+        'refresh_token_exists': bool(ReviztoAPI.REFRESH_TOKEN),
+        'refresh_token_length': len(ReviztoAPI.REFRESH_TOKEN) if ReviztoAPI.REFRESH_TOKEN else 0,
+        'refresh_token_prefix': ReviztoAPI.REFRESH_TOKEN[:10] + '...' if ReviztoAPI.REFRESH_TOKEN and len(
+            ReviztoAPI.REFRESH_TOKEN) > 10 else None,
+
+        'token_expiry': str(ReviztoAPI.TOKEN_EXPIRY) if ReviztoAPI.TOKEN_EXPIRY else None,
+        'is_expired': ReviztoAPI.TOKEN_EXPIRY < datetime.now() if ReviztoAPI.TOKEN_EXPIRY else True,
+        'time_until_expiry': str(
+            ReviztoAPI.TOKEN_EXPIRY - datetime.now()) if ReviztoAPI.TOKEN_EXPIRY and ReviztoAPI.TOKEN_EXPIRY > datetime.now() else 'Expired',
+
+        'licence_uuid_exists': bool(ReviztoAPI.LICENCE_UUID),
+        'licence_uuid_length': len(ReviztoAPI.LICENCE_UUID) if ReviztoAPI.LICENCE_UUID else 0,
+        'licence_uuid_preview': ReviztoAPI.LICENCE_UUID[:8] + '...' if ReviztoAPI.LICENCE_UUID and len(
+            ReviztoAPI.LICENCE_UUID) > 8 else ReviztoAPI.LICENCE_UUID,
+    }
+
+    # Test token validity
+    try:
+        token_state['token_validity_check'] = ReviztoAPI.ensure_token_valid()
+    except Exception as e:
+        token_state['token_validity_check'] = False
+        token_state['token_validity_error'] = str(e)
+
+    # Environment info
+    from django.conf import settings
+    env_info = {
+        'REVIZTO_ENABLE_TOKEN_REFRESH': getattr(settings, 'REVIZTO_ENABLE_TOKEN_REFRESH', None),
+        'REVIZTO_API_BASE_URL': getattr(settings, 'REVIZTO_API_BASE_URL', None),
+        'settings_access_token_length': len(getattr(settings, 'REVIZTO_ACCESS_TOKEN', '')),
+        'settings_refresh_token_length': len(getattr(settings, 'REVIZTO_REFRESH_TOKEN', '')),
+        'settings_licence_uuid_length': len(getattr(settings, 'REVIZTO_LICENCE_UUID', '')),
+        'running_on_heroku': bool(os.environ.get('DYNO')),
+    }
+
+    return JsonResponse({
+        'token_state': token_state,
+        'environment': env_info,
+        'current_time': str(datetime.now())
+    })
+
 print(f"Access Token available: {'YES' if settings.REVIZTO_ACCESS_TOKEN else 'NO'}")
 print(f"Refresh Token available: {'YES' if settings.REVIZTO_REFRESH_TOKEN else 'NO'}")
 print(f"License UUID available: {'YES' if settings.REVIZTO_LICENCE_UUID else 'NO'}")
