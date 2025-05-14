@@ -1,6 +1,4 @@
-/* Custom styles beyond Tailwind */
-
-/* You can add any custom CSS that's not easily accomplished with Tailwind here */
+@import "tailwindcss";
 
 /* Example custom styles for hover effects on the search dropdown */
 #search-dropdown:focus + #autocomplete-dropdown {
