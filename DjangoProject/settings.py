@@ -217,3 +217,8 @@ LOGGING = {
         },
     },
 }
+
+print(f"REVIZTO_ACCESS_TOKEN exists: {'Yes' if REVIZTO_ACCESS_TOKEN else 'No'}")
+print(f"REVIZTO_ACCESS_TOKEN length: {len(REVIZTO_ACCESS_TOKEN) if REVIZTO_ACCESS_TOKEN else 0}")
+print(f"REVIZTO_REFRESH_TOKEN exists: {'Yes' if REVIZTO_REFRESH_TOKEN else 'No'}")
+print(f"REVIZTO_REFRESH_TOKEN length: {len(REVIZTO_REFRESH_TOKEN) if REVIZTO_REFRESH_TOKEN else 0}")
