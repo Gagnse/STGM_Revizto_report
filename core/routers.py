@@ -1,23 +1,23 @@
 class ProjectRouter:
     """
     Database router for the ProjectData model
-    Routes all operations for ProjectData to the MySQL database
+    Routes all operations for ProjectData to the PostgreSQL database
     """
 
     def db_for_read(self, model, **hints):
         """
-        Point all operations on ProjectData model to the 'mysql' database
+        Point all operations on ProjectData model to the 'postgres' database
         """
         if model._meta.app_label == 'core' and model.__name__ == 'ProjectData':
-            return 'mysql'
+            return 'postgres'
         return None
 
     def db_for_write(self, model, **hints):
         """
-        Point all operations on ProjectData model to the 'mysql' database
+        Point all operations on ProjectData model to the 'postgres' database
         """
         if model._meta.app_label == 'core' and model.__name__ == 'ProjectData':
-            return 'mysql'
+            return 'postgres'
         return None
 
     def allow_relation(self, obj1, obj2, **hints):
