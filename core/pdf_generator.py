@@ -164,8 +164,6 @@ class ReviztoPDF(FPDF):
 
         self.set_xy(x + width + 5, y)
 
-    # In core/pdf_generator.py, update the add_observation method
-
     def add_observation(self, observation, comments=None):
         """
         Add an observation to the report with the layout:
