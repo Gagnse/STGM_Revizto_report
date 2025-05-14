@@ -15,11 +15,13 @@ class CoreConfig(AppConfig):
         Initialize the Revizto API when the app starts.
         """
         # Avoid running this during migrations or when collecting static files
-        if 'runserver' not in sys.argv and 'manage.py' not in sys.argv:
+        if 'runserver' not in sys.argv and 'gunicorn' not in sys.argv[0]:
+            logger.info("Skipping API initialization (not in runserver or gunicorn)")
             return
 
         # Also avoid running in auto-reload cycles
         if os.environ.get('RUN_MAIN') != 'true' and 'runserver' in sys.argv:
+            logger.info("Skipping API initialization (development reloader)")
             return
 
         print("\n====== REVIZTO API INITIALIZATION ======")
@@ -27,31 +29,28 @@ class CoreConfig(AppConfig):
         try:
             from django.conf import settings
             from .api.client import ReviztoAPI
+            from .api import token_store
 
-            # CRITICAL CHANGE: Set tokens directly first, before anything else
-            ReviztoAPI.ACCESS_TOKEN = settings.REVIZTO_ACCESS_TOKEN
-            ReviztoAPI.REFRESH_TOKEN = settings.REVIZTO_REFRESH_TOKEN
-            ReviztoAPI.LICENCE_UUID = settings.REVIZTO_LICENCE_UUID
+            # Get tokens from settings
+            access_token = settings.REVIZTO_ACCESS_TOKEN
+            refresh_token = settings.REVIZTO_REFRESH_TOKEN
+            licence_uuid = settings.REVIZTO_LICENCE_UUID
 
-            # Set token expiry to current time + 1 hour
-            from datetime import datetime, timedelta
-            ReviztoAPI.TOKEN_EXPIRY = datetime.now() + timedelta(seconds=3600)
-
-            # Debug the token state after direct setting
+            # Debug tokens
             print(f"DIRECT TOKEN SETTING:")
             print(
-                f"- Access token set: {'YES' if ReviztoAPI.ACCESS_TOKEN else 'NO'} (Length: {len(ReviztoAPI.ACCESS_TOKEN) if ReviztoAPI.ACCESS_TOKEN else 0})")
+                f"- Access token provided: {'YES' if access_token else 'NO'} (Length: {len(access_token) if access_token else 0})")
             print(
-                f"- Refresh token set: {'YES' if ReviztoAPI.REFRESH_TOKEN else 'NO'} (Length: {len(ReviztoAPI.REFRESH_TOKEN) if ReviztoAPI.REFRESH_TOKEN else 0})")
+                f"- Refresh token provided: {'YES' if refresh_token else 'NO'} (Length: {len(refresh_token) if refresh_token else 0})")
             print(
-                f"- License UUID set: {'YES' if ReviztoAPI.LICENCE_UUID else 'NO'} (Length: {len(ReviztoAPI.LICENCE_UUID) if ReviztoAPI.LICENCE_UUID else 0})")
+                f"- License UUID provided: {'YES' if licence_uuid else 'NO'} (Length: {len(licence_uuid) if licence_uuid else 0})")
 
-            # Import token refresher after settings tokens
-            from .api import token_refresher
-
-            # Only proceed with usual initialization if tokens exist
-            if ReviztoAPI.ACCESS_TOKEN and ReviztoAPI.REFRESH_TOKEN and ReviztoAPI.LICENCE_UUID:
+            # Initialize the API with tokens directly
+            if all([access_token, refresh_token, licence_uuid]):
                 print("All required tokens are available, proceeding with API initialization")
+
+                # Initialize the client with tokens
+                ReviztoAPI.initialize(access_token, refresh_token, licence_uuid)
 
                 # Verify token validity immediately
                 if ReviztoAPI.ensure_token_valid():
@@ -61,17 +60,18 @@ class CoreConfig(AppConfig):
 
                 # Start the token refresher if enabled
                 if getattr(settings, 'REVIZTO_ENABLE_TOKEN_REFRESH', True):
+                    from .api import token_refresher
                     token_refresher.initialize(ReviztoAPI)
                     print("Revizto API token refresher started")
                 else:
                     print("Revizto API token auto-refresh is disabled")
             else:
-                print("CRITICAL: Not all required tokens are available after direct setting")
-                if not ReviztoAPI.ACCESS_TOKEN:
+                print("CRITICAL: Not all required tokens are available")
+                if not access_token:
                     print("- Missing ACCESS_TOKEN")
-                if not ReviztoAPI.REFRESH_TOKEN:
+                if not refresh_token:
                     print("- Missing REFRESH_TOKEN")
-                if not ReviztoAPI.LICENCE_UUID:
+                if not licence_uuid:
                     print("- Missing LICENCE_UUID")
         except Exception as e:
             import traceback

@@ -699,3 +699,20 @@ def debug_token_state(request):
 print(f"Access Token available: {'YES' if settings.REVIZTO_ACCESS_TOKEN else 'NO'}")
 print(f"Refresh Token available: {'YES' if settings.REVIZTO_REFRESH_TOKEN else 'NO'}")
 print(f"License UUID available: {'YES' if settings.REVIZTO_LICENCE_UUID else 'NO'}")
+
+
+def check_token_state(request):
+    """Check the current state of API tokens."""
+    from .api import token_store
+
+    token_state = {
+        'access_token_exists': bool(token_store.get_access_token()),
+        'access_token_length': len(token_store.get_access_token() or ''),
+        'refresh_token_exists': bool(token_store.get_refresh_token()),
+        'refresh_token_length': len(token_store.get_refresh_token() or ''),
+        'licence_uuid_exists': bool(token_store.get_licence_uuid()),
+        'licence_uuid_length': len(token_store.get_licence_uuid() or ''),
+        'token_expiry': str(token_store.get_token_expiry()),
+    }
+
+    return JsonResponse(token_state)
