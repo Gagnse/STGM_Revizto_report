@@ -140,6 +140,14 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REVIZTO_API_BASE_URL = os.environ.get("REVIZTO_API_BASE_URL", "https://api.canada.revizto.com/v5/")
+
+# Debug to verify environment variables are getting loaded
+print(f"\n=== SETTINGS LOADED ===")
+print(f"Access token from environment: {'Present' if 'REVIZTO_ACCESS_TOKEN' in os.environ else 'Missing'} (Length: {len(os.environ.get('REVIZTO_ACCESS_TOKEN', ''))})")
+print(f"Refresh token from environment: {'Present' if 'REVIZTO_REFRESH_TOKEN' in os.environ else 'Missing'} (Length: {len(os.environ.get('REVIZTO_REFRESH_TOKEN', ''))})")
+print(f"License UUID from environment: {'Present' if 'REVIZTO_LICENCE_UUID' in os.environ else 'Missing'} (Length: {len(os.environ.get('REVIZTO_LICENCE_UUID', ''))})")
+print(f"=== SETTINGS LOADED ===\n")
+
 REVIZTO_LICENCE_UUID = os.environ.get("REVIZTO_LICENCE_UUID", "")
 REVIZTO_ACCESS_TOKEN = os.environ.get("REVIZTO_ACCESS_TOKEN", "")
 REVIZTO_REFRESH_TOKEN = os.environ.get("REVIZTO_REFRESH_TOKEN", "")
