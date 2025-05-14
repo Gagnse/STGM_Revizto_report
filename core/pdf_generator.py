@@ -171,7 +171,7 @@ class ReviztoPDF(FPDF):
         Add an observation to the report with the layout:
         - Top: Two columns (image + information)
         - Bottom: Full-width history section with comments
-        - Ensures no card is ever split between pages
+        - Ensures no card is ever split between pages and properly expands for content
 
         Args:
             observation (dict): The observation data
@@ -224,35 +224,19 @@ class ReviztoPDF(FPDF):
         # Calculate page dimensions
         page_width = self.w - 2 * self.l_margin
 
-        # Check if we have comments to determine the total height
-        comment_section_height = 0
-        if comments and len(comments) > 0:
-            # Ensure comments is a list of dicts, not strings
-            valid_comments = []
-            for comment in comments:
-                if isinstance(comment, dict):
-                    valid_comments.append(comment)
-                elif isinstance(comment, str):
-                    try:
-                        # If it's a JSON string, try to parse it
-                        import json
-                        comment_dict = json.loads(comment)
-                        if isinstance(comment_dict, dict):
-                            valid_comments.append(comment_dict)
-                    except:
-                        # If parsing fails, skip this comment
-                        logger.warning(f"Skipping invalid comment format: {comment[:50]}...")
+        # Initialize heights
+        header_height = 10
+        top_section_height = 60
 
-            # Only proceed if we have valid comments
-            if valid_comments:
-                # Estimate about 10mm per comment, with a minimum of 30mm
-                comment_section_height = max(30, min(100, len(valid_comments) * 10))  # min 30mm, max 100mm
+        # IMPORTANT CHANGE: We'll measure the actual history content height
+        # rather than using a fixed or minimum height
 
-        # Estimate card height - this is an important step to avoid page breaks within cards
-        estimated_card_height = 120 + comment_section_height  # Base height + comment height
+        # First, calculate how much space we have left on the current page
+        space_left = self.h - self.b_margin - self.get_y()
 
-        # Force a page break if the card won't fit on the current page
-        if self.get_y() + estimated_card_height > self.h - self.b_margin:
+        # If less than minimum required space, start a new page
+        min_required_space = header_height + top_section_height + 30  # minimum 30mm for history
+        if space_left < min_required_space:
             self.add_page()
             # Set a proper top margin after page break
             self.set_y(self.t_margin + 30)
@@ -261,9 +245,6 @@ class ReviztoPDF(FPDF):
         card_start_y = self.get_y()
 
         # ===== HEADER SECTION =====
-
-        # Header height
-        header_height = 10
 
         # Header background (light gray)
         self.set_fill_color(240, 240, 240)
@@ -296,7 +277,6 @@ class ReviztoPDF(FPDF):
 
         # Top section starts below header
         top_section_y = card_start_y + header_height
-        top_section_height = 60
 
         # Column widths
         image_col_width = page_width * 0.33  # 33% for image
@@ -584,23 +564,24 @@ class ReviztoPDF(FPDF):
 
         # ===== HISTORY SECTION (FULL WIDTH) =====
 
-        # History section start position
+        # History section starts below top section
         history_y = top_section_y + top_section_height
 
-        # Dynamic height based on comments
-        history_height = max(30, comment_section_height)
-
-        # Set light gray background for history section
-        self.set_fill_color(250, 250, 250)  # Very light gray
-        self.rect(self.l_margin, history_y, page_width, history_height, 'FD')
-
-        # Horizontal divider between top section and history
+        # IMPORTANT: First draw the history section background without a fixed height
+        # We'll redraw it later with the correct height
+        # Just draw the horizontal divider line for now
         self.line(self.l_margin, history_y, self.l_margin + page_width, history_y)
 
         # History title
         self.set_xy(self.l_margin + 5, history_y + 3)
         self.set_font('helvetica', 'B', 9)
         self.cell(page_width - 10, 5, "Historique", 0, 1, 'L')
+
+        # Save position BEFORE rendering comments - this is crucial for measurement
+        history_start_position = self.get_y()
+
+        # Remember the start position for comments
+        history_content_start_y = self.get_y() + 2
 
         # Show comments if available
         if comments and len(comments) > 0:
@@ -665,10 +646,6 @@ class ReviztoPDF(FPDF):
                                          reverse=True)
 
                 print(f"[DEBUG PDF] Filtered and sorted comments: {len(sorted_comments)}")
-
-                # Start position for comments
-                comment_y = self.get_y() + 2
-                self.set_xy(self.l_margin + 5, comment_y)
 
                 # Display comments (limit to first 5 to save space)
                 for i, comment in enumerate(sorted_comments[:5]):
@@ -794,16 +771,30 @@ class ReviztoPDF(FPDF):
             self.multi_cell(page_width - 10, 4, "Aucun historique disponible pour cet element.", 0,
                             'L')  # Avoid "é" for PDF compatibility
 
-        # ===== CARD BOTTOM BORDER =====
+        # CRITICAL FIX: Measure actual content height AFTER rendering all content
+        history_content_height = self.get_y() - history_content_start_y + 5  # Add small padding
 
-        # Calculate total card height (dynamic based on content)
-        total_card_height = header_height + top_section_height + history_height
+        # Add minimum padding for the history section
+        history_section_height = max(20, history_content_height)  # At least 20mm
 
-        # Draw a border around the entire card
+        # Now draw history section background with CORRECT height
+        self.set_fill_color(250, 250, 250)  # Very light gray
+
+        # We need to draw the background WITHOUT affecting the current position
+        current_y = self.get_y()  # Remember current position
+        self.rect(self.l_margin, history_y, page_width, history_section_height, 'F')  # Background only
+        self.set_y(current_y)  # Restore position
+
+        # ----- STEP 4: DRAW FINAL BORDER AFTER ALL CONTENT -----
+
+        # Calculate total card height based on actual content
+        total_card_height = header_height + top_section_height + history_section_height + 15
+
+        # Draw outer border LAST - this ensures it encompasses all content
         self.rect(self.l_margin, card_start_y, page_width, total_card_height)
 
-        # Move to the end of the card with extra spacing to prevent overlap
-        self.set_y(card_start_y + total_card_height + 5)  # 5px gap between cards
+        # Move position to after the card with spacing
+        self.set_y(card_start_y + total_card_height + 10)  # 10mm gap between cards
 
     def add_instruction(self, instruction, comments=None):
         """
