@@ -87,9 +87,7 @@ class ReviztoPDF(FPDF):
         # Reset line width to previous value
         self.set_line_width(current_line_width)
 
-        # Line break
-        self.ln(4)  # You might want to adjust this too based on your padding
-
+        self.set_y(padding_top + 1)
         self.set_font('helvetica', 'B', 10)
         self.cell(0, 10, "NOTE DE VISITE DE CHANTIER", 0, 0, 'R')
         self.ln(5)
