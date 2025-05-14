@@ -6031,3 +6031,38 @@ Token refresh failed with status code: 403
 Failed to refresh token
 "GET / HTTP/1.1" 200 8557
 "GET / HTTP/1.1" 200 8557
+API client initialized with tokens
+Starting token refresh thread
+Token refresh thread started
+Watching for file changes with StatReloader
+Token refresh failed with status code: 403
+Failed to refresh token
+API client initialized with tokens
+Starting token refresh thread
+Token refresh thread started
+Watching for file changes with StatReloader
+Token refresh failed with status code: 403
+Failed to refresh token
+"GET / HTTP/1.1" 200 8557
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+C:\Users\sgagnon\PycharmProject\DjangoProject\DjangoProject\settings.py changed, reloading.
+API client initialized with tokens
+Starting token refresh thread
+Token refresh thread started
+Watching for file changes with StatReloader
+Token refresh failed with status code: 403
+Failed to refresh token
+C:\Users\sgagnon\PycharmProject\DjangoProject\DjangoProject\settings.py changed, reloading.
+API client initialized with tokens
+Starting token refresh thread
+Token refresh thread started
+Watching for file changes with StatReloader
+Token refresh failed with status code: 403
+Failed to refresh token
+C:\Users\sgagnon\PycharmProject\DjangoProject\DjangoProject\settings.py changed, reloading.
+API client initialized with tokens
+Starting token refresh thread
+Token refresh thread started
+Watching for file changes with StatReloader
+Successfully refreshed access token
+Successfully refreshed token at 2025-05-14 12:14:20.168552
