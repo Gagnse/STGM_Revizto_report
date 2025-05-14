@@ -1,5 +1,8 @@
 from django.shortcuts import render
 from django.http import JsonResponse
+
+from DjangoProject import settings
+from .api.client import ReviztoAPI
 from .api.service import ReviztoService
 import json
 import logging
@@ -638,3 +641,7 @@ def generate_pdf(request, project_id):
         print(f"[DEBUG] Error generating PDF: {e}")
         print(f"[DEBUG] Traceback: {traceback.format_exc()}")
         return JsonResponse({'error': str(e)}, status=500)
+
+print(f"Access Token available: {'YES' if settings.REVIZTO_ACCESS_TOKEN else 'NO'}")
+print(f"Refresh Token available: {'YES' if settings.REVIZTO_REFRESH_TOKEN else 'NO'}")
+print(f"License UUID available: {'YES' if settings.REVIZTO_LICENCE_UUID else 'NO'}")
