@@ -777,24 +777,16 @@ class ReviztoPDF(FPDF):
         # Add minimum padding for the history section
         history_section_height = max(20, history_content_height)  # At least 20mm
 
-        # Now draw history section background with CORRECT height
-        self.set_fill_color(250, 250, 250)  # Very light gray
-
-        # We need to draw the background WITHOUT affecting the current position
-        current_y = self.get_y()  # Remember current position
-        self.rect(self.l_margin, history_y, page_width, history_section_height, 'F')  # Background only
-        self.set_y(current_y)  # Restore position
-
         # ----- STEP 4: DRAW FINAL BORDER AFTER ALL CONTENT -----
 
         # Calculate total card height based on actual content
-        total_card_height = header_height + top_section_height + history_section_height + 15
+        total_card_height = header_height + top_section_height + history_section_height + 5
 
         # Draw outer border LAST - this ensures it encompasses all content
         self.rect(self.l_margin, card_start_y, page_width, total_card_height)
 
         # Move position to after the card with spacing
-        self.set_y(card_start_y + total_card_height + 10)  # 10mm gap between cards
+        self.set_y(card_start_y + total_card_height + 5)  # 10mm gap between cards
 
     def add_instruction(self, instruction, comments=None):
         """
