@@ -327,3 +327,31 @@ class ReviztoAPI:
         except Exception as e:
             logger.error(f"API DELETE request failed: {e}")
             raise
+
+    @classmethod
+    def test_connection(cls):
+        """
+        Test the API connection by making a simple request.
+        """
+        if not cls.ensure_token_valid():
+            print("[DEBUG] Failed to obtain valid token for testing")
+            return False
+
+        try:
+            # Try a simple API call that doesn't require special permissions
+            url = f"{cls.BASE_URL}issue-workflow/settings"
+            response = requests.get(url, headers=cls.get_headers())
+
+            print(f"[DEBUG] Test connection response status: {response.status_code}")
+
+            if response.status_code == 200:
+                print("[DEBUG] API connection test successful")
+                return True
+            else:
+                print(f"[DEBUG] API connection test failed with status: {response.status_code}")
+                return False
+        except Exception as e:
+            print(f"[DEBUG] API connection test failed with error: {e}")
+            import traceback
+            print(f"[DEBUG] API test error traceback: {traceback.format_exc()}")
+            return False
