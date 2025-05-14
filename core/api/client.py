@@ -1,3 +1,4 @@
+import json
 import logging
 import requests
 from datetime import datetime, timedelta
@@ -59,31 +60,40 @@ class ReviztoAPI:
             data = {
                 'grant_type': 'refresh_token',
                 'refresh_token': cls.REFRESH_TOKEN,
-                'client_id': getattr(settings, 'REVIZTO_CLIENT_ID', None),  # Add if required
-                'client_secret': getattr(settings, 'REVIZTO_CLIENT_SECRET', None)  # Add if required
             }
 
-            # Remove any None values from the data
-            data = {k: v for k, v in data.items() if v is not None}
+            # Add client_id and client_secret if they exist
+            client_id = getattr(settings, 'REVIZTO_CLIENT_ID', None)
+            client_secret = getattr(settings, 'REVIZTO_CLIENT_SECRET', None)
+            if client_id:
+                data['client_id'] = client_id
+            if client_secret:
+                data['client_secret'] = client_secret
 
             print(f"[DEBUG] Refreshing token with data: {data}")
 
             response = requests.post(url, headers=headers, data=data)
             print(f"[DEBUG] Token refresh response status: {response.status_code}")
-            print(f"[DEBUG] Token refresh response headers: {response.headers}")
 
             # Print response content for debugging
             response_text = response.text[:500]  # Limit to first 500 chars
             print(f"[DEBUG] Token refresh response: {response_text}")
 
-            response.raise_for_status()
+            if response.status_code != 200:
+                logger.error(f"Token refresh failed with status code: {response.status_code}")
+                return False
 
             # Parse response
-            token_data = response.json()
+            try:
+                token_data = response.json()
+            except json.JSONDecodeError:
+                logger.error("Failed to parse token response as JSON")
+                return False
 
             # Update tokens
             if 'access_token' in token_data:
                 cls.ACCESS_TOKEN = token_data['access_token']
+                print(f"[DEBUG] Access token updated")
             else:
                 logger.error("No access token in refresh response")
                 return False
@@ -91,10 +101,12 @@ class ReviztoAPI:
             # Update refresh token if provided
             if 'refresh_token' in token_data:
                 cls.REFRESH_TOKEN = token_data['refresh_token']
+                print(f"[DEBUG] Refresh token updated")
 
             # Update token expiry (default: 1 hour)
             expires_in = token_data.get('expires_in', 3600)
             cls.TOKEN_EXPIRY = datetime.now() + timedelta(seconds=expires_in)
+            print(f"[DEBUG] Token expiry set to: {cls.TOKEN_EXPIRY}")
 
             logger.info("Successfully refreshed access token")
             return True
@@ -111,13 +123,21 @@ class ReviztoAPI:
             bool: True if a valid token is available, False otherwise
         """
         if not cls.ACCESS_TOKEN or not cls.REFRESH_TOKEN:
-            logger.error("No tokens available")
+            print(
+                f"[DEBUG] No tokens available. Access token: {'Present' if cls.ACCESS_TOKEN else 'Missing'}, Refresh token: {'Present' if cls.REFRESH_TOKEN else 'Missing'}")
             return False
 
-        # If token is expired or will expire in next 5 minutes
-        if not cls.TOKEN_EXPIRY or datetime.now() > (cls.TOKEN_EXPIRY - timedelta(minutes=5)):
+        # If token expiry is not set, set it to expire soon to force a refresh
+        if not cls.TOKEN_EXPIRY:
+            print(f"[DEBUG] Token expiry not set, forcing refresh")
             return cls.refresh_token()
 
+        # If token is expired or will expire in next 5 minutes
+        if datetime.now() > (cls.TOKEN_EXPIRY - timedelta(minutes=5)):
+            print(f"[DEBUG] Token expired or expiring soon, refreshing")
+            return cls.refresh_token()
+
+        print(f"[DEBUG] Token valid until {cls.TOKEN_EXPIRY}")
         return True
 
     @classmethod
