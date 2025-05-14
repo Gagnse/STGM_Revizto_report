@@ -7,25 +7,6 @@ logger = logging.getLogger(__name__)
 
 class ReviztoService:
     """Service for retrieving data from the Revizto API."""
-
-    @classmethod
-    def get_projects(cls):
-        """Get a list of all projects."""
-        try:
-            data = ReviztoAPI.get("projects")
-
-            projects = []
-            for item in data.get("items", []):
-                projects.append(Project(item))
-
-            return projects
-        except Exception as e:
-            logger.error(f"Failed to get projects: {e}")
-            return []
-
-    # 1. Update the ReviztoAPI.get method in core/api/client.py
-    # Add this replacement for the get method
-
     @classmethod
     def get(cls, endpoint, params=None):
         """

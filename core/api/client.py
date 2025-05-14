@@ -341,7 +341,7 @@ class ReviztoAPI:
             # Try using a known-working endpoint
             if cls.LICENCE_UUID:
                 # Use the license/projects endpoint which we know works
-                url = f"https://api.canada.revizto.com/v5/project/list/{cls.LICENCE_UUID}/projects"
+                url = f"https://api.canada.revizto.com/v5/licences"
                 response = requests.get(url, headers=cls.get_headers())
 
                 print(f"[DEBUG] Test connection response status: {response.status_code}")
