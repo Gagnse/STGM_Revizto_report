@@ -41,7 +41,7 @@ class ReviztoPDF(FPDF):
         # Logo
         try:
             # Check if using a custom logo from static folder
-            logo_path = os.path.join('static', 'images', 'STGM_Logotype_RVB_Architecture_Noir.png')
+            logo_path = find('images/STGM_Logotype_RVB_Architecture_Noir.png')
             if os.path.exists(logo_path):
                 self.image(logo_path, 6, 8, 50)
             else:

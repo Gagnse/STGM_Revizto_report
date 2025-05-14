@@ -5984,3 +5984,5 @@ Token refresh is disabled in settings. Skipping token refresher initialization.
 Watching for file changes with StatReloader
 "GET / HTTP/1.1" 200 19859
 "GET /static/js/issue-data.js HTTP/1.1" 304 0
+API client initialized with tokens
+Token refresh is disabled in settings. Skipping token refresher initialization.
