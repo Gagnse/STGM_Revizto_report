@@ -1,12 +1,14 @@
 import logging
 from .client import ReviztoAPI
 from .models import Project, Issue, User
+from . import token_store  # Import the token store
 
 logger = logging.getLogger(__name__)
 
 
 class ReviztoService:
     """Service for retrieving data from the Revizto API."""
+
     @classmethod
     def get(cls, endpoint, params=None):
         """
@@ -22,64 +24,36 @@ class ReviztoService:
         Raises:
             Exception: If the request fails
         """
-        if not cls.ensure_token_valid():
-            print(f"[DEBUG] Failed to obtain valid token for endpoint: {endpoint}")
-            raise Exception("Failed to obtain valid token")
+        # Verify tokens are available before making request
+        if not token_store.has_tokens():
+            print(f"[DEBUG] Token store is missing tokens, aborting request to: {endpoint}")
+            raise Exception("API tokens not available")
 
-        url = f"{cls.BASE_URL}{endpoint}"
-        print(f"[DEBUG] Making API request to: {url}")
-        print(f"[DEBUG] With params: {params}")
-
-        try:
-            print(f"[DEBUG] Request headers: {cls.get_headers()}")
-            response = requests.get(url, headers=cls.get_headers(), params=params)
-
-            print(f"[DEBUG] Response status code: {response.status_code}")
-            print(f"[DEBUG] Response headers: {response.headers}")
-
-            # Print a sample of the response text
-            print(f"[DEBUG] Response preview: {response.text[:200]}...")
-
-            # Handle 401 or 403 (token expired or invalid)
-            if response.status_code in (401, 403) or "-206" in response.text:
-                print(f"[DEBUG] Token expired or invalid. Attempting refresh...")
-                # Try to refresh the token and retry the request
-                if cls.refresh_token():
-                    print(f"[DEBUG] Token refreshed. Retrying request...")
-                    # Retry with new token
-                    response = requests.get(url, headers=cls.get_headers(), params=params)
-                    print(f"[DEBUG] Retry response status: {response.status_code}")
-                else:
-                    print(f"[DEBUG] Token refresh failed.")
-                    raise Exception("Token refresh failed")
-
-            print(f"[DEBUG] Final response status: {response.status_code}")
-            response.raise_for_status()
-            json_response = response.json()
-            print(
-                f"[DEBUG] JSON response keys: {list(json_response.keys()) if isinstance(json_response, dict) else 'Not a dict'}")
-            return json_response
-        except Exception as e:
-            import traceback
-            print(f"[DEBUG] API GET request failed: {e}")
-            print(f"[DEBUG] Error traceback: {traceback.format_exc()}")
-            raise
-
-    # 2. Update the get_projects method in core/api/service.py
+        # Forward to ReviztoAPI
+        return ReviztoAPI.get(endpoint, params)
 
     @classmethod
     def get_projects(cls):
         """Get a list of all projects."""
         print("\n[DEBUG] ==== STARTING GET_PROJECTS ====")
         try:
-            if not ReviztoAPI.LICENCE_UUID:
-                print("[DEBUG] REVIZTO_LICENCE_UUID is not set in settings")
+            # Get license UUID from token store
+            licence_uuid = token_store.get_licence_uuid()
+            if not licence_uuid:
+                # Fallback to settings if token store doesn't have it
+                from django.conf import settings
+                licence_uuid = settings.REVIZTO_LICENCE_UUID
+
+            if not licence_uuid:
+                print("[DEBUG] REVIZTO_LICENCE_UUID is not set in settings or token store")
                 return []
 
-            print(f"[DEBUG] Using license UUID: {ReviztoAPI.LICENCE_UUID}")
+            print(f"[DEBUG] Using license UUID: {licence_uuid}")
+            print(
+                f"[DEBUG] Token state: access={bool(token_store.get_access_token())}, refresh={bool(token_store.get_refresh_token())}")
 
             # Use the correct endpoint that's working
-            endpoint = f"license/{ReviztoAPI.LICENCE_UUID}/projects"
+            endpoint = f"license/{licence_uuid}/projects"
             print(f"[DEBUG] Using endpoint: {endpoint}")
 
             try:
@@ -131,6 +105,11 @@ class ReviztoService:
     def get_issues(cls, project_id, status=None):
         """Get issues for a project with optional status filter."""
         try:
+            # Verify tokens are available before making request
+            if not token_store.has_tokens():
+                logger.error("Token store is missing tokens, aborting issues request")
+                return []
+
             params = {}
             if status:
                 params["status"] = status
@@ -150,6 +129,11 @@ class ReviztoService:
     def get_issue(cls, project_id, issue_id):
         """Get a specific issue by ID."""
         try:
+            # Verify tokens are available before making request
+            if not token_store.has_tokens():
+                logger.error("Token store is missing tokens, aborting issue details request")
+                return None
+
             data = ReviztoAPI.get(f"projects/{project_id}/issues/{issue_id}")
             return Issue(data)
         except Exception as e:
@@ -160,6 +144,11 @@ class ReviztoService:
     def get_users(cls):
         """Get a list of all users."""
         try:
+            # Verify tokens are available before making request
+            if not token_store.has_tokens():
+                logger.error("Token store is missing tokens, aborting users request")
+                return []
+
             data = ReviztoAPI.get("users")
 
             users = []
@@ -175,6 +164,11 @@ class ReviztoService:
     def get_user(cls, user_id):
         """Get a specific user by ID."""
         try:
+            # Verify tokens are available before making request
+            if not token_store.has_tokens():
+                logger.error("Token store is missing tokens, aborting user details request")
+                return None
+
             data = ReviztoAPI.get(f"users/{user_id}")
             return User(data)
         except Exception as e:
@@ -186,6 +180,11 @@ class ReviztoService:
         """Search for projects by title."""
         print(f"[DEBUG] Starting search for projects with query: {query}")
         try:
+            # Verify tokens are available before making request
+            if not token_store.has_tokens():
+                print(f"[DEBUG] Token store is missing tokens, aborting projects search")
+                return []
+
             # Get all projects
             projects = cls.get_projects()
             print(f"[DEBUG] Found {len(projects)} projects to search through")
@@ -214,6 +213,11 @@ class ReviztoService:
         """Get all observations for a project (issues with stamp A-OB)."""
         print(f"[DEBUG] Fetching observations for project ID: {project_id}")
         try:
+            # Verify tokens are available before making request
+            if not token_store.has_tokens():
+                print(f"[DEBUG] Token store is missing tokens, aborting observations request")
+                return {"result": 1, "message": "API tokens not available", "data": {"data": []}}
+
             endpoint = f"project/{project_id}/issue-filter/filter"
             params = {
                 "anyFiltersDTO[0][type]": "stampAbbr",
@@ -243,6 +247,11 @@ class ReviztoService:
         """Get all instructions for a project (issues with stamp A-IN)."""
         print(f"[DEBUG] Fetching instructions for project ID: {project_id}")
         try:
+            # Verify tokens are available before making request
+            if not token_store.has_tokens():
+                print(f"[DEBUG] Token store is missing tokens, aborting instructions request")
+                return {"result": 1, "message": "API tokens not available", "data": {"data": []}}
+
             endpoint = f"project/{project_id}/issue-filter/filter"
             params = {
                 "anyFiltersDTO[0][type]": "stampAbbr",
@@ -273,6 +282,11 @@ class ReviztoService:
         print(f"\n[DEBUG-SERVICE] ===== FETCHING DEFICIENCIES =====")
         print(f"[DEBUG-SERVICE] Fetching deficiencies for project ID: {project_id}")
         try:
+            # Verify tokens are available before making request
+            if not token_store.has_tokens():
+                print(f"[DEBUG-SERVICE] Token store is missing tokens, aborting deficiencies request")
+                return {"result": 1, "message": "API tokens not available", "data": {"data": []}}
+
             endpoint = f"project/{project_id}/issue-filter/filter"
             params = {
                 "anyFiltersDTO[0][type]": "stampAbbr",
@@ -287,6 +301,8 @@ class ReviztoService:
 
             print(f"[DEBUG-SERVICE] Using endpoint: {endpoint}")
             print(f"[DEBUG-SERVICE] Using params: {params}")
+            print(
+                f"[DEBUG-SERVICE] Token state: access={bool(token_store.get_access_token())}, refresh={bool(token_store.get_refresh_token())}")
 
             # Make the API request
             try:
@@ -346,6 +362,11 @@ class ReviztoService:
         print(f"[DEBUG-SERVICE] Fetching comments for issue ID: {issue_id} in project: {project_id}")
 
         try:
+            # Verify tokens are available before making request
+            if not token_store.has_tokens():
+                print(f"[DEBUG-SERVICE] Token store is missing tokens, aborting comments request")
+                return {"result": 1, "message": "API tokens not available", "data": [], "issueId": issue_id}
+
             # Step 1: First fetch the issue data to get its UUID
             endpoint = f"project/{project_id}/issue-filter/filter"
             params = {
@@ -450,3 +471,36 @@ class ReviztoService:
             print(f"[DEBUG-SERVICE] Traceback: {traceback.format_exc()}")
             return {"result": 1, "message": str(e), "data": [], "issueId": issue_id}
 
+    @classmethod
+    def get_project_workflow_settings(cls, project_id):
+        """
+        Get workflow settings for a specific project.
+
+        Args:
+            project_id (int): Project ID
+
+        Returns:
+            dict: Response with workflow settings data
+        """
+        print(f"[DEBUG] Fetching workflow settings for project ID: {project_id}")
+        try:
+            # Verify tokens are available before making request
+            if not token_store.has_tokens():
+                print(f"[DEBUG] Token store is missing tokens, aborting workflow settings request")
+                return {"result": 1, "message": "API tokens not available", "data": {}}
+
+            # Use the correct endpoint for workflow settings
+            endpoint = "issue-workflow/settings"
+
+            # Make API request
+            response = ReviztoAPI.get(endpoint)
+            print(f"[DEBUG] Workflow settings API response received: {type(response)}")
+
+            # Return the raw API response
+            return response
+
+        except Exception as e:
+            import traceback
+            print(f"[DEBUG] Failed to get workflow settings: {e}")
+            print(f"[DEBUG] Exception traceback: {traceback.format_exc()}")
+            return {"result": 1, "message": str(e), "data": {}}
