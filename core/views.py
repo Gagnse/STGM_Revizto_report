@@ -128,39 +128,29 @@ def save_project_data(request, project_id):
                     logger.warning(f"Could not parse visit date: {data['visitDate']}")
 
         # Try to get existing project data or create new entry
-        project_data, created = ProjectData.objects.get_or_create(
-            id=project_id,
-            defaults={
-                'noDossier': data.get('architectFile', ''),
-                'noProjet': data.get('projectName', ''),
-                'maitreOuvragge': data.get('projectOwner', ''),
-                'entrepreneur': data.get('contractor', ''),
-                'noVisite': data.get('visitNumber', ''),
-                'visitePar': data.get('visitBy', ''),
-                'dateVisite': visit_date,
-                'presence': data.get('inPresenceOf', ''),
-                'rapportDate': report_date,
-                'description': data.get('description', ''),
-                'distribution': data.get('distribution', ''),
-                'image': data.get('imageUrl', '')
-            }
-        )
+        try:
+            project_data = ProjectData.objects.get(id=project_id)
+            created = False
+        except ProjectData.DoesNotExist:
+            project_data = ProjectData(id=project_id)
+            created = True
 
-        if not created:
-            # Update existing project data
-            project_data.noDossier = data.get('architectFile', '')
-            project_data.noProjet = data.get('projectName', '')
-            project_data.maitreOuvragge = data.get('projectOwner', '')
-            project_data.entrepreneur = data.get('contractor', '')
-            project_data.noVisite = data.get('visitNumber', '')
-            project_data.visitePar = data.get('visitBy', '')
-            project_data.dateVisite = visit_date
-            project_data.presence = data.get('inPresenceOf', '')
-            project_data.rapportDate = report_date
-            project_data.description = data.get('description', '')
-            project_data.distribution = data.get('distribution', '')
-            project_data.image = data.get('imageUrl', '')
-            project_data.save()
+        # Update the fields using the correct lowercase field names
+        project_data.nodossier = data.get('architectFile', '')
+        project_data.noprojet = data.get('projectName', '')
+        project_data.maitreouvragge = data.get('projectOwner', '')
+        project_data.entrepreneur = data.get('contractor', '')
+        project_data.novisite = data.get('visitNumber', '')
+        project_data.visitepar = data.get('visitBy', '')
+        project_data.datevisite = visit_date
+        project_data.presence = data.get('inPresenceOf', '')
+        project_data.rapportdate = report_date
+        project_data.description = data.get('description', '')
+        project_data.distribution = data.get('distribution', '')
+        project_data.image = data.get('imageUrl', '')
+
+        # Save the updated or new record
+        project_data.save()
 
         logger.info("Project %s data saved to database. Created: %s", project_id, created)
 
@@ -182,7 +172,6 @@ def save_project_data(request, project_id):
         logger.error(error_msg, exc_info=True)
         return JsonResponse({'error': str(e)}, status=500)
 
-
 def load_project_data(request, project_id):
     """
     API endpoint to load project form data from database
@@ -199,21 +188,21 @@ def load_project_data(request, project_id):
 
             # Format dates for JSON
             report_date = ''
-            if project_data.rapportDate:
-                report_date = project_data.rapportDate.strftime('%Y-%m-%d')
+            if project_data.rapportdate:
+                report_date = project_data.rapportdate.strftime('%Y-%m-%d')
 
             visit_date = ''
-            if project_data.dateVisite:
-                visit_date = project_data.dateVisite.strftime('%Y-%m-%d')
+            if project_data.datevisite:
+                visit_date = project_data.datevisite.strftime('%Y-%m-%d')
 
-            # Convert to response format
+            # Convert to response format - map the lowercase DB columns back to camelCase for frontend
             data = {
-                'architectFile': project_data.noDossier or '',
-                'projectName': project_data.noProjet or '',
-                'projectOwner': project_data.maitreOuvragge or '',
+                'architectFile': project_data.nodossier or '',
+                'projectName': project_data.noprojet or '',
+                'projectOwner': project_data.maitreouvragge or '',
                 'contractor': project_data.entrepreneur or '',
-                'visitNumber': project_data.noVisite or '',
-                'visitBy': project_data.visitePar or '',
+                'visitNumber': project_data.novisite or '',
+                'visitBy': project_data.visitepar or '',
                 'visitDate': visit_date,
                 'inPresenceOf': project_data.presence or '',
                 'reportDate': report_date,
@@ -246,7 +235,6 @@ def load_project_data(request, project_id):
         print(f"[DEBUG] {error_msg}")
         logger.error(error_msg, exc_info=True)
         return JsonResponse({'error': str(e), 'success': False}, status=500)
-
 
 def clear_project_data(request, project_id):
     """

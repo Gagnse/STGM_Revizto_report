@@ -9,7 +9,7 @@ class ProjectRouter:
         Point all operations on ProjectData model to the 'postgres' database
         """
         if model._meta.app_label == 'core' and model.__name__ == 'ProjectData':
-            return 'postgres'
+            return 'postgres'  # Make sure this matches your DATABASE dictionary key
         return None
 
     def db_for_write(self, model, **hints):
@@ -17,7 +17,7 @@ class ProjectRouter:
         Point all operations on ProjectData model to the 'postgres' database
         """
         if model._meta.app_label == 'core' and model.__name__ == 'ProjectData':
-            return 'postgres'
+            return 'postgres'  # Make sure this matches your DATABASE dictionary key
         return None
 
     def allow_relation(self, obj1, obj2, **hints):
