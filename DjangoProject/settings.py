@@ -142,7 +142,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Revizto API Settings
 REVIZTO_API_BASE_URL = os.environ.get("REVIZTO_API_BASE_URL","https://api.canada.revizto.com/v5/")
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.herokuapp.com']
 
 # These should be set in your environment variables for security
 # You will need to provide these values
