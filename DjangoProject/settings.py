@@ -154,7 +154,7 @@ print(f"=== SETTINGS LOADED ===\n")
 REVIZTO_LICENCE_UUID = os.environ.get("REVIZTO_LICENCE_UUID", "")
 REVIZTO_ACCESS_TOKEN = os.environ.get("REVIZTO_ACCESS_TOKEN", "")
 REVIZTO_REFRESH_TOKEN = os.environ.get("REVIZTO_REFRESH_TOKEN", "")
-REVIZTO_ENABLE_TOKEN_REFRESH = False
+REVIZTO_ENABLE_TOKEN_REFRESH = True
 
 # Session configuration
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
