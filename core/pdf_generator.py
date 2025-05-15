@@ -305,12 +305,7 @@ class ReviztoPDF(FPDF):
         # ===== IMAGE COLUMN =====
 
         # Check if there's a preview image
-        image_url = None
-        if observation.get('preview'):
-            if isinstance(observation['preview'], str):
-                image_url = observation['preview']
-            elif isinstance(observation['preview'], dict) and observation['preview'].get('original'):
-                image_url = observation['preview']['original']
+        image_url = get_best_image_for_issue(observation, comments)
 
         # Add image if available
         if image_url:
@@ -1291,3 +1286,80 @@ def sanitize_text_for_pdf(text):
         text = text.replace(char, replacement)
 
     return text
+
+
+def get_best_image_for_issue(issue, comments):
+    """
+    Gets the best available image for an issue based on priority:
+    1. Last uploaded image from comments
+    2. Last markup image
+    3. Default image from issue data
+
+    Args:
+        issue (dict): The issue object
+        comments (list): Comments for this issue
+
+    Returns:
+        str: URL of the best available image or empty string if none found
+    """
+    logger.info(f"Finding best image for issue {issue.get('id')}")
+
+    # First check if we have comments
+    if comments and isinstance(comments, list) and len(comments) > 0:
+        logger.info(f"Checking {len(comments)} comments for images")
+
+        # First priority: Find the most recent file comment with an image
+        # Sort comments newest first
+        sorted_comments = sorted(
+            comments,
+            key=lambda c: c.get('created', ''),
+            reverse=True
+        )
+
+        # Look for a file comment with an image preview
+        for comment in sorted_comments:
+            if (comment.get('type') == 'file' and
+                    comment.get('mimetype') and
+                    isinstance(comment.get('mimetype'), str) and
+                    comment.get('mimetype').startswith('image/') and
+                    comment.get('preview')):
+
+                preview = comment.get('preview')
+                if isinstance(preview, dict):
+                    if preview.get('original'):
+                        logger.info(f"Found image in file comment: {preview.get('original')}")
+                        return preview.get('original')
+                    elif preview.get('middle'):
+                        logger.info(f"Found image in file comment: {preview.get('middle')}")
+                        return preview.get('middle')
+
+        # Second priority: Find the most recent markup with a preview
+        for comment in sorted_comments:
+            if (comment.get('type') == 'markup' and
+                    comment.get('preview')):
+
+                preview = comment.get('preview')
+                if isinstance(preview, dict):
+                    if preview.get('original'):
+                        logger.info(f"Found image in markup comment: {preview.get('original')}")
+                        return preview.get('original')
+                    elif preview.get('middle'):
+                        logger.info(f"Found image in markup comment: {preview.get('middle')}")
+                        return preview.get('middle')
+
+    # Third priority: Use the default issue preview image
+    if issue.get('preview'):
+        if isinstance(issue['preview'], str):
+            logger.info(f"Using issue's string preview: {issue['preview']}")
+            return issue['preview']
+        elif isinstance(issue['preview'], dict):
+            if issue['preview'].get('original'):
+                logger.info(f"Using issue's preview.original: {issue['preview'].get('original')}")
+                return issue['preview'].get('original')
+            elif issue['preview'].get('middle'):
+                logger.info(f"Using issue's preview.middle: {issue['preview'].get('middle')}")
+                return issue['preview'].get('middle')
+
+    # No image found
+    logger.info(f"No image found for issue {issue.get('id')}")
+    return ''

@@ -6493,3 +6493,58 @@ Loaded project data for project 712062
 "GET /api/projects/712062/issues/383/comments/ HTTP/1.1" 200 3037
 "GET /api/projects/712062/issues/408/comments/ HTTP/1.1" 200 1819
 "GET /api/projects/712062/issues/374/comments/ HTTP/1.1" 200 5257
+Search request with query: syna
+"GET /api/search/?query=syna HTTP/1.1" 200 77
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 134
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 4424
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 2970034
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 5133
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
+"GET /api/projects/712301/issues/6/comments/ HTTP/1.1" 200 1817
+"GET /api/projects/712301/issues/8/comments/ HTTP/1.1" 200 3147
+Project 712301 data saved to database. Created: False
+"POST /api/projects/712301/data/save/ HTTP/1.1" 200 85
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+Successfully refreshed access token
+"GET / HTTP/1.1" 200 19863
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+Search request with query: synase
+"GET /api/search/?query=synase HTTP/1.1" 200 77
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 134
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 5133
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 4424
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 2970042
+"GET /api/projects/712301/issues/8/comments/ HTTP/1.1" 200 3147
+"GET /api/projects/712301/issues/6/comments/ HTTP/1.1" 200 1817
+Finding best image for issue 6
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/6/comments/6f01e068-dde3-4f8e-90b7-f88c791238ee/0ee53c0f
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_429884f7-016e-4170-a1fc-bc5edb118a7e.png
+Finding best image for issue 8
+Checking 3 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/8/comments/80450c07-7d29-4fbe-bd77-d25504efe9e4/803dbe95
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_cb684a9b-2dd0-475b-b929-e0c27472e830.png
+"GET /api/projects/712301/generate-pdf/ HTTP/1.1" 200 2843302
+Finding best image for issue 6
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/6/comments/6f01e068-dde3-4f8e-90b7-f88c791238ee/0ee53c0f
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_6a7a665b-41d6-4688-939f-a761fc9ccecc.png
+Finding best image for issue 8
+Checking 3 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/8/comments/80450c07-7d29-4fbe-bd77-d25504efe9e4/803dbe95
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_6a19007c-bb73-4931-89f2-33aa8e746d6b.png
+"GET /api/projects/712301/generate-pdf/ HTTP/1.1" 200 2843302
+Finding best image for issue 6
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/6/comments/6f01e068-dde3-4f8e-90b7-f88c791238ee/0ee53c0f
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_a9924a7e-21ee-4359-a446-0b5cd1d84647.png
+Finding best image for issue 8
+Checking 3 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/8/comments/80450c07-7d29-4fbe-bd77-d25504efe9e4/803dbe95
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_0774a1f8-210b-4a06-97c0-fb964f463112.png
+"GET /api/projects/712301/generate-pdf/ HTTP/1.1" 200 2843302
