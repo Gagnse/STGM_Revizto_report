@@ -1262,24 +1262,30 @@ def sanitize_text_for_pdf(text):
     if not isinstance(text, str):
         text = str(text)
 
-    # Replace problematic Unicode characters
+    # Replace French accented characters
     replacements = {
-        '→': '-->',
-        '⟶': '-->',
-        '➜': '-->',
-        '⇒': '=>',
-        '⇨': '=>',
-        '–': '-',
-        '—': '--',
-        '"': '"',
-        '"': '"',
-        ''': "'",
-        ''': "'",
-        '…': '...',
-        '•': '*',
-        '·': '*',
-        '×': 'x',
-        '÷': '/'
+        # French characters
+        'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e',
+        'à': 'a', 'â': 'a', 'ä': 'a',
+        'î': 'i', 'ï': 'i',
+        'ô': 'o', 'ö': 'o',
+        'ù': 'u', 'û': 'u', 'ü': 'u',
+        'ç': 'c',
+        'É': 'E', 'È': 'E', 'Ê': 'E', 'Ë': 'E',
+        'À': 'A', 'Â': 'A', 'Ä': 'A',
+        'Î': 'I', 'Ï': 'I',
+        'Ô': 'O', 'Ö': 'O',
+        'Ù': 'U', 'Û': 'U', 'Ü': 'U',
+        'Ç': 'C',
+
+        # Other problematic characters
+        '→': '-->', '⟶': '-->', '➜': '-->',
+        '⇒': '=>', '⇨': '=>',
+        '–': '-', '—': '--',
+        '"': '"', '"': '"',
+        ''': "'", ''': "'",
+        '…': '...', '•': '*', '·': '*',
+        '×': 'x', '÷': '/'
     }
 
     for char, replacement in replacements.items():
