@@ -1262,8 +1262,14 @@ def sanitize_text_for_pdf(text):
     if not isinstance(text, str):
         text = str(text)
 
-    # Replace French accented characters
+    # Replace French accented characters and other special characters
     replacements = {
+        # Smart quotes and apostrophes
+        '\u2019': "'",  # Right single quotation mark
+        '\u2018': "'",  # Left single quotation mark
+        '\u201C': '"',  # Left double quotation mark
+        '\u201D': '"',  # Right double quotation mark
+
         # French characters
         'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e',
         'à': 'a', 'â': 'a', 'ä': 'a',
@@ -1282,10 +1288,15 @@ def sanitize_text_for_pdf(text):
         '→': '-->', '⟶': '-->', '➜': '-->',
         '⇒': '=>', '⇨': '=>',
         '–': '-', '—': '--',
-        '"': '"', '"': '"',
-        ''': "'", ''': "'",
         '…': '...', '•': '*', '·': '*',
-        '×': 'x', '÷': '/'
+        '×': 'x', '÷': '/',
+
+        # Other special characters
+        '®': '(R)', '©': '(C)', '™': '(TM)',
+        '£': 'GBP', '€': 'EUR', '¥': 'JPY',
+        '°': ' degrees ',
+        '±': '+/-',
+        '\u00A0': ' ',  # Non-breaking space
     }
 
     for char, replacement in replacements.items():
