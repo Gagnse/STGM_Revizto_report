@@ -447,309 +447,12 @@ function fetchDeficiencies(projectId) {
 
 // Render deficiencies directly
 function renderDeficienciesDirectly(deficiencies) {
-    console.log('[DEBUG] Direct rendering of', deficiencies.length, 'deficiencies');
-    // Filter out closed issues
-    const filteredDeficiencies = filterOutClosedIssues(deficiencies);
-    console.log('[DEBUG] After filtering closed issues:', filteredDeficiencies.length, 'deficiencies remain');
-
-    const container = document.getElementById('deficiencies-container');
-
-    if (!container) {
-        console.error('[DEBUG] Deficiencies container not found');
-        return;
-    }
-
-    if (!filteredDeficiencies || filteredDeficiencies.length === 0) {
-        container.innerHTML = '<p class="text-yellow-700">Aucune déficience trouvée</p>';
-        return;
-    }
-
-    // Create HTML for all deficiencies
-    let html = '';
-
-    filteredDeficiencies.forEach(deficiency => {
-        // Extract basic properties safely
-        const id = deficiency.id || 'N/A';
-
-        // Get title - could be string or object with value property
-        let title = 'Sans titre';
-        if (deficiency.title) {
-            if (typeof deficiency.title === 'string') {
-                title = deficiency.title;
-            } else if (deficiency.title.value) {
-                title = deficiency.title.value;
-            }
-        }
-
-        // Get status - check for both status and customStatus
-        let statusId = null;
-        if (deficiency.customStatus) {
-            statusId = deficiency.customStatus;
-        } else if (deficiency.status) {
-            statusId = deficiency.status;
-        }
-
-        // Get status display information
-        const statusDisplay = getStatusDisplay(statusId);
-
-        // Get preview image URL if exists
-        let imageUrl = '';
-        if (deficiency.preview) {
-            if (typeof deficiency.preview === 'string') {
-                imageUrl = deficiency.preview;
-            } else if (deficiency.preview.original) {
-                imageUrl = deficiency.preview.original;
-            }
-        }
-
-        // Get additional information
-        const createdDate = getFormattedCreationDate(deficiency);
-        const sheetNumber = getSheetNumber(deficiency);
-        const sheetName = getSheetName(deficiency);
-        const reviztoLinks = getReviztoLinks(deficiency);
-
-        // Build the HTML for this deficiency
-         html += `
-            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 overflow-hidden">
-                <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-lg font-semibold text-gray-800">#${id}</h3>
-                        <span class="px-5 py-1.5 rounded-full font-bold text-sm" 
-                            style="background-color: ${statusDisplay.backgroundColor}; color: ${statusDisplay.textColor}">
-                            ${statusDisplay.displayName}
-                        </span>
-                    </div>
-                </div>
-                <div class="pt-4 pb-4 pl-4">
-                    <div class="flex flex-col md:flex-row">
-                        ${imageUrl ? 
-                            `<div class="max-w-75 md:w-1/4 mb-4 md:mb-0 md:pr-4">
-                                <img src="${imageUrl}" alt="Preview" class="w-full h-auto rounded-md border border-gray-200">
-                            </div>` : 
-                            `<div class="max-w-75 md:w-1/4 mb-4 md:mb-0 md:pr-4">
-                                <div class="w-full h-40 bg-gray-100 rounded-md flex items-center justify-center">
-                                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
-                                </div>
-                            </div>`
-                        }
-                        <div class="w-full flex flex-col md:flex-row">
-                            <!-- Left column: Issue information -->
-                            <div class="md:w-1/2 pr-4 space-y-3">
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-500">Titre</h4>
-                                    <p class="text-gray-800">${title}</p>
-                                </div>
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-500">État</h4>
-                                    <p class="text-gray-800">${statusDisplay.displayName}</p>
-                                </div>
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-500">Posée le</h4>
-                                    <p class="text-gray-800">${createdDate}</p>
-                                </div>
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-500">Assignée à</h4>
-                                    <p class="text-gray-800">${getAssignee(deficiency)}</p>
-                                </div>
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-500">Numéro de la feuille</h4>
-                                    <p class="text-gray-800">${sheetNumber}</p>
-                                </div>
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-500">Nom de la feuille</h4>
-                                    <p class="text-gray-800">${sheetName}</p>
-                                </div>
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-500">Ouvrir dans Revizto</h4>
-                                    <div class="flex gap-2">
-                                        ${reviztoLinks.desktop ? 
-                                            `<a href="${reviztoLinks.desktop}" class="text-blue-600 hover:underline" target="_blank">Application</a>` : 
-                                            ''}
-                                        ${reviztoLinks.web ? 
-                                            `<a href="${reviztoLinks.web}" class="text-blue-600 hover:underline" target="_blank">Web</a>` : 
-                                            ''}
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Right column: Issue history -->
-                            <div class="w-full md:w-1/2 mt-4 md:mt-0 border-t md:border-t-0 md:border-l border-gray-200 md:pl-4 md:pr-4 pt-4 md:pt-0">
-                                <h4 class="text-sm font-semibold text-gray-700 mb-2">Historique</h4>
-                                <div id="history-panel-${id}" class="bg-gray-50 rounded-md">
-                                    <div class="p-3 text-sm text-gray-500">Chargement de l'historique...</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-
-    // Set the HTML to the container
-    container.innerHTML = html;
-    console.log('[DEBUG] Rendered', filteredDeficiencies.length, 'deficiency cards');
-    // Fetch history for each issue
-    filteredDeficiencies.forEach(item => {
-        fetchIssueHistory(window.issueData.activeProjectId, item.id);
-    });
+    renderItemsWithPrioritizedImages(deficiencies, 'deficiencies-container', 'Déficience');
 }
 
 // Render items (observations, instructions) directly
 function renderItemsDirectly(items, containerId, itemType) {
-    console.log(`[DEBUG] Direct rendering of ${items.length} ${itemType.toLowerCase()}s`);
-    // Filter out closed issues
-    const filteredItems = filterOutClosedIssues(items);
-    console.log(`[DEBUG] After filtering closed issues: ${filteredItems.length} ${itemType.toLowerCase()}s remain`);
-
-    const container = document.getElementById(containerId);
-
-    if (!container) {
-        console.error(`[DEBUG] ${itemType} container not found`);
-        return;
-    }
-
-    if (!filteredItems || filteredItems.length === 0) {
-        container.innerHTML = `<p class="text-yellow-700">Aucun(e) ${itemType.toLowerCase()} trouvé(e)</p>`;
-        return;
-    }
-
-    // Create HTML for all items
-    let html = '';
-
-    filteredItems.forEach(item => {
-        // Extract basic properties safely
-        const id = item.id || 'N/A';
-
-        // Get title - could be string or object with value property
-        let title = 'Sans titre';
-        if (item.title) {
-            if (typeof item.title === 'string') {
-                title = item.title;
-            } else if (item.title.value) {
-                title = item.title.value;
-            }
-        }
-
-        // Get status - check for both status and customStatus
-        let statusId = null;
-        if (item.customStatus) {
-            statusId = item.customStatus;
-        } else if (item.status) {
-            statusId = item.status;
-        }
-
-        // Get status display information
-        const statusDisplay = getStatusDisplay(statusId);
-
-        // Get preview image URL if exists
-        let imageUrl = '';
-        if (item.preview) {
-            if (typeof item.preview === 'string') {
-                imageUrl = item.preview;
-            } else if (item.preview.original) {
-                imageUrl = item.preview.original;
-            }
-        }
-
-        // Get additional information
-        const createdDate = getFormattedCreationDate(item);
-        const sheetNumber = getSheetNumber(item);
-        const sheetName = getSheetName(item);
-        const reviztoLinks = getReviztoLinks(item);
-
-        // Build the HTML for this item
-         html += `
-            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 overflow-hidden">
-                <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-lg font-semibold text-gray-800">#${id}</h3>
-                        <span class="px-5 py-1.5 rounded-full font-bold text-sm" 
-                            style="background-color: ${statusDisplay.backgroundColor}; color: ${statusDisplay.textColor}">
-                            ${statusDisplay.displayName}
-                        </span>
-                    </div>
-                </div>
-                <div class="pt-4 pb-4 pl-4">
-                    <div class="flex flex-col md:flex-row">
-                        ${imageUrl ? 
-                            `<div class="max-w-75 md:w-1/4 mb-4 md:mb-0 md:pr-4">
-                                <img src="${imageUrl}" alt="Preview" class="w-full h-auto rounded-md border border-gray-200">
-                            </div>` : 
-                            `<div class="max-w-75 md:w-1/4 mb-4 md:mb-0 md:pr-4">
-                                <div class="w-full h-40 bg-gray-100 rounded-md flex items-center justify-center">
-                                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
-                                </div>
-                            </div>`
-                        }
-                        <div class="w-full flex flex-col md:flex-row">
-                            <!-- Left column: Issue information -->
-                            <div class="w-full md:w-1/2 pr-4 space-y-3">
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-500">Titre</h4>
-                                    <p class="text-gray-800">${title}</p>
-                                </div>
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-500">État</h4>
-                                    <p class="text-gray-800">${statusDisplay.displayName}</p>
-                                </div>
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-500">Posée le</h4>
-                                    <p class="text-gray-800">${createdDate}</p>
-                                </div>
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-500">Assignée à</h4>
-                                    <p class="text-gray-800">${getAssignee(item)}</p>
-                                </div>
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-500">Numéro de la feuille</h4>
-                                    <p class="text-gray-800">${sheetNumber}</p>
-                                </div>
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-500">Nom de la feuille</h4>
-                                    <p class="text-gray-800">${sheetName}</p>
-                                </div>
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-500">Ouvrir dans Revizto</h4>
-                                    <div class="flex gap-2">
-                                        ${reviztoLinks.desktop ? 
-                                            `<a href="${reviztoLinks.desktop}" class="text-blue-600 hover:underline" target="_blank">Application</a>` : 
-                                            ''}
-                                        ${reviztoLinks.web ? 
-                                            `<a href="${reviztoLinks.web}" class="text-blue-600 hover:underline" target="_blank">Web</a>` : 
-                                            ''}
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Right column: Issue history -->
-                            <div class="w-full md:w-1/2 mt-4 md:mt-0 border-t md:border-t-0 md:border-l border-gray-200 md:pl-4 md:pr-4 pt-4 md:pt-0">
-                                <h4 class="text-sm font-semibold text-gray-700 mb-2">Historique</h4>
-                                <div id="history-panel-${id}" class="bg-gray-50 rounded-md">
-                                    <div class="p-3 text-sm text-gray-500">Chargement de l'historique...</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-
-    // Set the HTML to the container
-    container.innerHTML = html;
-    console.log(`[DEBUG] Rendered ${filteredItems.length} ${itemType.toLowerCase()} cards`);
-    // Fetch history for each issue
-    filteredItems.forEach(item => {
-        fetchIssueHistory(window.issueData.activeProjectId, item.id);
-    });
+    renderItemsWithPrioritizedImages(items, containerId, itemType);
 }
 
 // Show loading state
@@ -1083,3 +786,318 @@ if (typeof value === 'string') {
 return value;
 }
 
+/**
+ * Gets the best available image for an issue based on priority:
+ * 1. Last uploaded image from comments
+ * 2. Last markup image
+ * 3. Default image from issue data
+ *
+ * @param {Object} item - The issue object
+ * @param {Array} comments - Comments for this issue
+ * @returns {string} - URL of the best available image or empty string if none found
+ */
+function getBestImageForIssue(item, comments) {
+    console.log(`[DEBUG] Finding best image for issue ${item.id}`);
+
+    // First check if we have comments
+    if (comments && Array.isArray(comments) && comments.length > 0) {
+        console.log(`[DEBUG] Checking ${comments.length} comments for images`);
+
+        // First priority: Find the most recent file comment with an image
+        // Sort comments newest first
+        const sortedComments = [...comments].sort((a, b) => {
+            const dateA = new Date(a.created || 0);
+            const dateB = new Date(b.created || 0);
+            return dateB - dateA;
+        });
+
+        // Look for a file comment with an image preview
+        const fileComment = sortedComments.find(comment =>
+            comment.type === 'file' &&
+            comment.mimetype &&
+            comment.mimetype.startsWith('image/') &&
+            comment.preview &&
+            (comment.preview.original || comment.preview.middle)
+        );
+
+        if (fileComment) {
+            const imageUrl = fileComment.preview.original || fileComment.preview.middle;
+            console.log(`[DEBUG] Found image in file comment: ${imageUrl}`);
+            return imageUrl;
+        }
+
+        // Second priority: Find the most recent markup with a preview
+        const markupComment = sortedComments.find(comment =>
+            comment.type === 'markup' &&
+            comment.preview &&
+            (comment.preview.original || comment.preview.middle)
+        );
+
+        if (markupComment) {
+            const imageUrl = markupComment.preview.original || markupComment.preview.middle;
+            console.log(`[DEBUG] Found image in markup comment: ${imageUrl}`);
+            return imageUrl;
+        }
+    }
+
+    // Third priority: Use the default issue preview image
+    if (item.preview) {
+        if (typeof item.preview === 'string') {
+            console.log(`[DEBUG] Using issue's string preview: ${item.preview}`);
+            return item.preview;
+        } else if (item.preview.original) {
+            console.log(`[DEBUG] Using issue's preview.original: ${item.preview.original}`);
+            return item.preview.original;
+        } else if (item.preview.middle) {
+            console.log(`[DEBUG] Using issue's preview.middle: ${item.preview.middle}`);
+            return item.preview.middle;
+        }
+    }
+
+    // No image found
+    console.log(`[DEBUG] No image found for issue ${item.id}`);
+    return '';
+}
+
+// Modified function to render items with enhanced image prioritization
+function renderItemsWithPrioritizedImages(items, containerId, itemType) {
+    console.log(`[DEBUG] Rendering ${items.length} ${itemType.toLowerCase()}s with prioritized images`);
+
+    // Filter out closed issues
+    const filteredItems = filterOutClosedIssues(items);
+    console.log(`[DEBUG] After filtering closed issues: ${filteredItems.length} ${itemType.toLowerCase()}s remain`);
+
+    const container = document.getElementById(containerId);
+
+    if (!container) {
+        console.error(`[DEBUG] ${itemType} container not found`);
+        return;
+    }
+
+    if (!filteredItems || filteredItems.length === 0) {
+        container.innerHTML = `<p class="text-yellow-700">Aucun(e) ${itemType.toLowerCase()} trouvé(e)</p>`;
+        return;
+    }
+
+    // Create HTML for all items
+    let html = '';
+
+    // First pass to generate the basic structure without images
+    // This allows us to start fetching histories immediately
+    filteredItems.forEach(item => {
+        // Extract basic properties safely
+        const id = item.id || 'N/A';
+
+        // Get title - could be string or object with value property
+        let title = 'Sans titre';
+        if (item.title) {
+            if (typeof item.title === 'string') {
+                title = item.title;
+            } else if (item.title.value) {
+                title = item.title.value;
+            }
+        }
+
+        // Get status - check for both status and customStatus
+        let statusId = null;
+        if (item.customStatus) {
+            statusId = item.customStatus;
+        } else if (item.status) {
+            statusId = item.status;
+        }
+
+        // Get status display information
+        const statusDisplay = getStatusDisplay(statusId);
+
+        // Get additional information
+        const createdDate = getFormattedCreationDate(item);
+        const sheetNumber = getSheetNumber(item);
+        const sheetName = getSheetName(item);
+        const reviztoLinks = getReviztoLinks(item);
+
+        // Build the HTML for this item - initially with placeholder for image
+        html += `
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 overflow-hidden">
+                <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-semibold text-gray-800">#${id}</h3>
+                        <span class="px-5 py-1.5 rounded-full font-bold text-sm" 
+                            style="background-color: ${statusDisplay.backgroundColor}; color: ${statusDisplay.textColor}">
+                            ${statusDisplay.displayName}
+                        </span>
+                    </div>
+                </div>
+                <div class="pt-4 pb-4 pl-4">
+                    <div class="flex flex-col md:flex-row">
+                        <div class="max-w-75 md:w-1/4 mb-4 md:mb-0 md:pr-4">
+                            <div id="image-container-${id}" class="w-full h-40 bg-gray-100 rounded-md flex items-center justify-center">
+                                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="w-full flex flex-col md:flex-row">
+                            <!-- Left column: Issue information -->
+                            <div class="w-full md:w-1/2 pr-4 space-y-3">
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Titre</h4>
+                                    <p class="text-gray-800">${title}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">État</h4>
+                                    <p class="text-gray-800">${statusDisplay.displayName}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Posée le</h4>
+                                    <p class="text-gray-800">${createdDate}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Assignée à</h4>
+                                    <p class="text-gray-800">${getAssignee(item)}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Numéro de la feuille</h4>
+                                    <p class="text-gray-800">${sheetNumber}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Nom de la feuille</h4>
+                                    <p class="text-gray-800">${sheetName}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Ouvrir dans Revizto</h4>
+                                    <div class="flex gap-2">
+                                        ${reviztoLinks.desktop ? 
+                                            `<a href="${reviztoLinks.desktop}" class="text-blue-600 hover:underline" target="_blank">Application</a>` : 
+                                            ''}
+                                        ${reviztoLinks.web ? 
+                                            `<a href="${reviztoLinks.web}" class="text-blue-600 hover:underline" target="_blank">Web</a>` : 
+                                            ''}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right column: Issue history -->
+                            <div class="w-full md:w-1/2 mt-4 md:mt-0 border-t md:border-t-0 md:border-l border-gray-200 md:pl-4 md:pr-4 pt-4 md:pt-0">
+                                <h4 class="text-sm font-semibold text-gray-700 mb-2">Historique</h4>
+                                <div id="history-panel-${id}" class="bg-gray-50 rounded-md">
+                                    <div class="p-3 text-sm text-gray-500">Chargement de l'historique...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    // Set the HTML to the container
+    container.innerHTML = html;
+    console.log(`[DEBUG] Rendered ${filteredItems.length} ${itemType.toLowerCase()} cards with placeholders`);
+
+    // Fetch history for each issue and update images once history is loaded
+    filteredItems.forEach(item => {
+        fetchIssueHistoryAndUpdateImage(window.issueData.activeProjectId, item);
+    });
+}
+
+/**
+ * Fetch issue history and update the image when history is available
+ */
+function fetchIssueHistoryAndUpdateImage(projectId, issue) {
+    console.log(`[DEBUG] Fetching history for issue ID: ${issue.id} in project: ${projectId}`);
+
+    const historyPanelId = `history-panel-${issue.id}`;
+    const historyPanel = document.getElementById(historyPanelId);
+    const imageContainerId = `image-container-${issue.id}`;
+    const imageContainer = document.getElementById(imageContainerId);
+
+    if (!historyPanel) {
+        console.error(`[DEBUG] History panel not found with ID: ${historyPanelId}`);
+        return;
+    }
+
+    if (!imageContainer) {
+        console.error(`[DEBUG] Image container not found with ID: ${imageContainerId}`);
+        return;
+    }
+
+    // Show loading state
+    historyPanel.innerHTML = `
+        <div class="p-3">
+            <div class="flex items-center">
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
+                <span class="text-sm text-gray-500">Chargement de l'historique...</span>
+            </div>
+        </div>
+    `;
+
+    fetch(`/api/projects/${projectId}/issues/${issue.id}/comments/`)
+        .then(response => {
+            console.log(`[DEBUG] Comment history response status for issue ${issue.id}:`, response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log(`[DEBUG] Comment history data for issue ${issue.id}:`, data);
+
+            // Extract comments from the response
+            let comments = [];
+
+            // Check for data in the expected structure
+            if (data && data.result === 0 && data.data) {
+                if (Array.isArray(data.data)) {
+                    comments = data.data;
+                } else if (data.data.data && Array.isArray(data.data.data)) {
+                    comments = data.data.data;
+                }
+                console.log(`[DEBUG] Found ${comments.length} comments for issue ${issue.id}`);
+            }
+
+            // Store the comments in the global state for this specific issue
+            if (!window.issueData.history) {
+                window.issueData.history = {};
+            }
+            window.issueData.history[issue.id] = comments;
+
+            // Find the best image based on priority
+            const bestImageUrl = getBestImageForIssue(issue, comments);
+
+            // Update the image in the container
+            if (bestImageUrl) {
+                imageContainer.innerHTML = `
+                    <img src="${bestImageUrl}" alt="Issue preview" class="w-full h-full object-cover">
+                `;
+            }
+
+            // Render the comments for this specific issue
+            const html = renderCommentsHTML(comments);
+            historyPanel.innerHTML = html;
+        })
+        .catch(error => {
+            console.error(`[DEBUG] Error fetching comments for issue ${issue.id}:`, error);
+            historyPanel.innerHTML = '<div class="p-3 text-sm text-red-500">Erreur lors du chargement de l\'historique.</div>';
+
+            // Even if history fetch fails, we still try to set default image
+            const defaultImageUrl = getDefaultImageUrl(issue);
+            if (defaultImageUrl) {
+                imageContainer.innerHTML = `
+                    <img src="${defaultImageUrl}" alt="Issue preview" class="w-full h-full object-cover">
+                `;
+            }
+        });
+}
+
+/**
+ * Get default image URL from issue object
+ */
+function getDefaultImageUrl(item) {
+    if (item.preview) {
+        if (typeof item.preview === 'string') {
+            return item.preview;
+        } else if (item.preview.original) {
+            return item.preview.original;
+        } else if (item.preview.middle) {
+            return item.preview.middle;
+        }
+    }
+    return '';
+}
