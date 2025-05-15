@@ -215,19 +215,19 @@ class ReviztoPDF(FPDF):
                 status_text = "En cours"
                 bg_color = (255, 170, 0)  # Orange
             elif status_id == "b8504242-3489-43a2-9831-54f64053b226":  # Solved
-                status_text = "Résolu"
+                status_text = "Resolu"
                 bg_color = (66, 190, 101)  # Green
             elif status_id == "135b58c6-1e14-4716-a134-bbba2bbc90a7":  # Closed
-                status_text = "Fermé"
+                status_text = "Ferme"
                 bg_color = (184, 184, 184)  # Gray
             elif status_id == "5947b7d1-70b9-425b-aba6-7187eb0251ff":  # En attente
                 status_text = "En attente"
                 bg_color = (255, 211, 46)  # Yellow
             elif status_id == "912abbbf-3155-4e3c-b437-5778bdfd73f4":  # non-problème
-                status_text = "Non-problème"
+                status_text = "Non-probleme"
                 bg_color = (43, 43, 43)  # Dark gray
             elif status_id == "337e2fe6-e2a3-4e3f-b098-30aac68a191c":  # Corrigé
-                status_text = "Corrigé"
+                status_text = "Corrige"
                 bg_color = (137, 46, 251)  # Purple
 
         # Calculate page dimensions
@@ -598,20 +598,22 @@ class ReviztoPDF(FPDF):
             print(f"[DEBUG PDF] Processing {len(comments)} comments for issue {observation.get('id')}")
             print(f"[DEBUG PDF] First comment type: {type(comments[0]) if comments else 'None'}")
 
-            # Process the comments list
+            # Process the comments list - filter out diff comments
             valid_comments = []
 
             # First, ensure we have valid comments data
             for comment in comments:
                 # Handle both string and dict formats
                 if isinstance(comment, dict):
-                    valid_comments.append(comment)
+                    # Skip diff comments
+                    if comment.get('type') != 'diff':
+                        valid_comments.append(comment)
                 elif isinstance(comment, str):
                     try:
                         # If it's a JSON string, try to parse it
                         import json
                         comment_dict = json.loads(comment)
-                        if isinstance(comment_dict, dict):
+                        if isinstance(comment_dict, dict) and comment_dict.get('type') != 'diff':
                             valid_comments.append(comment_dict)
                     except:
                         # If parsing fails, skip this comment
@@ -619,42 +621,14 @@ class ReviztoPDF(FPDF):
 
             # Only proceed if we have valid comments
             if valid_comments:
-                print(f"[DEBUG PDF] Valid comments: {len(valid_comments)}")
-
-                # First filter out unwanted comments (camera, sheet, etc.)
-                filtered_comments = []
-                for comment in valid_comments:
-                    # Skip comments that are only about camera, sheet, etc.
-                    is_unwanted = False
-                    if comment.get('type') == 'diff' and comment.get('diff'):
-                        # Get all keys from the diff object
-                        diff_keys = list(comment['diff'].keys())
-
-                        # List of diff keys that we don't want to show
-                        unwanted_diff_types = [
-                            'camera', 'type', 'sheet', 'snapshot', 'backgroundtype',
-                            'comparesheet', 'comparesheets', 'compareSheet', 'background'
-                        ]
-
-                        # Check if ALL keys are in our "unwanted" list
-                        all_unwanted = True
-                        for key in diff_keys:
-                            if key.lower() not in unwanted_diff_types:
-                                all_unwanted = False
-                                break
-
-                        is_unwanted = all_unwanted
-
-                    # Keep the comment if it's not unwanted
-                    if not is_unwanted:
-                        filtered_comments.append(comment)
+                print(f"[DEBUG PDF] Valid non-diff comments: {len(valid_comments)}")
 
                 # Sort comments by date (newest first)
-                sorted_comments = sorted(filtered_comments,
+                sorted_comments = sorted(valid_comments,
                                          key=lambda x: x.get('created', ''),
                                          reverse=True)
 
-                print(f"[DEBUG PDF] Filtered and sorted comments: {len(sorted_comments)}")
+                print(f"[DEBUG PDF] Sorted non-diff comments: {len(sorted_comments)}")
 
                 # Display comments (limit to first 5 to save space)
                 for i, comment in enumerate(sorted_comments[:5]):
@@ -704,49 +678,20 @@ class ReviztoPDF(FPDF):
                         safe_text = sanitize_text_for_pdf(comment.get('text', ''))
                         self.multi_cell(page_width - 20, 4, safe_text, 0, 'L')
 
-                    elif comment_type == 'diff':
-                        # Handle diff comment (status changes, etc.)
-                        if comment.get('diff'):
-                            self.set_font('helvetica', '', 8)
-                            self.set_xy(self.l_margin + 10, self.get_y())
-
-                            diff_text = ""
-                            for key, change in comment['diff'].items():
-                                # Skip unwanted keys
-                                if key.lower() in ['camera', 'type', 'sheet', 'snapshot', 'backgroundtype',
-                                                   'comparesheet', 'comparesheets', 'comparesheet', 'background']:
-                                    continue
-
-                                # Format change description with ASCII arrow "-->"
-                                if key == 'customStatus':
-                                    old_status = format_status_value(change.get('old', '-'))
-                                    new_status = format_status_value(change.get('new', '-'))
-                                    diff_text += f"Etat: {old_status} --> {new_status}\n"  # Avoid "É" for PDF compatibility
-                                elif key == 'assignee':
-                                    old_val = format_diff_value(change.get('old', '-'))
-                                    new_val = format_diff_value(change.get('new', '-'))
-                                    diff_text += f"Assigne a: {old_val} --> {new_val}\n"  # Avoid "é" and "à" for PDF compatibility
-                                elif key not in ['status', 'statusAuto']:  # Skip these fields
-                                    # Format other field names
-                                    field_name = re.sub(r'([A-Z])', r' \1', key).lower()
-                                    field_name = field_name[0].upper() + field_name[1:] if field_name else key
-                                    old_val = format_diff_value(change.get('old', '-'))
-                                    new_val = format_diff_value(change.get('new', '-'))
-                                    diff_text += f"{sanitize_text_for_pdf(field_name)}: {old_val} --> {new_val}\n"
-
-                            self.multi_cell(page_width - 20, 4, diff_text.strip(), 0, 'L')
-
-                    elif comment_type == 'file' or comment_type == 'markup':
-                        # Just show a simple indication for files and markups
+                    elif comment_type == 'file':
+                        # Handle file comment (status changes, etc.)
                         self.set_font('helvetica', 'I', 8)
                         self.set_xy(self.l_margin + 10, self.get_y())
 
-                        if comment_type == 'file':
-                            filename = sanitize_text_for_pdf(comment.get('filename', 'Sans nom'))
-                            file_text = f"Fichier joint: {filename}"
-                            self.cell(page_width - 20, 4, file_text, 0, 1, 'L')
-                        else:
-                            self.cell(page_width - 20, 4, "Markup ajoute", 0, 1, 'L')  # Avoid "é" for PDF compatibility
+                        filename = sanitize_text_for_pdf(comment.get('filename', 'Sans nom'))
+                        file_text = f"Fichier joint: {filename}"
+                        self.cell(page_width - 20, 4, file_text, 0, 1, 'L')
+
+                    elif comment_type == 'markup':
+                        # Just show a simple indication for markups
+                        self.set_font('helvetica', 'I', 8)
+                        self.set_xy(self.l_margin + 10, self.get_y())
+                        self.cell(page_width - 20, 4, "Markup ajoute", 0, 1, 'L')  # Avoid "é" for PDF compatibility
 
                     else:
                         # Default for unknown types
@@ -1263,7 +1208,7 @@ def format_diff_value(value):
 def filter_comments_for_display(comments):
     """
     Filter and sort comments for display in the PDF report
-    Filters out unwanted comments (camera, sheet, etc.) similar to the JavaScript code
+    Filters out all diff comments
 
     Args:
         comments (list): List of comments from the API
@@ -1297,45 +1242,16 @@ def filter_comments_for_display(comments):
                 # If parsing fails, skip this comment
                 continue
 
+    # Filter out 'diff' type comments - this is the key change
+    filtered_comments = [comment for comment in valid_comments if comment.get('type') != 'diff']
+
     # Sort comments by date (newest first)
-    sorted_comments = sorted(valid_comments,
+    sorted_comments = sorted(filtered_comments,
                              key=lambda x: x.get('created', ''),
                              reverse=True)
 
-    # Filter out unwanted comments (camera, sheet, etc.)
-    filtered_comments = []
-    for comment in sorted_comments:
-        # Skip empty comments
-        if not comment:
-            continue
-
-        # For diff comments, check if they have relevant changes
-        is_unwanted = False
-        if comment.get('type') == 'diff' and comment.get('diff'):
-            # Get all keys from the diff object
-            diff_keys = list(comment['diff'].keys())
-
-            # List of diff keys that we don't want to show
-            unwanted_diff_types = [
-                'camera', 'type', 'sheet', 'snapshot', 'backgroundtype',
-                'comparesheet', 'comparesheets', 'compareSheet', 'background'
-            ]
-
-            # Check if ALL keys are in our "unwanted" list (not ANY)
-            all_unwanted = True
-            for key in diff_keys:
-                if key.lower() not in unwanted_diff_types:
-                    all_unwanted = False
-                    break
-
-            is_unwanted = all_unwanted
-
-        # Add the comment to the filtered list if it's not unwanted
-        if not is_unwanted:
-            filtered_comments.append(comment)
-
-    print(f"[DEBUG PDF] After filtering: {len(filtered_comments)} comments")
-    return filtered_comments
+    print(f"[DEBUG PDF] After filtering: {len(sorted_comments)} comments")
+    return sorted_comments
 
 
 def sanitize_text_for_pdf(text):
