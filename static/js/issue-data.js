@@ -919,7 +919,36 @@ function renderCommentsHTML(comments) {
         return html;
     }
 
-    comments.forEach(comment => {
+    // Filter comments before displaying
+    // For diff comments, keep only those with assignee or customStatus changes
+    const filteredComments = comments.filter(comment => {
+        if (comment.type !== 'diff') {
+            // Keep non-diff comments (text, file, markup)
+            return true;
+        }
+
+        // Only keep diff comments that have assignee or customStatus changes
+        if (comment.diff) {
+            return comment.diff.assignee !== undefined || comment.diff.customStatus !== undefined;
+        }
+        return false;
+    });
+
+    filteredComments.forEach(comment => {
+        // Add separators between comments
+        if (html.indexOf('border-l-2') > -1) {
+            // Add a light separator line between comments
+            html += `
+                <div class="border-l-2 border-gray-200 pl-3">
+                    <div class="flex justify-between items-center text-sm mb-1">
+            `;
+        } else {
+            html += `
+                <div class="border-l-2 border-gray-200 pl-3">
+                    <div class="flex justify-between items-center text-sm mb-1">
+            `;
+        }
+
         // Get author info
         let authorName = 'Utilisateur inconnu';
         if (comment.author) {
@@ -935,10 +964,8 @@ function renderCommentsHTML(comments) {
         // Format date
         const created = comment.created ? new Date(comment.created).toLocaleString('fr-CA') : 'Date inconnue';
 
-        // Start comment container
+        // Author and date header
         html += `
-            <div class="border-l-2 border-gray-200 pl-3">
-                <div class="flex justify-between items-center text-sm mb-1">
                     <span class="font-medium">${authorName}</span>
                     <span class="text-gray-500">${created}</span>
                 </div>
@@ -970,72 +997,41 @@ function renderCommentsHTML(comments) {
 }
 
 function renderDiffComment(comment) {
-  if (!comment.diff) return '<p class="text-gray-500 text-sm italic">Modification non spécifiée</p>';
+    if (!comment.diff) return '<p class="text-gray-500 text-sm italic">Modification non spécifiée</p>';
 
-  let html = '<div class="bg-gray-50 p-2 rounded-md text-sm">';
+    let html = '<div class="bg-gray-50 p-2 rounded-md text-sm">';
 
-  // Keep track of whether we've already shown a status change
-  let statusShown = false;
+    // Only process the comment.diff properties we want to show
+    if (comment.diff.customStatus) {
+        const change = comment.diff.customStatus;
+        const oldValue = change.old || '-';
+        const newValue = change.new || '-';
 
-  // Go through each changed property
-  Object.keys(comment.diff).forEach(key => {
-    const change = comment.diff[key];
-
-    // Format the key to be more readable
-    let readableKey = key.replace(/([A-Z])/g, ' $1').toLowerCase();
-    readableKey = readableKey.charAt(0).toUpperCase() + readableKey.slice(1);
-
-    // Get old and new values
-    const oldValue = change.old || '-';
-    const newValue = change.new || '-';
-
-    // Handle status changes - ONLY show customStatus
-    if (key === 'customStatus') {
-      statusShown = true;
-      html += `
-        <div class="mb-1">
-          <span class="font-medium">État:</span> 
-          <span class="text">${formatStatusValue(oldValue)}</span> → 
-          <span class="text">${formatStatusValue(newValue)}</span>
-        </div>
-      `;
+        html += `
+            <div class="mb-1">
+                <span class="font-medium">État:</span> 
+                <span class="text">${formatStatusValue(oldValue)}</span> → 
+                <span class="text">${formatStatusValue(newValue)}</span>
+            </div>
+        `;
     }
-    // Skip all other status fields completely (status and statusAuto)
-    else if (key === 'status' || key === 'statusAuto') {
-      // Skip these fields entirely
-      return;
-    }
-    else if (key === 'assignee') {
-      html += `
-        <div class="mb-1">
-          <span class="font-medium">Assigné à:</span> 
-          <span class="text">${oldValue}</span> → 
-          <span class="text">${newValue}</span>
-        </div>
-      `;
-    }
-    else if (key === 'customType') {
-      html += `
-        <div class="mb-1">
-          <span class="font-medium">Type:</span> 
-          <span class="text">${oldValue}</span> → 
-          <span class="text">${newValue}</span>
-        </div>
-      `;
-    }
-    else {
-      html += `
-        <div class="mb-1">
-          <span class="font-medium">${readableKey}:</span> 
-          <span class="text">${oldValue}</span> → 
-          <span class="text">${newValue}</span>
-        </div>
-      `;
-    }
-  });
 
-  html += '</div>';
-  return html;
+    if (comment.diff.assignee) {
+        const change = comment.diff.assignee;
+        const oldValue = change.old || '-';
+        const newValue = change.new || '-';
+
+        html += `
+            <div class="mb-1">
+                <span class="font-medium">Assigné à:</span> 
+                <span class="text">${oldValue}</span> → 
+                <span class="text">${newValue}</span>
+            </div>
+        `;
+    }
+
+    html += '</div>';
+    return html;
 }
 
 function renderFileComment(comment) {

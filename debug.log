@@ -6066,3 +6066,161 @@ Token refresh thread started
 Watching for file changes with StatReloader
 Successfully refreshed access token
 Successfully refreshed token at 2025-05-14 12:14:20.168552
+Skipping API initialization (development reloader)
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 8557
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 6835
+Skipping API initialization (development reloader)
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 8557
+Skipping API initialization (development reloader)
+Watching for file changes with StatReloader
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 19863
+Search request with query: mati
+"GET /api/search/?query=mati HTTP/1.1" 200 178
+"GET /api/projects/712062/workflow-settings/ HTTP/1.1" 200 134
+"GET /api/projects/712062/instructions/ HTTP/1.1" 200 20670
+"GET /api/projects/712062/observations/ HTTP/1.1" 200 9658
+Loaded project data for project 712062
+"GET /api/projects/712062/data/load/ HTTP/1.1" 200 800520
+"GET /api/projects/712062/deficiencies/ HTTP/1.1" 200 39995
+"GET /api/projects/712062/issues/389/comments/ HTTP/1.1" 200 2534
+"GET /api/projects/712062/issues/407/comments/ HTTP/1.1" 200 1309
+"GET /api/projects/712062/issues/406/comments/ HTTP/1.1" 200 1308
+"GET /api/projects/712062/issues/468/comments/ HTTP/1.1" 200 1809
+"GET /api/projects/712062/issues/387/comments/ HTTP/1.1" 200 5655
+"GET /api/projects/712062/issues/390/comments/ HTTP/1.1" 200 1809
+"GET /api/projects/712062/issues/391/comments/ HTTP/1.1" 200 2946
+"GET /api/projects/712062/issues/408/comments/ HTTP/1.1" 200 1819
+"GET /api/projects/712062/issues/399/comments/ HTTP/1.1" 200 1809
+"GET /api/projects/712062/issues/446/comments/ HTTP/1.1" 200 3307
+"GET /api/projects/712062/issues/383/comments/ HTTP/1.1" 200 3037
+"GET /api/projects/712062/issues/386/comments/ HTTP/1.1" 200 3643
+"GET /api/projects/712062/issues/374/comments/ HTTP/1.1" 200 5257
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 19863
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+Search request with query: mati
+"GET /api/search/?query=mati HTTP/1.1" 200 178
+"GET /api/projects/712062/workflow-settings/ HTTP/1.1" 200 134
+Loaded project data for project 712062
+"GET /api/projects/712062/data/load/ HTTP/1.1" 200 800520
+"GET /api/projects/712062/instructions/ HTTP/1.1" 200 20670
+"GET /api/projects/712062/deficiencies/ HTTP/1.1" 200 39995
+"GET /api/projects/712062/observations/ HTTP/1.1" 200 9658
+"GET /api/projects/712062/issues/399/comments/ HTTP/1.1" 200 1809
+"GET /api/projects/712062/issues/391/comments/ HTTP/1.1" 200 3873
+"GET /api/projects/712062/issues/406/comments/ HTTP/1.1" 200 1308
+"GET /api/projects/712062/issues/387/comments/ HTTP/1.1" 200 5655
+"GET /api/projects/712062/issues/446/comments/ HTTP/1.1" 200 3307
+"GET /api/projects/712062/issues/468/comments/ HTTP/1.1" 200 1809
+"GET /api/projects/712062/issues/389/comments/ HTTP/1.1" 200 2534
+"GET /api/projects/712062/issues/374/comments/ HTTP/1.1" 200 5257
+"GET /api/projects/712062/issues/408/comments/ HTTP/1.1" 200 1819
+"GET /api/projects/712062/issues/390/comments/ HTTP/1.1" 200 1809
+"GET /api/projects/712062/issues/386/comments/ HTTP/1.1" 200 3643
+"GET /api/projects/712062/issues/383/comments/ HTTP/1.1" 200 3037
+"GET /api/projects/712062/issues/407/comments/ HTTP/1.1" 200 1309
+Search request with query: synas
+Search request with query: synase
+"GET /api/search/?query=synas HTTP/1.1" 200 77
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 134
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 310
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 4335
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 5868
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7208
+"GET /api/projects/712301/issues/1/comments/ HTTP/1.1" 200 17594
+"GET /api/projects/712301/issues/2/comments/ HTTP/1.1" 200 7470
+"GET /api/projects/712301/issues/5/comments/ HTTP/1.1" 200 3438
+"GET /api/search/?query=synase HTTP/1.1" 200 77
+"GET / HTTP/1.1" 200 19863
+Search request with query: matim
+"GET /api/search/?query=matim HTTP/1.1" 200 94
+"GET /api/projects/712062/workflow-settings/ HTTP/1.1" 200 134
+"GET /api/projects/712062/observations/ HTTP/1.1" 200 9658
+"GET /api/projects/712062/instructions/ HTTP/1.1" 200 20670
+"GET /api/projects/712062/deficiencies/ HTTP/1.1" 200 39995
+Loaded project data for project 712062
+"GET /api/projects/712062/data/load/ HTTP/1.1" 200 800520
+"GET /api/projects/712062/issues/390/comments/ HTTP/1.1" 200 1809
+"GET /api/projects/712062/issues/468/comments/ HTTP/1.1" 200 1809
+"GET /api/projects/712062/issues/389/comments/ HTTP/1.1" 200 2534
+"GET /api/projects/712062/issues/387/comments/ HTTP/1.1" 200 5655
+"GET /api/projects/712062/issues/406/comments/ HTTP/1.1" 200 1308
+"GET /api/projects/712062/issues/407/comments/ HTTP/1.1" 200 1309
+"GET /api/projects/712062/issues/391/comments/ HTTP/1.1" 200 3873
+"GET /api/projects/712062/issues/446/comments/ HTTP/1.1" 200 3307
+"GET /api/projects/712062/issues/383/comments/ HTTP/1.1" 200 3037
+"GET /api/projects/712062/issues/399/comments/ HTTP/1.1" 200 1809
+"GET /api/projects/712062/issues/408/comments/ HTTP/1.1" 200 1819
+"GET /api/projects/712062/issues/386/comments/ HTTP/1.1" 200 3643
+"GET /api/projects/712062/issues/374/comments/ HTTP/1.1" 200 5257
+Search request with query: synase
+"GET /api/search/?query=synase HTTP/1.1" 200 77
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 134
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 310
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 4335
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 5868
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7208
+"GET /api/projects/712301/issues/2/comments/ HTTP/1.1" 200 7470
+"GET /api/projects/712301/issues/1/comments/ HTTP/1.1" 200 17594
+"GET /api/projects/712301/issues/5/comments/ HTTP/1.1" 200 3438
+"GET / HTTP/1.1" 200 19863
+Search request with query: mati
+"GET /api/search/?query=mati HTTP/1.1" 200 178
+"GET /api/projects/712062/workflow-settings/ HTTP/1.1" 200 134
+Loaded project data for project 712062
+"GET /api/projects/712062/data/load/ HTTP/1.1" 200 800520
+"GET /api/projects/712062/instructions/ HTTP/1.1" 200 20670
+"GET /api/projects/712062/observations/ HTTP/1.1" 200 9658
+"GET /api/projects/712062/deficiencies/ HTTP/1.1" 200 39995
+"GET /api/projects/712062/issues/468/comments/ HTTP/1.1" 200 1809
+"GET /api/projects/712062/issues/390/comments/ HTTP/1.1" 200 1809
+"GET /api/projects/712062/issues/406/comments/ HTTP/1.1" 200 1308
+"GET /api/projects/712062/issues/387/comments/ HTTP/1.1" 200 5655
+"GET /api/projects/712062/issues/407/comments/ HTTP/1.1" 200 1309
+"GET /api/projects/712062/issues/389/comments/ HTTP/1.1" 200 2534
+"GET /api/projects/712062/issues/391/comments/ HTTP/1.1" 200 3873
+"GET /api/projects/712062/issues/399/comments/ HTTP/1.1" 200 1809
+"GET /api/projects/712062/issues/408/comments/ HTTP/1.1" 200 1819
+"GET /api/projects/712062/issues/383/comments/ HTTP/1.1" 200 3037
+"GET /api/projects/712062/issues/446/comments/ HTTP/1.1" 200 3307
+"GET /api/projects/712062/issues/374/comments/ HTTP/1.1" 200 5257
+"GET /api/projects/712062/issues/386/comments/ HTTP/1.1" 200 3643
+"GET / HTTP/1.1" 200 19863
+Search request with query: synase
+"GET /api/search/?query=synase HTTP/1.1" 200 77
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 134
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 310
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7208
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 5868
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 4335
+"GET /api/projects/712301/issues/2/comments/ HTTP/1.1" 200 7470
+"GET /api/projects/712301/issues/5/comments/ HTTP/1.1" 200 3438
+"GET /api/projects/712301/issues/1/comments/ HTTP/1.1" 200 17594
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 19863
+Search request with query: synase
+"GET /api/search/?query=synase HTTP/1.1" 200 77
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 134
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 310
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 4335
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7208
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 5868
+"GET /api/projects/712301/issues/1/comments/ HTTP/1.1" 200 17594
+"GET /api/projects/712301/issues/5/comments/ HTTP/1.1" 200 3438
+"GET /api/projects/712301/issues/2/comments/ HTTP/1.1" 200 7470
