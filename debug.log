@@ -6458,3 +6458,38 @@ Loaded project data for project 712062
 "GET /api/projects/712062/issues/387/comments/ HTTP/1.1" 200 5655
 "GET /api/projects/712062/issues/389/comments/ HTTP/1.1" 200 2534
 "GET /api/projects/712062/issues/406/comments/ HTTP/1.1" 200 1308
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 19863
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 200 62967
+"GET /static/js/datepicker.js HTTP/1.1" 200 2245
+"GET /static/js/pdf-generator.js HTTP/1.1" 200 4990
+"GET /static/css/styles.css HTTP/1.1" 200 736
+"GET /static/js/main.js HTTP/1.1" 200 3229
+"GET /static/js/issue-data.js HTTP/1.1" 200 42199
+"GET /static/js/project-form.js HTTP/1.1" 200 16771
+"GET /static/js/search.js HTTP/1.1" 200 14367
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 6835
+Search request with query: mati
+"GET /api/search/?query=mati HTTP/1.1" 200 178
+"GET /api/projects/712062/workflow-settings/ HTTP/1.1" 200 134
+Loaded project data for project 712062
+"GET /api/projects/712062/data/load/ HTTP/1.1" 200 800520
+"GET /api/projects/712062/instructions/ HTTP/1.1" 200 20670
+"GET /api/projects/712062/observations/ HTTP/1.1" 200 9658
+"GET /api/projects/712062/deficiencies/ HTTP/1.1" 200 39995
+"GET /api/projects/712062/issues/387/comments/ HTTP/1.1" 200 5655
+"GET /api/projects/712062/issues/389/comments/ HTTP/1.1" 200 2534
+"GET /api/projects/712062/issues/468/comments/ HTTP/1.1" 200 1809
+"GET /api/projects/712062/issues/406/comments/ HTTP/1.1" 200 1308
+"GET /api/projects/712062/issues/390/comments/ HTTP/1.1" 200 1809
+"GET /api/projects/712062/issues/407/comments/ HTTP/1.1" 200 1309
+"GET /api/projects/712062/issues/391/comments/ HTTP/1.1" 200 3873
+"GET /api/projects/712062/issues/386/comments/ HTTP/1.1" 200 3643
+"GET /api/projects/712062/issues/446/comments/ HTTP/1.1" 200 3307
+"GET /api/projects/712062/issues/399/comments/ HTTP/1.1" 200 1809
+"GET /api/projects/712062/issues/383/comments/ HTTP/1.1" 200 3037
+"GET /api/projects/712062/issues/408/comments/ HTTP/1.1" 200 1819
+"GET /api/projects/712062/issues/374/comments/ HTTP/1.1" 200 5257

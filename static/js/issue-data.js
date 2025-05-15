@@ -930,7 +930,7 @@ function renderItemsWithPrioritizedImages(items, containerId, itemType) {
                 <div class="pt-4 pb-4 pl-4">
                     <div class="flex flex-col md:flex-row">
                         <div class="max-w-75 md:w-1/4 mb-4 md:mb-0 md:pr-4">
-                            <div id="image-container-${id}" class="w-full h-40 bg-gray-100 rounded-md flex items-center justify-center">
+                            <div id="image-container-${id}" class="w-full bg-gray-100 rounded-md flex items-center justify-center overflow-hidden" style="min-height: 150px; max-height: 280px;">
                                 <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
@@ -1064,7 +1064,7 @@ function fetchIssueHistoryAndUpdateImage(projectId, issue) {
             // Update the image in the container
             if (bestImageUrl) {
                 imageContainer.innerHTML = `
-                    <img src="${bestImageUrl}" alt="Issue preview" class="w-full h-full object-cover">
+                    <img src="${bestImageUrl}" alt="Issue preview" class="w-full h-auto object-contain">
                 `;
             }
 
@@ -1080,7 +1080,7 @@ function fetchIssueHistoryAndUpdateImage(projectId, issue) {
             const defaultImageUrl = getDefaultImageUrl(issue);
             if (defaultImageUrl) {
                 imageContainer.innerHTML = `
-                    <img src="${defaultImageUrl}" alt="Issue preview" class="w-full h-full object-cover">
+                    <img src="${defaultImageUrl}" alt="Issue preview" class="w-full h-auto object-contain">
                 `;
             }
         });
