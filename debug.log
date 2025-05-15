@@ -6548,3 +6548,7 @@ Checking 3 comments for images
 Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/8/comments/80450c07-7d29-4fbe-bd77-d25504efe9e4/803dbe95
 Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_0774a1f8-210b-4a06-97c0-fb964f463112.png
 "GET /api/projects/712301/generate-pdf/ HTTP/1.1" 200 2843302
+Project 712301 data saved to database. Created: False
+"POST /api/projects/712301/data/save/ HTTP/1.1" 200 85
+Project 712301 data saved to database. Created: False
+"POST /api/projects/712301/data/save/ HTTP/1.1" 200 85

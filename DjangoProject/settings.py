@@ -6,8 +6,8 @@ from pathlib import Path
 import os
 import dj_database_url
 ## POUR TEST LOCAL
-from dotenv import load_dotenv
-load_dotenv()
+#from dotenv import load_dotenv
+#load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-t@dfso$tn#=gfd+4@!juok9vbm$k1mo#1yh7t5w0z$ed9m&1u-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'stgm-revizto-report-50fd6709d791.herokuapp.com']
 
@@ -154,7 +154,7 @@ print(f"=== SETTINGS LOADED ===\n")
 REVIZTO_LICENCE_UUID = os.environ.get("REVIZTO_LICENCE_UUID", "")
 REVIZTO_ACCESS_TOKEN = os.environ.get("REVIZTO_ACCESS_TOKEN", "")
 REVIZTO_REFRESH_TOKEN = os.environ.get("REVIZTO_REFRESH_TOKEN", "")
-REVIZTO_ENABLE_TOKEN_REFRESH = False
+REVIZTO_ENABLE_TOKEN_REFRESH = True
 
 # Session configuration
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
