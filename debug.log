@@ -6552,3 +6552,72 @@ Project 712301 data saved to database. Created: False
 "POST /api/projects/712301/data/save/ HTTP/1.1" 200 85
 Project 712301 data saved to database. Created: False
 "POST /api/projects/712301/data/save/ HTTP/1.1" 200 85
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 19863
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 200 62967
+"GET /static/js/main.js HTTP/1.1" 200 3229
+"GET /static/js/project-form.js HTTP/1.1" 200 16771
+"GET /static/js/search.js HTTP/1.1" 200 14367
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 200 2245
+"GET /static/js/pdf-generator.js HTTP/1.1" 200 4990
+Search request with query: syn
+"GET /api/search/?query=syn HTTP/1.1" 200 77
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 134
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7211
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 2970349
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 5133
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 4424
+"GET /api/projects/712301/issues/8/comments/ HTTP/1.1" 200 3147
+"GET /api/projects/712301/issues/6/comments/ HTTP/1.1" 200 1817
+PDF generation error: Character "’" at index 24 in text is outside the range of characters supported by the font used: "helvetica". Please consider using a Unicode font.
+Attempting to recover from character encoding error
+Problematic character identified: '’'
+Finding best image for issue 6
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/6/comments/6f01e068-dde3-4f8e-90b7-f88c791238ee/0ee53c0f
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_a700b34b-9d9f-4e0d-b707-d2992c3aa04c.png
+Finding best image for issue 8
+Checking 3 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/8/comments/80450c07-7d29-4fbe-bd77-d25504efe9e4/803dbe95
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_a365cd0d-bdfa-467b-bfeb-b559fbe19073.png
+"GET /api/projects/712301/generate-pdf/ HTTP/1.1" 200 2843296
+PDF generation error: Character "’" at index 24 in text is outside the range of characters supported by the font used: "helvetica". Please consider using a Unicode font.
+Attempting to recover from character encoding error
+Problematic character identified: '’'
+Finding best image for issue 6
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/6/comments/6f01e068-dde3-4f8e-90b7-f88c791238ee/0ee53c0f
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_4efdb05c-3f61-445d-ae32-e09853507afd.png
+Finding best image for issue 8
+Checking 3 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/8/comments/80450c07-7d29-4fbe-bd77-d25504efe9e4/803dbe95
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_a0208902-a45e-4ee3-b810-ad7e33a54e48.png
+"GET /api/projects/712301/generate-pdf/ HTTP/1.1" 200 2843296
+PDF generation error: Character "’" at index 24 in text is outside the range of characters supported by the font used: "helvetica". Please consider using a Unicode font.
+Attempting to recover from character encoding error
+Problematic character identified: '’'
+Finding best image for issue 6
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/6/comments/6f01e068-dde3-4f8e-90b7-f88c791238ee/0ee53c0f
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_8b7a85fa-52be-4eb9-92d6-61e1dfe72561.png
+Finding best image for issue 8
+Checking 3 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/8/comments/80450c07-7d29-4fbe-bd77-d25504efe9e4/803dbe95
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_3f7f977f-76b4-4bba-9218-7da46e7b5a44.png
+"GET /api/projects/712301/generate-pdf/ HTTP/1.1" 200 2843296
+PDF generation error: Character "’" at index 24 in text is outside the range of characters supported by the font used: "helvetica". Please consider using a Unicode font.
+Attempting to recover from character encoding error
+Problematic character identified: '’'
+Finding best image for issue 6
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/6/comments/6f01e068-dde3-4f8e-90b7-f88c791238ee/0ee53c0f
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_d73ba88a-7be4-4cd0-beae-38cd5ca2191d.png
+Finding best image for issue 8
+Checking 3 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/8/comments/80450c07-7d29-4fbe-bd77-d25504efe9e4/803dbe95
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_d47f236d-e18b-4be4-a38b-33be9334aaf7.png
+"GET /api/projects/712301/generate-pdf/ HTTP/1.1" 200 2843296

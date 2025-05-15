@@ -1252,6 +1252,7 @@ def filter_comments_for_display(comments):
 def sanitize_text_for_pdf(text):
     """
     Sanitize text by replacing problematic Unicode characters with ASCII alternatives
+    and filtering out any characters not supported by the Helvetica font.
 
     Args:
         text (str): Text to sanitize
@@ -1269,6 +1270,18 @@ def sanitize_text_for_pdf(text):
         '\u2018': "'",  # Left single quotation mark
         '\u201C': '"',  # Left double quotation mark
         '\u201D': '"',  # Right double quotation mark
+        '\u201E': '"',  # Double low-9 quotation mark
+        '\u201F': '"',  # Double high-reversed-9 quotation mark
+        '\u2039': '<',  # Single left-pointing angle quotation mark
+        '\u203A': '>',  # Single right-pointing angle quotation mark
+        '\u00AB': '<<',  # Left-pointing double angle quotation mark
+        '\u00BB': '>>',  # Right-pointing double angle quotation mark
+
+        # Dashes and hyphens
+        '\u2013': '-',  # En dash
+        '\u2014': '--',  # Em dash
+        '\u2015': '--',  # Horizontal bar
+        '\u2212': '-',  # Minus sign
 
         # French characters
         'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e',
@@ -1284,25 +1297,47 @@ def sanitize_text_for_pdf(text):
         'Ù': 'U', 'Û': 'U', 'Ü': 'U',
         'Ç': 'C',
 
+        # Other European characters
+        'ñ': 'n', 'Ñ': 'N',
+        'ß': 'ss',
+        'æ': 'ae', 'Æ': 'AE',
+        'œ': 'oe', 'Œ': 'OE',
+        'ø': 'o', 'Ø': 'O',
+        'å': 'a', 'Å': 'A',
+
         # Other problematic characters
         '→': '-->', '⟶': '-->', '➜': '-->',
         '⇒': '=>', '⇨': '=>',
         '–': '-', '—': '--',
         '…': '...', '•': '*', '·': '*',
         '×': 'x', '÷': '/',
+        '≤': '<=', '≥': '>=', '≠': '!=', '≈': '~=',
+        '√': 'sqrt', '∑': 'sum', '∏': 'prod', '∂': 'd',
+        '¼': '1/4', '½': '1/2', '¾': '3/4',
+        '−': '-', '±': '+/-',
 
         # Other special characters
         '®': '(R)', '©': '(C)', '™': '(TM)',
         '£': 'GBP', '€': 'EUR', '¥': 'JPY',
         '°': ' degrees ',
-        '±': '+/-',
         '\u00A0': ' ',  # Non-breaking space
     }
 
     for char, replacement in replacements.items():
         text = text.replace(char, replacement)
 
-    return text
+    # Filter out any remaining characters not in the basic Latin-1 range (0-255)
+    # This ensures compatibility with the standard PDF fonts
+    result = ''
+    for char in text:
+        # Only keep characters within the Latin-1 range
+        if ord(char) < 256:
+            result += char
+        else:
+            # Replace any other Unicode character with a question mark or space
+            result += '?'
+
+    return result
 
 
 def get_best_image_for_issue(issue, comments):
@@ -1380,3 +1415,165 @@ def get_best_image_for_issue(issue, comments):
     # No image found
     logger.info(f"No image found for issue {issue.get('id')}")
     return ''
+
+
+def generate_report_pdf_with_error_handling(project_id, project_data, observations, instructions, deficiencies,
+                                            issue_comments=None):
+    """
+    Generate a PDF report with robust error handling for character encoding issues.
+
+    This wrapper function calls the main PDF generation function but catches any
+    errors related to character encoding and attempts to generate a clean PDF without
+    the problematic content.
+
+    Args:
+        project_id (int): Project ID
+        project_data (dict): Project information
+        observations (list): List of observations
+        instructions (list): List of instructions
+        deficiencies (list): List of deficiencies
+        issue_comments (dict, optional): Dictionary mapping issue IDs to comments
+
+    Returns:
+        BytesIO: PDF file as a BytesIO object
+    """
+    logger = logging.getLogger(__name__)
+
+    try:
+        # First attempt to generate the PDF with normal sanitization
+        return generate_report_pdf(project_id, project_data, observations, instructions, deficiencies, issue_comments)
+
+    except Exception as e:
+        error_msg = str(e)
+        logger.error(f"PDF generation error: {error_msg}")
+
+        # Check if this is a character encoding error
+        if "outside the range of characters supported by the font" in error_msg:
+            logger.info("Attempting to recover from character encoding error")
+
+            # Extract the problematic character if possible
+            import re
+            char_match = re.search(r'Character "([^"]*)" at index', error_msg)
+            problem_char = char_match.group(1) if char_match else None
+
+            if problem_char:
+                logger.info(f"Problematic character identified: {repr(problem_char)}")
+
+                # Apply a more aggressive sanitization to all text data
+                # Sanitize project data
+                sanitized_project_data = sanitize_dict_for_pdf(project_data)
+
+                # Sanitize observations, instructions, and deficiencies
+                sanitized_observations = [sanitize_dict_for_pdf(obs) for obs in observations]
+                sanitized_instructions = [sanitize_dict_for_pdf(ins) for ins in instructions]
+                sanitized_deficiencies = [sanitize_dict_for_pdf(def_item) for def_item in deficiencies]
+
+                # Sanitize comments
+                sanitized_comments = {}
+                if issue_comments:
+                    for issue_id, comments in issue_comments.items():
+                        sanitized_comments[issue_id] = [sanitize_dict_for_pdf(comment) for comment in comments]
+
+                # Try generating the PDF again with sanitized data
+                try:
+                    return generate_report_pdf(
+                        project_id,
+                        sanitized_project_data,
+                        sanitized_observations,
+                        sanitized_instructions,
+                        sanitized_deficiencies,
+                        sanitized_comments
+                    )
+                except Exception as sanitized_error:
+                    logger.error(f"PDF generation still failed after sanitization: {sanitized_error}")
+
+        # If we get here, the error was not a character encoding issue or sanitization didn't help
+        # Create a simple error PDF to return instead
+        return create_error_pdf(project_id, project_data, str(e))
+
+
+def sanitize_dict_for_pdf(data_dict):
+    """
+    Recursively sanitize all string values in a dictionary for PDF compatibility.
+
+    Args:
+        data_dict (dict): Dictionary to sanitize
+
+    Returns:
+        dict: Sanitized dictionary
+    """
+    if not isinstance(data_dict, dict):
+        # If it's a string, sanitize it
+        if isinstance(data_dict, str):
+            return sanitize_text_for_pdf(data_dict)
+        # If it's a list, recursively sanitize each item
+        elif isinstance(data_dict, list):
+            return [sanitize_dict_for_pdf(item) for item in data_dict]
+        # Otherwise return as is
+        return data_dict
+
+    result = {}
+    for key, value in data_dict.items():
+        # Recursively sanitize nested dictionaries
+        if isinstance(value, dict):
+            result[key] = sanitize_dict_for_pdf(value)
+        # Sanitize lists by processing each item
+        elif isinstance(value, list):
+            result[key] = [sanitize_dict_for_pdf(item) for item in value]
+        # Sanitize string values
+        elif isinstance(value, str):
+            result[key] = sanitize_text_for_pdf(value)
+        # Keep other values as they are
+        else:
+            result[key] = value
+
+    return result
+
+
+def create_error_pdf(project_id, project_data, error_message):
+    """
+    Create a simple PDF reporting that an error occurred during generation.
+
+    Args:
+        project_id (int): Project ID
+        project_data (dict): Project information (used for title)
+        error_message (str): Error message to include
+
+    Returns:
+        BytesIO: PDF file as a BytesIO object
+    """
+    from fpdf import FPDF
+
+    # Create a simpler PDF
+    pdf = FPDF()
+    pdf.add_page()
+
+    # Set basic metadata
+    project_name = sanitize_text_for_pdf(project_data.get('projectName', f"Projet {project_id}"))
+    pdf.set_title(f"Rapport d'erreur - {project_name}")
+
+    # Add error information
+    pdf.set_font('helvetica', 'B', 16)
+    pdf.cell(0, 10, "Rapport de visite - Erreur de generation", 0, 1, 'C')
+
+    pdf.set_font('helvetica', '', 12)
+    pdf.cell(0, 10, f"Projet: {project_name}", 0, 1, 'L')
+
+    pdf.set_font('helvetica', 'B', 12)
+    pdf.cell(0, 10, "Une erreur est survenue lors de la generation du PDF:", 0, 1, 'L')
+
+    pdf.set_font('helvetica', '', 10)
+    # Make sure the error message is sanitized
+    safe_error = sanitize_text_for_pdf(str(error_message))
+    pdf.multi_cell(0, 10, safe_error, 0, 'L')
+
+    pdf.ln(10)
+    pdf.set_font('helvetica', 'I', 10)
+    pdf.cell(0, 10, "Veuillez contacter le support technique pour assistance.", 0, 1, 'L')
+
+    # Create a BytesIO buffer for the PDF
+    buffer = BytesIO()
+    pdf.output(buffer)
+    buffer.seek(0)
+
+    return buffer

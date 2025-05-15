@@ -456,7 +456,7 @@ def get_issue_comments(request, project_id, issue_id):
 
 def generate_pdf(request, project_id):
     """
-    Generate a PDF report for the project
+    Generate a PDF report for the project with enhanced error handling
     """
     print(f"[DEBUG] PDF generation requested for project: {project_id}")
 
@@ -513,26 +513,17 @@ def generate_pdf(request, project_id):
                     if comments_response and comments_response.get('result') == 0:
                         # Extract the comments data properly
                         comments_data = comments_response.get('data', [])
-                        # Critical fix: Handle both list and dict formats for comments
+                        # Handle both list and dict formats for comments
                         if isinstance(comments_data, list):
-                            # Already a list, use as-is
                             issue_comments[str(obs['id'])] = comments_data
-                            print(f"[DEBUG] Found {len(comments_data)} comments for observation {obs['id']}")
                         elif isinstance(comments_data, dict):
-                            # Convert dict to list if it has items
-                            # This is a critical fix for when API returns object instead of array
-                            print(f"[DEBUG] Comments data for observation {obs['id']} is a dict with keys: {list(comments_data.keys())}")
                             if 'items' in comments_data and isinstance(comments_data['items'], list):
                                 issue_comments[str(obs['id'])] = comments_data['items']
-                                print(f"[DEBUG] Extracted {len(comments_data['items'])} comments from dict for observation {obs['id']}")
                             else:
-                                # If no items found, create empty list
                                 issue_comments[str(obs['id'])] = []
                         else:
-                            print(f"[DEBUG] Comments data for observation {obs['id']} is not a list or dict: {type(comments_data)}")
                             issue_comments[str(obs['id'])] = []
                     else:
-                        print(f"[DEBUG] Failed to get comments for observation {obs['id']}")
                         issue_comments[str(obs['id'])] = []
 
         # Get instructions
@@ -545,30 +536,19 @@ def generate_pdf(request, project_id):
             # Fetch comments for each instruction
             for ins in instructions:
                 if ins.get('id'):
-                    # Use a fixed date in the past to ensure we get all comments
                     comments_response = ReviztoService.get_issue_comments(project_id, ins['id'], '2018-05-30')
                     if comments_response and comments_response.get('result') == 0:
-                        # Extract the comments data properly
                         comments_data = comments_response.get('data', [])
-                        # Critical fix: Handle both list and dict formats for comments
                         if isinstance(comments_data, list):
-                            # Already a list, use as-is
                             issue_comments[str(ins['id'])] = comments_data
-                            print(f"[DEBUG] Found {len(comments_data)} comments for instruction {ins['id']}")
                         elif isinstance(comments_data, dict):
-                            # Convert dict to list if it has items
-                            print(f"[DEBUG] Comments data for instruction {ins['id']} is a dict with keys: {list(comments_data.keys())}")
                             if 'items' in comments_data and isinstance(comments_data['items'], list):
                                 issue_comments[str(ins['id'])] = comments_data['items']
-                                print(f"[DEBUG] Extracted {len(comments_data['items'])} comments from dict for instruction {ins['id']}")
                             else:
-                                # If no items found, create empty list
                                 issue_comments[str(ins['id'])] = []
                         else:
-                            print(f"[DEBUG] Comments data for instruction {ins['id']} is not a list or dict: {type(comments_data)}")
                             issue_comments[str(ins['id'])] = []
                     else:
-                        print(f"[DEBUG] Failed to get comments for instruction {ins['id']}")
                         issue_comments[str(ins['id'])] = []
 
         # Get deficiencies
@@ -581,47 +561,34 @@ def generate_pdf(request, project_id):
             # Fetch comments for each deficiency
             for def_item in deficiencies:
                 if def_item.get('id'):
-                    # Use a fixed date in the past to ensure we get all comments
                     comments_response = ReviztoService.get_issue_comments(project_id, def_item['id'], '2018-05-30')
                     if comments_response and comments_response.get('result') == 0:
-                        # Extract the comments data properly
                         comments_data = comments_response.get('data', [])
-                        # Critical fix: Handle both list and dict formats for comments
                         if isinstance(comments_data, list):
-                            # Already a list, use as-is
                             issue_comments[str(def_item['id'])] = comments_data
-                            print(f"[DEBUG] Found {len(comments_data)} comments for deficiency {def_item['id']}")
                         elif isinstance(comments_data, dict):
-                            # Convert dict to list if it has items
-                            print(f"[DEBUG] Comments data for deficiency {def_item['id']} is a dict with keys: {list(comments_data.keys())}")
                             if 'items' in comments_data and isinstance(comments_data['items'], list):
                                 issue_comments[str(def_item['id'])] = comments_data['items']
-                                print(f"[DEBUG] Extracted {len(comments_data['items'])} comments from dict for deficiency {def_item['id']}")
                             else:
-                                # If no items found, create empty list
                                 issue_comments[str(def_item['id'])] = []
                         else:
-                            print(f"[DEBUG] Comments data for deficiency {def_item['id']} is not a list or dict: {type(comments_data)}")
                             issue_comments[str(def_item['id'])] = []
                     else:
-                        print(f"[DEBUG] Failed to get comments for deficiency {def_item['id']}")
                         issue_comments[str(def_item['id'])] = []
 
-        # Debug the issue_comments dictionary
-        print(f"[DEBUG] Total issues with comments: {len(issue_comments)}")
-        for issue_id, comments in issue_comments.items():
-            print(f"[DEBUG] Issue {issue_id} has {len(comments)} comments")
-            if len(comments) > 0:
-                print(f"[DEBUG] First comment type: {type(comments[0])}")
-                if isinstance(comments[0], dict):
-                    print(f"[DEBUG] First comment keys: {list(comments[0].keys())}")
+        # Import the enhanced PDF generator with error handling
+        from .pdf_generator import generate_report_pdf_with_error_handling
 
-        # Import the PDF generator
-        from .pdf_generator import generate_report_pdf
-
-        # Generate PDF with comments
-        print(f"[DEBUG] Generating PDF with {len(observations)} observations, {len(instructions)} instructions, {len(deficiencies)} deficiencies, and comments for {len(issue_comments)} issues")
-        pdf_buffer = generate_report_pdf(project_id, project_info, observations, instructions, deficiencies, issue_comments)
+        # Generate PDF with enhanced error handling
+        print(f"[DEBUG] Generating PDF with enhanced error handling...")
+        pdf_buffer = generate_report_pdf_with_error_handling(
+            project_id,
+            project_info,
+            observations,
+            instructions,
+            deficiencies,
+            issue_comments
+        )
 
         # Create a response with PDF content
         from django.http import HttpResponse
