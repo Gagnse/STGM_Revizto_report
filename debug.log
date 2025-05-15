@@ -6224,3 +6224,65 @@ Loaded project data for project 712301
 "GET /api/projects/712301/issues/1/comments/ HTTP/1.1" 200 17594
 "GET /api/projects/712301/issues/5/comments/ HTTP/1.1" 200 3438
 "GET /api/projects/712301/issues/2/comments/ HTTP/1.1" 200 7470
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 19863
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+"GET /static/css/styles.css HTTP/1.1" 200 736
+"GET /static/js/issue-data.js HTTP/1.1" 200 44106
+Search request with query: synas
+"GET /api/search/?query=synas HTTP/1.1" 200 77
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 134
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 435
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 4424
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 5133
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
+"GET /api/projects/712301/issues/6/comments/ HTTP/1.1" 200 1817
+"GET /api/projects/712301/issues/8/comments/ HTTP/1.1" 200 3147
+Error saving project data: Request body exceeded settings.DATA_UPLOAD_MAX_MEMORY_SIZE.
+Traceback (most recent call last):
+  File "C:\Users\sgagnon\PycharmProject\DjangoProject\core\views.py", line 104, in save_project_data
+    data = json.loads(request.body)
+                      ^^^^^^^^^^^^
+  File "C:\Users\sgagnon\PycharmProject\DjangoProject\.venv\Lib\site-packages\django\http\request.py", line 373, in body
+    raise RequestDataTooBig(
+django.core.exceptions.RequestDataTooBig: Request body exceeded settings.DATA_UPLOAD_MAX_MEMORY_SIZE.
+Internal Server Error: /api/projects/712301/data/save/
+"POST /api/projects/712301/data/save/ HTTP/1.1" 500 72
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 19863
+Search request with query: syn
+"GET /api/search/?query=syn HTTP/1.1" 200 77
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 134
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 435
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 5133
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 4424
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
+"GET /api/projects/712301/issues/6/comments/ HTTP/1.1" 200 1817
+"GET /api/projects/712301/issues/8/comments/ HTTP/1.1" 200 3147
+Project 712301 data saved to database. Created: False
+"POST /api/projects/712301/data/save/ HTTP/1.1" 200 85
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 19863
+Search request with query: synas
+"GET /api/search/?query=synas HTTP/1.1" 200 77
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 134
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 4424
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 5133
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 2970034
+"GET /api/projects/712301/issues/8/comments/ HTTP/1.1" 200 3147
+"GET /api/projects/712301/issues/6/comments/ HTTP/1.1" 200 1817

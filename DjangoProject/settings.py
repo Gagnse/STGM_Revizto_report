@@ -97,7 +97,7 @@ DATABASES = {
 }
 
 DATABASE_ROUTERS = ['core.routers.ProjectRouter']
-
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 

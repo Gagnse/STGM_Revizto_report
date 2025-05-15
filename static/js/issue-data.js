@@ -920,19 +920,18 @@ function renderCommentsHTML(comments) {
     }
 
     // Filter comments before displaying
-    // For diff comments, keep only those with assignee or customStatus changes
+    // Exclude ALL diff comments - this is the important change
     const filteredComments = comments.filter(comment => {
-        if (comment.type !== 'diff') {
-            // Keep non-diff comments (text, file, markup)
-            return true;
-        }
-
-        // Only keep diff comments that have assignee or customStatus changes
-        if (comment.diff) {
-            return comment.diff.assignee !== undefined || comment.diff.customStatus !== undefined;
-        }
-        return false;
+        // Exclude all comments with type 'diff'
+        return comment.type !== 'diff';
     });
+
+    // If we have no comments after filtering, show "No history" message
+    if (filteredComments.length === 0) {
+        html += '<div class="text-sm text-gray-500">Aucun historique disponible.</div>';
+        html += '</div>';
+        return html;
+    }
 
     filteredComments.forEach(comment => {
         // Add separators between comments
@@ -971,11 +970,8 @@ function renderCommentsHTML(comments) {
                 </div>
         `;
 
-        // Handle different comment types
+        // Handle different comment types (diff type is already filtered out)
         switch (comment.type) {
-            case 'diff':
-                html += renderDiffComment(comment);
-                break;
             case 'text':
                 html += `<p class="text-gray-700 text-sm">${comment.text || ''}</p>`;
                 break;
@@ -1087,27 +1083,3 @@ if (typeof value === 'string') {
 return value;
 }
 
-function formatDate(dateString) {
-    if (!dateString) return '';
-
-    try {
-        const date = new Date(dateString);
-
-        // Check if date is valid
-        if (isNaN(date.getTime())) {
-            return 'Date invalide';
-        }
-
-        // Format the date
-        return date.toLocaleString('fr-CA', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    } catch (error) {
-        console.error('[DEBUG] Error formatting date:', error);
-        return dateString;
-    }
-}
