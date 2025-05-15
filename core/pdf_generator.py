@@ -864,44 +864,90 @@ class ReviztoPDF(FPDF):
 
         # Row settings
         label_width = 35
-        field_width = info_column_width - label_width
+        value_width = info_column_width - label_width - 2  # Subtract 2 for margin
 
         # Dossier Architecte
         self.set_fill_color(255, 255, 255)
         self.cell(label_width, row_height, "Dossier Architecte:", 0, 0, 'L', 1)
-        self.cell(field_width, row_height, project_data.get('architectFile', ''), 0, 1, 'L')
+        # Use multi_cell for values to allow wrapping
+        current_x = self.get_x()
+        current_y = self.get_y()
+        self.multi_cell(value_width, row_height, project_data.get('architectFile', ''), 0, 'L')
+        # Move to the next line if multi_cell didn't already advance
+        if self.get_y() == current_y:
+            self.ln(row_height)
 
-        # Projet
+        # Projet - use multi_cell to allow text wrapping
         self.cell(label_width, row_height, "Projet:", 0, 0, 'L', 1)
-        self.cell(field_width, row_height, project_data.get('projectName', ''), 0, 1, 'L')
+        current_x = self.get_x()
+        current_y = self.get_y()
+        self.multi_cell(value_width, row_height, project_data.get('projectName', ''), 0, 'L')
+        # Move to the next line if multi_cell didn't already advance
+        if self.get_y() == current_y:
+            self.ln(row_height)
 
-        # Maitre de l'ouvrage
+        # Maitre de l'ouvrage - use multi_cell to allow text wrapping
         self.cell(label_width, row_height, "Maitre de l'ouvrage:", 0, 0, 'L', 1)
-        self.cell(field_width, row_height, project_data.get('projectOwner', ''), 0, 1, 'L')
+        current_x = self.get_x()
+        current_y = self.get_y()
+        self.multi_cell(value_width, row_height, project_data.get('projectOwner', ''), 0, 'L')
+        # Move to the next line if multi_cell didn't already advance
+        if self.get_y() == current_y:
+            self.ln(row_height)
 
-        # Entrepreneur
+        # Entrepreneur - use multi_cell to allow text wrapping
         self.cell(label_width, row_height, "Entrepreneur:", 0, 0, 'L', 1)
-        self.cell(field_width, row_height, project_data.get('contractor', ''), 0, 1, 'L')
+        current_x = self.get_x()
+        current_y = self.get_y()
+        self.multi_cell(value_width, row_height, project_data.get('contractor', ''), 0, 'L')
+        # Move to the next line if multi_cell didn't already advance
+        if self.get_y() == current_y:
+            self.ln(row_height)
 
         # Visite no.
         self.cell(label_width, row_height, "Visite no.:", 0, 0, 'L', 1)
-        self.cell(field_width, row_height, project_data.get('visitNumber', ''), 0, 1, 'L')
+        current_x = self.get_x()
+        current_y = self.get_y()
+        self.multi_cell(value_width, row_height, project_data.get('visitNumber', ''), 0, 'L')
+        # Move to the next line if multi_cell didn't already advance
+        if self.get_y() == current_y:
+            self.ln(row_height)
 
         # Date du rapport
         self.cell(label_width, row_height, "Date du rapport:", 0, 0, 'L', 1)
-        self.cell(field_width, row_height, report_date, 0, 1, 'L')
+        current_x = self.get_x()
+        current_y = self.get_y()
+        self.multi_cell(value_width, row_height, report_date, 0, 'L')
+        # Move to the next line if multi_cell didn't already advance
+        if self.get_y() == current_y:
+            self.ln(row_height)
 
-        # Visite effectuée par
+        # Visite effectuée par - use multi_cell to allow text wrapping
         self.cell(label_width, row_height, "Visite effectuée par:", 0, 0, 'L', 1)
-        self.cell(field_width, row_height, project_data.get('visitBy', ''), 0, 1, 'L')
+        current_x = self.get_x()
+        current_y = self.get_y()
+        self.multi_cell(value_width, row_height, project_data.get('visitBy', ''), 0, 'L')
+        # Move to the next line if multi_cell didn't already advance
+        if self.get_y() == current_y:
+            self.ln(row_height)
 
         # Date de la visite
         self.cell(label_width, row_height, "Date de la visite:", 0, 0, 'L', 1)
-        self.cell(field_width, row_height, visit_date, 0, 1, 'L')
+        current_x = self.get_x()
+        current_y = self.get_y()
+        self.multi_cell(value_width, row_height, visit_date, 0, 'L')
+        # Move to the next line if multi_cell didn't already advance
+        if self.get_y() == current_y:
+            self.ln(row_height)
 
-        # En présence de
+        # En présence de - use multi_cell to allow text wrapping
         self.cell(label_width, row_height, "En présence de:", 0, 0, 'L', 1)
-        self.cell(field_width, row_height, project_data.get('inPresenceOf', ''), 0, 1, 'L')
+        current_x = self.get_x()
+        current_y = self.get_y()
+        self.multi_cell(value_width, row_height, project_data.get('inPresenceOf', ''), 0, 'L')
+        # Move to the next line if multi_cell didn't already advance
+        if self.get_y() == current_y:
+            self.ln(row_height)
 
         # -- RIGHT COLUMN (Project Image) --
 
@@ -938,6 +984,7 @@ class ReviztoPDF(FPDF):
         # Move cursor position back to the end of the left column content
         self.set_y(max(self.get_y(), info_end_y) + 10)
 
+        # Rest of the method remains the same...
         # Add horizontal line
         self.set_line_width(0.2)
         self.line(self.l_margin, self.get_y(), self.l_margin + page_width, self.get_y())
