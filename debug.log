@@ -4823,74 +4823,74 @@ C:\Users\sgagnon\PycharmProject\DjangoProject\core\pdf_generator.py changed, rel
 API client initialized with tokens
 Token refresh is disabled in settings. Skipping token refresher initialization.
 Watching for file changes with StatReloader
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp7y6pwoll.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpigxhc313.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpwo5vws9f.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpwmb_q5f6.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpj4eiydx9.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpp_qpcfmj.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp_ev6mmo1.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp7y6pwoll.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpigxhc313.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpwo5vws9f.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpwmb_q5f6.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpj4eiydx9.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpp_qpcfmj.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp_ev6mmo1.png'
 "GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 2385297
 C:\Users\sgagnon\PycharmProject\DjangoProject\core\pdf_generator.py changed, reloading.
 API client initialized with tokens
 Token refresh is disabled in settings. Skipping token refresher initialization.
 Watching for file changes with StatReloader
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp0nb9fuyb.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp65ziflem.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpab5fxr0u.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpsqsas9gi.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpc19hdy_b.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpjsteu6mt.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpgbpqjo48.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp0nb9fuyb.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp65ziflem.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpab5fxr0u.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpsqsas9gi.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpc19hdy_b.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpjsteu6mt.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpgbpqjo48.png'
 "GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 2385175
 C:\Users\sgagnon\PycharmProject\DjangoProject\core\pdf_generator.py changed, reloading.
 API client initialized with tokens
 Token refresh is disabled in settings. Skipping token refresher initialization.
 Watching for file changes with StatReloader
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpeqs7uoxh.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpe9iajqyr.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpas60ju7e.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpwkic_r74.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpxeq0cd6y.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp21pu963l.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpbo76x7in.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpeqs7uoxh.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpe9iajqyr.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpas60ju7e.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpwkic_r74.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpxeq0cd6y.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp21pu963l.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpbo76x7in.png'
 "GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 2385186
 C:\Users\sgagnon\PycharmProject\DjangoProject\core\pdf_generator.py changed, reloading.
 API client initialized with tokens
 Token refresh is disabled in settings. Skipping token refresher initialization.
 Watching for file changes with StatReloader
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmptlg9fck2.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmphp9y24s5.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpov02lx5_.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpwnpb7d7h.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp88thm04l.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmptooib0_c.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp1j9j2fws.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmptlg9fck2.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmphp9y24s5.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpov02lx5_.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpwnpb7d7h.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp88thm04l.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmptooib0_c.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp1j9j2fws.png'
 "GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 2385202
 C:\Users\sgagnon\PycharmProject\DjangoProject\core\pdf_generator.py changed, reloading.
 API client initialized with tokens
 Token refresh is disabled in settings. Skipping token refresher initialization.
 Watching for file changes with StatReloader
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpdzh3iag_.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp30p90cey.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp0x7dhrqm.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpubv0kif2.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp0gzsx8iv.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmppdrud5tv.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpm0x0v5oa.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpdzh3iag_.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp30p90cey.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp0x7dhrqm.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpubv0kif2.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp0gzsx8iv.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmppdrud5tv.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpm0x0v5oa.png'
 "GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 2385145
 C:\Users\sgagnon\PycharmProject\DjangoProject\core\pdf_generator.py changed, reloading.
 API client initialized with tokens
 Token refresh is disabled in settings. Skipping token refresher initialization.
 Watching for file changes with StatReloader
 Successfully refreshed access token
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpo5m53mbm.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpbw2vymor.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpqepdi19f.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpwt0vcqec.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp1w7valr6.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpa10805i7.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpzvsva0ny.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpo5m53mbm.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpbw2vymor.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpqepdi19f.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpwt0vcqec.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp1w7valr6.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpa10805i7.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpzvsva0ny.png'
 "GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 2389832
 C:\Users\sgagnon\PycharmProject\DjangoProject\core\pdf_generator.py changed, reloading.
 API client initialized with tokens
@@ -4932,37 +4932,37 @@ Loaded project data for project 712062
 "GET /api/projects/712062/issues/386/comments/ HTTP/1.1" 200 3730
 "GET /api/projects/712062/issues/406/comments/ HTTP/1.1" 200 1395
 "GET /api/projects/712062/issues/468/comments/ HTTP/1.1" 200 1896
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpnm4qaz_m.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp8__5pajx.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpknw_v8_l.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp3gy2qwte.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp2p6tahc5.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp4mxq3qf3.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpbs_c41vf.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpnm4qaz_m.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp8__5pajx.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpknw_v8_l.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp3gy2qwte.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp2p6tahc5.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp4mxq3qf3.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpbs_c41vf.png'
 "GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 2387830
 C:\Users\sgagnon\PycharmProject\DjangoProject\core\pdf_generator.py changed, reloading.
 API client initialized with tokens
 Token refresh is disabled in settings. Skipping token refresher initialization.
 Watching for file changes with StatReloader
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp0xqhrq0p.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpypck7l7o.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpt8gd1_fz.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpjduf86sp.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpj_d6egmx.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp5k4zhx46.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpznt0ogcp.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp0xqhrq0p.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpypck7l7o.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpt8gd1_fz.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpjduf86sp.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpj_d6egmx.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp5k4zhx46.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpznt0ogcp.png'
 "GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 2389832
 C:\Users\sgagnon\PycharmProject\DjangoProject\core\pdf_generator.py changed, reloading.
 API client initialized with tokens
 Token refresh is disabled in settings. Skipping token refresher initialization.
 Watching for file changes with StatReloader
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp52o__9l_.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpkdje0tb5.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp_t1trmqm.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp6b6aota7.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmptvs48ze1.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpoo8hhvjb.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmptjt26_5k.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp52o__9l_.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpkdje0tb5.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp_t1trmqm.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp6b6aota7.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmptvs48ze1.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpoo8hhvjb.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmptjt26_5k.png'
 "GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 2390538
 Search request with query: s-
 "GET /api/search/?query=s- HTTP/1.1" 200 1205
@@ -5270,13 +5270,13 @@ Loaded project data for project 712062
 "GET /api/projects/712062/issues/386/comments/ HTTP/1.1" 200 3730
 "GET /api/projects/712062/issues/390/comments/ HTTP/1.1" 200 1896
 "GET /api/projects/712062/issues/407/comments/ HTTP/1.1" 200 1396
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp32xslu8x.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp5yw2fs63.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpqeb5lw3b.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp0ha27qvq.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp38_v8xim.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp6kh2v36r.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpbrjbj2c1.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp32xslu8x.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp5yw2fs63.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpqeb5lw3b.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp0ha27qvq.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp38_v8xim.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp6kh2v36r.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpbrjbj2c1.png'
 "GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 2390538
 API client initialized with tokens
 Token refresh is disabled in settings. Skipping token refresher initialization.
@@ -5313,13 +5313,13 @@ Loaded project data for project 712062
 "GET /api/projects/712062/issues/446/comments/ HTTP/1.1" 200 3394
 "GET /api/projects/712062/issues/374/comments/ HTTP/1.1" 200 5344
 "GET /api/projects/712062/issues/408/comments/ HTTP/1.1" 200 1906
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpbbzboyvd.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpyfmd471b.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpje6t6s0d.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp1e36jn0n.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp_e54hd_y.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpe26dmc7l.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpv9y9f2rd.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpbbzboyvd.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpyfmd471b.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpje6t6s0d.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp1e36jn0n.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp_e54hd_y.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpe26dmc7l.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpv9y9f2rd.png'
 "GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 2390538
 API client initialized with tokens
 Token refresh is disabled in settings. Skipping token refresher initialization.
@@ -5346,13 +5346,13 @@ Loaded project data for project 712062
 "GET /api/projects/712062/issues/391/comments/ HTTP/1.1" 200 3033
 "GET /api/projects/712062/issues/446/comments/ HTTP/1.1" 200 3394
 "GET /api/projects/712062/issues/374/comments/ HTTP/1.1" 200 5344
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpwvmqm7xo.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp5201q3o8.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpv1v3npdh.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpsm4nl4ex.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpu95zcqii.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpx6sif_wa.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpviz3mn_e.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpwvmqm7xo.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp5201q3o8.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpv1v3npdh.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpsm4nl4ex.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpu95zcqii.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpx6sif_wa.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpviz3mn_e.png'
 "GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 2390538
 C:\Users\sgagnon\PycharmProject\DjangoProject\core\pdf_generator.py changed, reloading.
 API client initialized with tokens
@@ -5380,13 +5380,13 @@ Loaded project data for project 712062
 "GET /api/projects/712062/issues/386/comments/ HTTP/1.1" 200 3730
 "GET /api/projects/712062/issues/383/comments/ HTTP/1.1" 200 3124
 "GET /api/projects/712062/issues/374/comments/ HTTP/1.1" 200 5344
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpfdg8wpib.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpb20ob4mv.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmppff60hee.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmphn01pleq.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp1z6ttqg8.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp5a0aeoch.png'
-Error adding image: [WinError 32] Le processus ne peut pas accéder au fichier car ce fichier est utilisé par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpgw_tc_6u.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpfdg8wpib.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpb20ob4mv.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmppff60hee.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmphn01pleq.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp1z6ttqg8.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmp5a0aeoch.png'
+Error adding image: [WinError 32] Le processus ne peut pas accï¿½der au fichier car ce fichier est utilisï¿½ par un autre processus: 'C:\\Users\\sgagnon\\AppData\\Local\\Temp\\tmpgw_tc_6u.png'
 "GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 2390554
 C:\Users\sgagnon\PycharmProject\DjangoProject\core\pdf_generator.py changed, reloading.
 API client initialized with tokens
@@ -6573,9 +6573,9 @@ Loaded project data for project 712301
 "GET /api/projects/712301/observations/ HTTP/1.1" 200 4424
 "GET /api/projects/712301/issues/8/comments/ HTTP/1.1" 200 3147
 "GET /api/projects/712301/issues/6/comments/ HTTP/1.1" 200 1817
-PDF generation error: Character "’" at index 24 in text is outside the range of characters supported by the font used: "helvetica". Please consider using a Unicode font.
+PDF generation error: Character "ï¿½" at index 24 in text is outside the range of characters supported by the font used: "helvetica". Please consider using a Unicode font.
 Attempting to recover from character encoding error
-Problematic character identified: '’'
+Problematic character identified: 'ï¿½'
 Finding best image for issue 6
 Checking 2 comments for images
 Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/6/comments/6f01e068-dde3-4f8e-90b7-f88c791238ee/0ee53c0f
@@ -6585,9 +6585,9 @@ Checking 3 comments for images
 Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/8/comments/80450c07-7d29-4fbe-bd77-d25504efe9e4/803dbe95
 Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_a365cd0d-bdfa-467b-bfeb-b559fbe19073.png
 "GET /api/projects/712301/generate-pdf/ HTTP/1.1" 200 2843296
-PDF generation error: Character "’" at index 24 in text is outside the range of characters supported by the font used: "helvetica". Please consider using a Unicode font.
+PDF generation error: Character "ï¿½" at index 24 in text is outside the range of characters supported by the font used: "helvetica". Please consider using a Unicode font.
 Attempting to recover from character encoding error
-Problematic character identified: '’'
+Problematic character identified: 'ï¿½'
 Finding best image for issue 6
 Checking 2 comments for images
 Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/6/comments/6f01e068-dde3-4f8e-90b7-f88c791238ee/0ee53c0f
@@ -6597,9 +6597,9 @@ Checking 3 comments for images
 Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/8/comments/80450c07-7d29-4fbe-bd77-d25504efe9e4/803dbe95
 Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_a0208902-a45e-4ee3-b810-ad7e33a54e48.png
 "GET /api/projects/712301/generate-pdf/ HTTP/1.1" 200 2843296
-PDF generation error: Character "’" at index 24 in text is outside the range of characters supported by the font used: "helvetica". Please consider using a Unicode font.
+PDF generation error: Character "ï¿½" at index 24 in text is outside the range of characters supported by the font used: "helvetica". Please consider using a Unicode font.
 Attempting to recover from character encoding error
-Problematic character identified: '’'
+Problematic character identified: 'ï¿½'
 Finding best image for issue 6
 Checking 2 comments for images
 Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/6/comments/6f01e068-dde3-4f8e-90b7-f88c791238ee/0ee53c0f
@@ -6609,9 +6609,9 @@ Checking 3 comments for images
 Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/8/comments/80450c07-7d29-4fbe-bd77-d25504efe9e4/803dbe95
 Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_3f7f977f-76b4-4bba-9218-7da46e7b5a44.png
 "GET /api/projects/712301/generate-pdf/ HTTP/1.1" 200 2843296
-PDF generation error: Character "’" at index 24 in text is outside the range of characters supported by the font used: "helvetica". Please consider using a Unicode font.
+PDF generation error: Character "ï¿½" at index 24 in text is outside the range of characters supported by the font used: "helvetica". Please consider using a Unicode font.
 Attempting to recover from character encoding error
-Problematic character identified: '’'
+Problematic character identified: 'ï¿½'
 Finding best image for issue 6
 Checking 2 comments for images
 Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/6/comments/6f01e068-dde3-4f8e-90b7-f88c791238ee/0ee53c0f
@@ -8123,3 +8123,495 @@ Loaded project data for project 712307
 "GET /api/projects/712307/issues/16/comments/ HTTP/1.1" 200 3222
 "GET /api/projects/712307/issues/13/comments/ HTTP/1.1" 200 8013
 "GET /api/projects/712307/issues/12/comments/ HTTP/1.1" 200 4487
+Finding best image for issue 16
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/16/comments/125cdb84-c046-4a6b-9b20-8fc8eca70abc/ce3de4d0
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_2e417935-3c37-4b01-bd93-7c529bb90072.png
+Finding best image for issue 7
+Checking 14 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/7/comments/a7287a22-c1d4-418d-a7cb-c77819acea83/c1939f18
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_2dc43d7b-13d5-4fcd-a1fc-686a2b63ef53.png
+Finding best image for issue 13
+Checking 10 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/13/comments/801c6009-c868-4a86-b936-b6b4aa48b675/fea1e458
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_ad94aa9f-0ec0-4e74-81b0-80e31b98b730.png
+Finding best image for issue 14
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/14/comments/a367bcf5-c685-4abb-9dea-39c694a9ed10/d53ab900
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_ffb4e98c-6842-4c4e-b1e4-f71fb8506657.png
+Finding best image for issue 15
+Checking 3 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/15/comments/f8f1fb7b-2209-4470-9eb3-a09f37f65323/b9a8c126
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_57b26153-2dc4-4a80-a8a1-63dc9ae01691.png
+Finding best image for issue 11
+Checking 7 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/11/comments/2e8f49cb-d79a-47df-868e-244de5130143/5f1f8374
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_818c7cb7-8786-4ec6-a712-3f77bcc575b8.png
+Finding best image for issue 12
+Checking 6 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/12/comments/d7f8599a-c638-4d35-bed9-cbb487660254/06f66270
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_0f81cedb-08a0-4f36-bb24-0f266adefe60.png
+"GET /api/projects/712307/generate-pdf/ HTTP/1.1" 200 11658544
+Finding best image for issue 16
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/16/comments/125cdb84-c046-4a6b-9b20-8fc8eca70abc/ce3de4d0
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_72b7cb62-4423-4b1d-9f0b-f37a1c7e5988.png
+Finding best image for issue 7
+Checking 14 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/7/comments/a7287a22-c1d4-418d-a7cb-c77819acea83/c1939f18
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_fc91969d-147b-4e2b-989d-3d6e00b3acfa.png
+Finding best image for issue 13
+Checking 10 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/13/comments/801c6009-c868-4a86-b936-b6b4aa48b675/fea1e458
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_ff953d92-721f-4569-8ed5-fd22eee77273.png
+Finding best image for issue 14
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/14/comments/a367bcf5-c685-4abb-9dea-39c694a9ed10/d53ab900
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_6e7c1f7f-5082-46a6-94df-6c10e958361b.png
+Finding best image for issue 15
+Checking 3 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/15/comments/f8f1fb7b-2209-4470-9eb3-a09f37f65323/b9a8c126
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_4ab4e60a-2c3c-4d71-8417-1d0e6982cebd.png
+Finding best image for issue 11
+Checking 7 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/11/comments/2e8f49cb-d79a-47df-868e-244de5130143/5f1f8374
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_ccc2dc3e-f079-43ad-b891-487f156ef64c.png
+Finding best image for issue 12
+Checking 6 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/12/comments/d7f8599a-c638-4d35-bed9-cbb487660254/06f66270
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_4c9052f5-1940-4607-9e09-b4ca34220f13.png
+"GET /api/projects/712307/generate-pdf/ HTTP/1.1" 200 11658544
+Finding best image for issue 16
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/16/comments/125cdb84-c046-4a6b-9b20-8fc8eca70abc/ce3de4d0
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_774e98da-dec3-4230-99bf-46357d83e3dc.png
+Finding best image for issue 7
+Checking 14 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/7/comments/a7287a22-c1d4-418d-a7cb-c77819acea83/c1939f18
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_87481403-5fec-44cc-a1bf-6cc5051561d1.png
+Finding best image for issue 13
+Checking 10 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/13/comments/801c6009-c868-4a86-b936-b6b4aa48b675/fea1e458
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_30bc53af-e3be-441b-a5b3-8e8d5fb557f2.png
+Finding best image for issue 14
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/14/comments/a367bcf5-c685-4abb-9dea-39c694a9ed10/d53ab900
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_fbdef028-e1c0-423e-a22d-19115cb30f77.png
+Finding best image for issue 15
+Checking 3 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/15/comments/f8f1fb7b-2209-4470-9eb3-a09f37f65323/b9a8c126
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_ab3855f2-5311-4de3-99c2-1ef5a338511f.png
+Finding best image for issue 11
+Checking 7 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/11/comments/2e8f49cb-d79a-47df-868e-244de5130143/5f1f8374
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_6f8e9fa5-ec42-4f34-9286-2cc9c0892ec7.png
+Finding best image for issue 12
+Checking 6 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/12/comments/d7f8599a-c638-4d35-bed9-cbb487660254/06f66270
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_8c6ee6d5-320e-4781-acf4-2f11354a127e.png
+"GET /api/projects/712307/generate-pdf/ HTTP/1.1" 200 11658544
+Finding best image for issue 16
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/16/comments/125cdb84-c046-4a6b-9b20-8fc8eca70abc/ce3de4d0
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_2e417935-3c37-4b01-bd93-7c529bb90072.png
+Finding best image for issue 7
+Checking 14 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/7/comments/a7287a22-c1d4-418d-a7cb-c77819acea83/c1939f18
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_2dc43d7b-13d5-4fcd-a1fc-686a2b63ef53.png
+Finding best image for issue 13
+Checking 10 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/13/comments/801c6009-c868-4a86-b936-b6b4aa48b675/fea1e458
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_ad94aa9f-0ec0-4e74-81b0-80e31b98b730.png
+Finding best image for issue 14
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/14/comments/a367bcf5-c685-4abb-9dea-39c694a9ed10/d53ab900
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_ffb4e98c-6842-4c4e-b1e4-f71fb8506657.png
+Finding best image for issue 15
+Checking 3 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/15/comments/f8f1fb7b-2209-4470-9eb3-a09f37f65323/b9a8c126
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_57b26153-2dc4-4a80-a8a1-63dc9ae01691.png
+Finding best image for issue 11
+Checking 7 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/11/comments/2e8f49cb-d79a-47df-868e-244de5130143/5f1f8374
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_818c7cb7-8786-4ec6-a712-3f77bcc575b8.png
+Finding best image for issue 12
+Checking 6 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/12/comments/d7f8599a-c638-4d35-bed9-cbb487660254/06f66270
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_0f81cedb-08a0-4f36-bb24-0f266adefe60.png
+"GET /api/projects/712307/generate-pdf/ HTTP/1.1" 200 11658544
+Finding best image for issue 16
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/16/comments/125cdb84-c046-4a6b-9b20-8fc8eca70abc/ce3de4d0
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_72b7cb62-4423-4b1d-9f0b-f37a1c7e5988.png
+Finding best image for issue 7
+Checking 14 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/7/comments/a7287a22-c1d4-418d-a7cb-c77819acea83/c1939f18
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_fc91969d-147b-4e2b-989d-3d6e00b3acfa.png
+Finding best image for issue 13
+Checking 10 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/13/comments/801c6009-c868-4a86-b936-b6b4aa48b675/fea1e458
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_ff953d92-721f-4569-8ed5-fd22eee77273.png
+Finding best image for issue 14
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/14/comments/a367bcf5-c685-4abb-9dea-39c694a9ed10/d53ab900
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_6e7c1f7f-5082-46a6-94df-6c10e958361b.png
+Finding best image for issue 15
+Checking 3 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/15/comments/f8f1fb7b-2209-4470-9eb3-a09f37f65323/b9a8c126
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_4ab4e60a-2c3c-4d71-8417-1d0e6982cebd.png
+Finding best image for issue 11
+Checking 7 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/11/comments/2e8f49cb-d79a-47df-868e-244de5130143/5f1f8374
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_ccc2dc3e-f079-43ad-b891-487f156ef64c.png
+Finding best image for issue 12
+Checking 6 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/12/comments/d7f8599a-c638-4d35-bed9-cbb487660254/06f66270
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_4c9052f5-1940-4607-9e09-b4ca34220f13.png
+"GET /api/projects/712307/generate-pdf/ HTTP/1.1" 200 11658544
+Finding best image for issue 16
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/16/comments/125cdb84-c046-4a6b-9b20-8fc8eca70abc/ce3de4d0
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_774e98da-dec3-4230-99bf-46357d83e3dc.png
+Finding best image for issue 7
+Checking 14 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/7/comments/a7287a22-c1d4-418d-a7cb-c77819acea83/c1939f18
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_87481403-5fec-44cc-a1bf-6cc5051561d1.png
+Finding best image for issue 13
+Checking 10 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/13/comments/801c6009-c868-4a86-b936-b6b4aa48b675/fea1e458
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_30bc53af-e3be-441b-a5b3-8e8d5fb557f2.png
+Finding best image for issue 14
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/14/comments/a367bcf5-c685-4abb-9dea-39c694a9ed10/d53ab900
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_fbdef028-e1c0-423e-a22d-19115cb30f77.png
+Finding best image for issue 15
+Checking 3 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/15/comments/f8f1fb7b-2209-4470-9eb3-a09f37f65323/b9a8c126
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_ab3855f2-5311-4de3-99c2-1ef5a338511f.png
+Finding best image for issue 11
+Checking 7 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/11/comments/2e8f49cb-d79a-47df-868e-244de5130143/5f1f8374
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_6f8e9fa5-ec42-4f34-9286-2cc9c0892ec7.png
+Finding best image for issue 12
+Checking 6 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/12/comments/d7f8599a-c638-4d35-bed9-cbb487660254/06f66270
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_8c6ee6d5-320e-4781-acf4-2f11354a127e.png
+"GET /api/projects/712307/generate-pdf/ HTTP/1.1" 200 11658544
+C:\Users\sgagnon\PycharmProject\DjangoProject\core\views.py changed, reloading.
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 21140
+Not Found: /static/css/styles.css
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/css/styles.css HTTP/1.1" 404 179
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+Not Found: /static/css/styles.css
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/css/styles.css HTTP/1.1" 404 179
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 200 44023
+Search request with query: gym
+"GET /api/search/?query=gym HTTP/1.1" 200 90
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 28975
+Loaded project data for project 712307
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682675
+"GET /api/projects/712307/issues/14/comments/ HTTP/1.1" 200 2948
+"GET /api/projects/712307/issues/13/comments/ HTTP/1.1" 200 8013
+"GET /api/projects/712307/issues/12/comments/ HTTP/1.1" 200 4487
+"GET /api/projects/712307/issues/15/comments/ HTTP/1.1" 200 2330
+"GET /api/projects/712307/issues/7/comments/ HTTP/1.1" 200 9424
+"GET /api/projects/712307/issues/16/comments/ HTTP/1.1" 200 3222
+"GET /api/projects/712307/issues/11/comments/ HTTP/1.1" 200 5862
+C:\Users\sgagnon\PycharmProject\DjangoProject\core\views.py changed, reloading.
+API client initialized with tokens
+Watching for file changes with StatReloader
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24445
+"GET /static/css/styles.css HTTP/1.1" 200 736
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 200 43545
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+"GET /static/js/status-fix.js HTTP/1.1" 200 11509
+Search request with query: gym
+"GET /api/search/?query=gym HTTP/1.1" 200 90
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 28975
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+Loaded project data for project 712307
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682675
+"GET /api/projects/712307/issues/14/comments/ HTTP/1.1" 200 2948
+"GET /api/projects/712307/issues/7/comments/ HTTP/1.1" 200 9424
+"GET /api/projects/712307/issues/15/comments/ HTTP/1.1" 200 2330
+"GET /api/projects/712307/issues/13/comments/ HTTP/1.1" 200 8013
+"GET /api/projects/712307/issues/11/comments/ HTTP/1.1" 200 5862
+"GET /api/projects/712307/issues/16/comments/ HTTP/1.1" 200 3222
+"GET /api/projects/712307/issues/12/comments/ HTTP/1.1" 200 4487
+"GET / HTTP/1.1" 200 24445
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+"GET /static/js/status-fix.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+Search request with query: gym
+"GET /api/search/?query=gym HTTP/1.1" 200 90
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+Loaded project data for project 712307
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682675
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 28975
+"GET /api/projects/712307/issues/12/comments/ HTTP/1.1" 200 4487
+"GET /api/projects/712307/issues/14/comments/ HTTP/1.1" 200 2948
+"GET /api/projects/712307/issues/15/comments/ HTTP/1.1" 200 2330
+"GET /api/projects/712307/issues/7/comments/ HTTP/1.1" 200 9424
+"GET /api/projects/712307/issues/16/comments/ HTTP/1.1" 200 3222
+"GET /api/projects/712307/issues/13/comments/ HTTP/1.1" 200 8013
+"GET /api/projects/712307/issues/11/comments/ HTTP/1.1" 200 5862
+"GET /static/css/styles.css HTTP/1.1" 304 0
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 179
+Search request with query: matim
+"GET /api/search/?query=matim HTTP/1.1" 200 94
+"GET /api/projects/712062/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712062/instructions/ HTTP/1.1" 200 127
+Loaded project data for project 712062
+"GET /api/projects/712062/observations/ HTTP/1.1" 200 6437
+"GET /api/projects/712062/data/load/ HTTP/1.1" 200 800520
+"GET /api/projects/712062/deficiencies/ HTTP/1.1" 200 19402
+"GET /api/projects/712062/issues/550/comments/ HTTP/1.1" 200 2927
+"GET /api/projects/712062/issues/553/comments/ HTTP/1.1" 200 2227
+"GET /api/projects/712062/issues/551/comments/ HTTP/1.1" 200 3468
+"GET / HTTP/1.1" 200 24445
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 179
+"GET /static/js/status-fix.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+Search request with query: mat
+"GET /api/search/?query=mat HTTP/1.1" 200 178
+"GET /api/projects/712062/workflow-settings/ HTTP/1.1" 200 4768
+Loaded project data for project 712062
+"GET /api/projects/712062/data/load/ HTTP/1.1" 200 800520
+"GET /api/projects/712062/instructions/ HTTP/1.1" 200 127
+"GET /api/projects/712062/observations/ HTTP/1.1" 200 6444
+"GET /api/projects/712062/deficiencies/ HTTP/1.1" 200 19416
+"GET /api/projects/712062/issues/553/comments/ HTTP/1.1" 200 2849
+"GET /api/projects/712062/issues/551/comments/ HTTP/1.1" 200 4090
+"GET /api/projects/712062/issues/550/comments/ HTTP/1.1" 200 3549
+Token refresh failed with status code: 403
+"GET / HTTP/1.1" 200 13139
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 179
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/status-fix.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+Token refresh failed with status code: 403
+"GET / HTTP/1.1" 200 13139
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 179
+Token refresh failed with status code: 403
+"GET / HTTP/1.1" 200 13139
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24445
+Search request with query: mat
+"GET /api/search/?query=mat HTTP/1.1" 200 178
+"GET /api/projects/712062/workflow-settings/ HTTP/1.1" 200 4768
+Loaded project data for project 712062
+"GET /api/projects/712062/data/load/ HTTP/1.1" 200 800520
+"GET /api/projects/712062/instructions/ HTTP/1.1" 200 127
+"GET /api/projects/712062/deficiencies/ HTTP/1.1" 200 19416
+"GET /api/projects/712062/observations/ HTTP/1.1" 200 6444
+"GET /api/projects/712062/issues/551/comments/ HTTP/1.1" 200 4090
+"GET /api/projects/712062/issues/550/comments/ HTTP/1.1" 200 3549
+"GET /api/projects/712062/issues/553/comments/ HTTP/1.1" 200 2849
+PDF generation error: 'ReviztoPDF' object has no attribute 'get_status_display'
+"GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 1487
+C:\Users\sgagnon\PycharmProject\DjangoProject\core\pdf_generator.py changed, reloading.
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24445
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/status-fix.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+Search request with query: matim
+"GET /api/search/?query=matim HTTP/1.1" 200 94
+"GET /api/projects/712062/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712062/deficiencies/ HTTP/1.1" 200 19416
+Loaded project data for project 712062
+"GET /api/projects/712062/instructions/ HTTP/1.1" 200 127
+"GET /api/projects/712062/data/load/ HTTP/1.1" 200 800520
+"GET /api/projects/712062/observations/ HTTP/1.1" 200 6444
+"GET /api/projects/712062/issues/551/comments/ HTTP/1.1" 200 4090
+"GET /api/projects/712062/issues/550/comments/ HTTP/1.1" 200 3549
+"GET /api/projects/712062/issues/553/comments/ HTTP/1.1" 200 2849
+Finding best image for issue 553
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712062/.static/issues/553/comments/6a2793dd-1495-4386-81d7-c41242f837f2/bbee7a73
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_5b3d01be-e063-4079-b312-e02aa41238b7.png
+Finding best image for issue 550
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712062/.static/issues/550/comments/79fdba92-2ae6-432c-8e6c-1183b8e78b62/750364f7
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_c844941a-4b8b-4dbf-8150-a140bb67c7b0.png
+Finding best image for issue 551
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712062/.static/issues/551/comments/4a5083e3-e4a7-4696-ac32-d96dd540e38e/3dc6ca00
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_d88825c5-dc1a-44c9-a68b-301560abe36c.png
+"GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 1513576
+Search request with query: gym
+"GET /api/search/?query=gym HTTP/1.1" 200 90
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 28975
+Loaded project data for project 712307
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682675
+"GET /api/projects/712307/issues/13/comments/ HTTP/1.1" 200 8013
+"GET /api/projects/712307/issues/14/comments/ HTTP/1.1" 200 2948
+"GET /api/projects/712307/issues/12/comments/ HTTP/1.1" 200 4487
+"GET /api/projects/712307/issues/15/comments/ HTTP/1.1" 200 2330
+"GET /api/projects/712307/issues/16/comments/ HTTP/1.1" 200 3222
+"GET /api/projects/712307/issues/7/comments/ HTTP/1.1" 200 9424
+"GET /api/projects/712307/issues/11/comments/ HTTP/1.1" 200 5862
+Finding best image for issue 16
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/16/comments/125cdb84-c046-4a6b-9b20-8fc8eca70abc/ce3de4d0
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_88dd54a3-072b-43f1-b6fc-e078f955afad.png
+Finding best image for issue 7
+Checking 14 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/7/comments/a7287a22-c1d4-418d-a7cb-c77819acea83/c1939f18
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_922466a1-01f2-425a-8e99-c96a0945697e.png
+Finding best image for issue 13
+Checking 10 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/13/comments/801c6009-c868-4a86-b936-b6b4aa48b675/fea1e458
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_6965bd98-0638-4c09-a1ca-355e9ad4b148.png
+Finding best image for issue 14
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/14/comments/a367bcf5-c685-4abb-9dea-39c694a9ed10/d53ab900
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_42389075-17d9-4d24-982d-6641f29cbd1d.png
+Finding best image for issue 15
+Checking 3 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/15/comments/f8f1fb7b-2209-4470-9eb3-a09f37f65323/b9a8c126
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_d515cc2d-b5ba-44dc-9301-1c8044308ee6.png
+Finding best image for issue 11
+Checking 7 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/11/comments/2e8f49cb-d79a-47df-868e-244de5130143/5f1f8374
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_265bf141-0c1f-4e13-b34c-fbe012528022.png
+Finding best image for issue 12
+Checking 6 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/12/comments/d7f8599a-c638-4d35-bed9-cbb487660254/06f66270
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_7471792a-0517-4110-9dd3-0fb937b59b2c.png
+"GET /api/projects/712307/generate-pdf/ HTTP/1.1" 200 11658564
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24445
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/status-fix.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+Search request with query: matim
+"GET /api/search/?query=matim HTTP/1.1" 200 94
+"GET /api/projects/712062/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712062/observations/ HTTP/1.1" 200 6444
+Loaded project data for project 712062
+"GET /api/projects/712062/data/load/ HTTP/1.1" 200 800520
+"GET /api/projects/712062/instructions/ HTTP/1.1" 200 127
+"GET /api/projects/712062/deficiencies/ HTTP/1.1" 200 19416
+"GET /api/projects/712062/issues/553/comments/ HTTP/1.1" 200 2849
+"GET /api/projects/712062/issues/550/comments/ HTTP/1.1" 200 3549
+"GET /api/projects/712062/issues/551/comments/ HTTP/1.1" 200 4090
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 179
+Finding best image for issue 553
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712062/.static/issues/553/comments/6a2793dd-1495-4386-81d7-c41242f837f2/bbee7a73
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_45d614ff-fccb-49db-92a4-85a217e20f4d.png
+Finding best image for issue 550
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712062/.static/issues/550/comments/79fdba92-2ae6-432c-8e6c-1183b8e78b62/750364f7
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_5228508d-dd8e-4a64-9a90-eba8db1f192d.png
+Finding best image for issue 551
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712062/.static/issues/551/comments/4a5083e3-e4a7-4696-ac32-d96dd540e38e/3dc6ca00
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_1728db9a-0044-4621-a552-dacc0b24cf88.png
+"GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 1513576
+C:\Users\sgagnon\PycharmProject\DjangoProject\core\pdf_generator.py changed, reloading.
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24445
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 179
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/status-fix.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+Search request with query: matim
+"GET /api/search/?query=matim HTTP/1.1" 200 94
+"GET /api/projects/712062/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712062/instructions/ HTTP/1.1" 200 127
+Loaded project data for project 712062
+"GET /api/projects/712062/observations/ HTTP/1.1" 200 6444
+"GET /api/projects/712062/data/load/ HTTP/1.1" 200 800520
+"GET /api/projects/712062/deficiencies/ HTTP/1.1" 200 19416
+"GET /api/projects/712062/issues/553/comments/ HTTP/1.1" 200 2849
+"GET /api/projects/712062/issues/551/comments/ HTTP/1.1" 200 4090
+"GET /api/projects/712062/issues/550/comments/ HTTP/1.1" 200 3549
+Finding best image for issue 553
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712062/.static/issues/553/comments/6a2793dd-1495-4386-81d7-c41242f837f2/bbee7a73
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_988fd377-ea79-4733-be79-e7756ca2ece7.png
+Finding best image for issue 550
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712062/.static/issues/550/comments/79fdba92-2ae6-432c-8e6c-1183b8e78b62/750364f7
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_397571cd-8978-4e46-a0f7-471eff77e9ff.png
+Finding best image for issue 551
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712062/.static/issues/551/comments/4a5083e3-e4a7-4696-ac32-d96dd540e38e/3dc6ca00
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_dc2ae59f-3d71-4a5c-9fec-f84816d4a605.png
+"GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 1513576

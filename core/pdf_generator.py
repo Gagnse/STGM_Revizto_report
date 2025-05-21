@@ -32,6 +32,7 @@ class ReviztoPDF(FPDF):
         self.project_name = ""
         self.report_date = ""
         self.visitNumber = ""
+        self.status_map = {}
 
 
     def header(self):
@@ -198,37 +199,16 @@ class ReviztoPDF(FPDF):
             elif isinstance(observation['title'], dict) and observation['title'].get('value'):
                 title = observation['title']['value']
 
-        # Get status info
-        status_text = "Inconnu"
-        bg_color = (110, 110, 110)  # Default gray
+        # Get status display information
+        status_text, bg_color, text_color = self.get_status_display(observation)
 
-        if observation.get('customStatus'):
-            status_id = observation['customStatus']
-            if isinstance(status_id, dict) and status_id.get('value'):
-                status_id = status_id['value']
-
-            # Status colors match those in issue-data.js
-            if status_id == "2ed005c6-43cd-4907-a4d6-807dbd0197d5":  # Open
-                status_text = "Ouvert"
-                bg_color = (204, 41, 41)  # Red
-            elif status_id == "cd52ac3e-f345-4f99-870f-5be95dc33245":  # In progress
-                status_text = "En cours"
-                bg_color = (255, 170, 0)  # Orange
-            elif status_id == "b8504242-3489-43a2-9831-54f64053b226":  # Solved
-                status_text = "Resolu"
-                bg_color = (66, 190, 101)  # Green
-            elif status_id == "135b58c6-1e14-4716-a134-bbba2bbc90a7":  # Closed
-                status_text = "Ferme"
-                bg_color = (184, 184, 184)  # Gray
-            elif status_id == "5947b7d1-70b9-425b-aba6-7187eb0251ff":  # En attente
-                status_text = "En attente"
-                bg_color = (255, 211, 46)  # Yellow
-            elif status_id == "912abbbf-3155-4e3c-b437-5778bdfd73f4":  # non-problème
-                status_text = "Non-probleme"
-                bg_color = (43, 43, 43)  # Dark gray
-            elif status_id == "337e2fe6-e2a3-4e3f-b098-30aac68a191c":  # Corrigé
-                status_text = "Corrige"
-                bg_color = (137, 46, 251)  # Purple
+        # Get preview image URL if exists
+        imageUrl = ''
+        if observation.get('preview'):
+            if isinstance(observation['preview'], str):
+                imageUrl = observation['preview']
+            elif observation['preview'].get('original'):
+                imageUrl = observation['preview']['original']
 
         # Calculate page dimensions
         page_width = self.w - 2 * self.l_margin
@@ -236,9 +216,6 @@ class ReviztoPDF(FPDF):
         # Initialize heights
         header_height = 10
         top_section_height = 60
-
-        # IMPORTANT CHANGE: We'll measure the actual history content height
-        # rather than using a fixed or minimum height
 
         # First, calculate how much space we have left on the current page
         space_left = self.h - self.b_margin - self.get_y()
@@ -274,7 +251,7 @@ class ReviztoPDF(FPDF):
 
         self.set_xy(badge_x, card_start_y + 2)
         self.set_fill_color(bg_color[0], bg_color[1], bg_color[2])
-        self.set_text_color(255, 255, 255)
+        self.set_text_color(text_color[0], text_color[1], text_color[2])
         self.set_font('helvetica', 'B', 9)
         self.rect(badge_x, card_start_y + 2, badge_width, 6, 'F')
         self.cell(badge_width, 6, status_text, 0, 0, 'C')
@@ -737,6 +714,77 @@ class ReviztoPDF(FPDF):
         # Move position to after the card with spacing
         self.set_y(card_start_y + total_card_height + 5)  # 10mm gap between cards
 
+    def get_status_display(self, status_id):
+        """
+        Get display information for a status ID.
+
+        Args:
+            status_id: Status ID (string, dict, or object)
+
+        Returns:
+            tuple: (status_text, background_color, text_color)
+        """
+        # Default values
+        status_text = "Inconnu"
+        bg_color = (110, 110, 110)  # Default gray
+        text_color = (255, 255, 255)  # Default white
+
+        # Extract status value from different formats
+        status_value = None
+
+        if isinstance(status_id, dict):
+            # Extract from customStatus
+            if status_id.get('customStatus'):
+                if isinstance(status_id['customStatus'], str):
+                    status_value = status_id['customStatus']
+                elif isinstance(status_id['customStatus'], dict) and status_id['customStatus'].get('value'):
+                    status_value = status_id['customStatus']['value']
+            # Extract from status
+            elif status_id.get('status'):
+                if isinstance(status_id['status'], str):
+                    status_value = status_id['status']
+                elif isinstance(status_id['status'], dict) and status_id['status'].get('value'):
+                    status_value = status_id['status']['value']
+            # Extract from value
+            elif status_id.get('value'):
+                status_value = status_id['value']
+        elif isinstance(status_id, str):
+            status_value = status_id
+
+        # Look up in status map if we have a value
+        if status_value and self.status_map and status_value in self.status_map:
+            status_info = self.status_map[status_value]
+            status_text = status_info.get('displayName', status_info.get('name', "Inconnu"))
+
+            # Convert hex colors to RGB tuples
+            bg_hex = status_info.get('backgroundColor', '#6F7E93')
+            text_hex = status_info.get('textColor', '#FFFFFF')
+
+            bg_color = self._hex_to_rgb(bg_hex)
+            text_color = self._hex_to_rgb(text_hex)
+
+        return status_text, bg_color, text_color
+
+    def _hex_to_rgb(self, hex_color):
+        """Convert hex color string to RGB tuple."""
+        if not hex_color or not isinstance(hex_color, str):
+            return (110, 110, 110)  # Default gray
+
+        # Remove # if present
+        hex_color = hex_color.lstrip('#')
+
+        # Parse hex to RGB
+        try:
+            if len(hex_color) == 6:
+                r = int(hex_color[0:2], 16)
+                g = int(hex_color[2:4], 16)
+                b = int(hex_color[4:6], 16)
+                return (r, g, b)
+            else:
+                return (110, 110, 110)  # Default gray
+        except ValueError:
+            return (110, 110, 110)  # Default gray
+
     def add_instruction(self, instruction, comments=None):
         """
         Add an instruction to the report with a layout matching the HTML version
@@ -984,6 +1032,7 @@ class ReviztoPDF(FPDF):
         # Reset line width to default
         self.set_line_width(0.2)
 
+
 def generate_report_pdf(project_id, project_data, observations, instructions, deficiencies, issue_comments=None):
     """
     Generate a PDF report for the project
@@ -999,8 +1048,121 @@ def generate_report_pdf(project_id, project_data, observations, instructions, de
     Returns:
         BytesIO: PDF file as a BytesIO object
     """
-    # Create PDF
+    # ADDED: First fetch status mapping from the API
+    project_statuses = {}
+    try:
+        # Use the same endpoint the frontend uses
+        from .api.service import ReviztoService
+        workflow_response = ReviztoService.get_project_workflow_settings(project_id)
+
+        if workflow_response and workflow_response.get('result') == 0 and workflow_response.get('data'):
+            # Process statuses from the response
+            if workflow_response['data'].get('statuses') and isinstance(workflow_response['data']['statuses'], list):
+                for status in workflow_response['data']['statuses']:
+                    # Store each status with its UUID as the key
+                    if status.get('uuid') and status.get('name'):
+                        project_statuses[status['uuid']] = {
+                            'name': status['name'],
+                            'displayName': status['name'],  # You can customize this if needed
+                            'textColor': status.get('textColor', '#FFFFFF'),
+                            'backgroundColor': status.get('backgroundColor', '#6F7E93'),
+                            'category': status.get('category', '')
+                        }
+
+        # Add default mappings for common statuses
+        default_statuses = {
+            "2ed005c6-43cd-4907-a4d6-807dbd0197d5": {
+                "name": "Open",
+                "displayName": "Ouvert",
+                "textColor": "#FFFFFF",
+                "backgroundColor": "#CC2929"
+            },
+            "cd52ac3e-f345-4f99-870f-5be95dc33245": {
+                "name": "In progress",
+                "displayName": "En cours",
+                "textColor": "#FFFFFF",
+                "backgroundColor": "#FFAA00"
+            },
+            "b8504242-3489-43a2-9831-54f64053b226": {
+                "name": "Solved",
+                "displayName": "Résolu",
+                "textColor": "#FFFFFF",
+                "backgroundColor": "#42BE65"
+            },
+            "135b58c6-1e14-4716-a134-bbba2bbc90a7": {
+                "name": "Closed",
+                "displayName": "Fermé",
+                "textColor": "#FFFFFF",
+                "backgroundColor": "#B8B8B8"
+            },
+            # Add a mapping for "En attente" with both possible UUIDs
+            "5947b7d1-70b9-425b-aba6-7187eb0251ff": {
+                "name": "En attente",
+                "displayName": "En attente",
+                "textColor": "#FFFFFF",
+                "backgroundColor": "#FFD32E"
+            },
+            "c70f7d38-1d60-4df3-b85b-14e59174d7ba": {
+                "name": "En attente",
+                "displayName": "En attente",
+                "textColor": "#FFFFFF",
+                "backgroundColor": "#FFD32E"
+            }
+        }
+
+        # Merge default statuses with project-specific ones
+        # Project statuses take precedence over defaults
+        for uuid, status in default_statuses.items():
+            if uuid not in project_statuses:
+                project_statuses[uuid] = status
+
+    except Exception as e:
+        print(f"[DEBUG] Error fetching project statuses for PDF: {e}")
+        # If there's an error, use default statuses
+        project_statuses = {
+            "2ed005c6-43cd-4907-a4d6-807dbd0197d5": {
+                "name": "Open",
+                "displayName": "Ouvert",
+                "textColor": "#FFFFFF",
+                "backgroundColor": "#CC2929"
+            },
+            "cd52ac3e-f345-4f99-870f-5be95dc33245": {
+                "name": "In progress",
+                "displayName": "En cours",
+                "textColor": "#FFFFFF",
+                "backgroundColor": "#FFAA00"
+            },
+            "b8504242-3489-43a2-9831-54f64053b226": {
+                "name": "Solved",
+                "displayName": "Résolu",
+                "textColor": "#FFFFFF",
+                "backgroundColor": "#42BE65"
+            },
+            "135b58c6-1e14-4716-a134-bbba2bbc90a7": {
+                "name": "Closed",
+                "displayName": "Fermé",
+                "textColor": "#FFFFFF",
+                "backgroundColor": "#B8B8B8"
+            },
+            "5947b7d1-70b9-425b-aba6-7187eb0251ff": {
+                "name": "En attente",
+                "displayName": "En attente",
+                "textColor": "#FFFFFF",
+                "backgroundColor": "#FFD32E"
+            },
+            "c70f7d38-1d60-4df3-b85b-14e59174d7ba": {
+                "name": "En attente",
+                "displayName": "En attente",
+                "textColor": "#FFFFFF",
+                "backgroundColor": "#FFD32E"
+            }
+        }
+
+    # Now continue with PDF creation
     pdf = ReviztoPDF()
+
+    # ADDED: Pass the status map to the PDF object
+    pdf.status_map = project_statuses
 
     # Set metadata
     pdf.set_title(f"Rapport de visite - Projet {project_data.get('projectName', project_id)}")
@@ -1589,3 +1751,79 @@ def create_error_pdf(project_id, project_data, error_message):
     buffer.seek(0)
 
     return buffer
+
+
+def format_status_value(value):
+    """
+    Format a status ID or value object to a display string.
+
+    Args:
+        value: Status ID (string) or value object
+
+    Returns:
+        tuple: (display_string, bg_color, text_color)
+    """
+    # Default values
+    default_status = ("Inconnu", (110, 110, 110), (255, 255, 255))
+
+    # If value is None or empty, return default
+    if not value:
+        return default_status
+
+    # Extract UUID from complex object formats
+    status_id = None
+
+    # If value is an object with 'value' property (from API)
+    if isinstance(value, dict):
+        if 'value' in value:
+            status_id = value['value']
+        elif 'customStatus' in value:
+            if isinstance(value['customStatus'], str):
+                status_id = value['customStatus']
+            elif isinstance(value['customStatus'], dict) and 'value' in value['customStatus']:
+                status_id = value['customStatus']['value']
+        elif 'status' in value:
+            if isinstance(value['status'], str):
+                status_id = value['status']
+            elif isinstance(value['status'], dict) and 'value' in value['status']:
+                status_id = value['status']['value']
+    else:
+        status_id = value
+
+    # Direct mapping of all known status UUIDs
+    status_map = {
+        "2ed005c6-43cd-4907-a4d6-807dbd0197d5": ("Ouvert", (204, 41, 41), (255, 255, 255)),  # Open - Red
+        "cd52ac3e-f345-4f99-870f-5be95dc33245": ("En cours", (255, 170, 0), (255, 255, 255)),  # In progress - Orange
+        "b8504242-3489-43a2-9831-54f64053b226": ("Résolu", (66, 190, 101), (255, 255, 255)),  # Solved - Green
+        "135b58c6-1e14-4716-a134-bbba2bbc90a7": ("Fermé", (184, 184, 184), (255, 255, 255)),  # Closed - Gray
+        "5947b7d1-70b9-425b-aba6-7187eb0251ff": ("En attente", (255, 211, 46), (255, 255, 255)),  # Waiting - Yellow
+        "c70f7d38-1d60-4df3-b85b-14e59174d7ba": ("En attente", (255, 211, 46), (255, 255, 255)),  # Alt Waiting - Yellow
+        "912abbbf-3155-4e3c-b437-5778bdfd73f4": ("Non-problème", (43, 43, 43), (255, 255, 255)),
+        # Non-issue - Dark Gray
+        "337e2fe6-e2a3-4e3f-b098-30aac68a191c": ("Corrigé", (137, 46, 251), (255, 255, 255)),  # Fixed - Purple
+    }
+
+    # Check if the value is a known UUID
+    if isinstance(status_id, str) and status_id in status_map:
+        return status_map[status_id]
+
+    # Basic string translations if UUID not found
+    if isinstance(status_id, str):
+        lower_value = status_id.lower()
+        if lower_value == "open" or lower_value == "opened":
+            return ("Ouvert", (204, 41, 41), (255, 255, 255))
+        elif lower_value == "closed":
+            return ("Fermé", (184, 184, 184), (255, 255, 255))
+        elif lower_value == "solved":
+            return ("Résolu", (66, 190, 101), (255, 255, 255))
+        elif lower_value == "in progress" or lower_value == "in_progress":
+            return ("En cours", (255, 170, 0), (255, 255, 255))
+        elif lower_value == "en attente":
+            return ("En attente", (255, 211, 46), (255, 255, 255))
+        elif lower_value == "corrigé":
+            return ("Corrigé", (137, 46, 251), (255, 255, 255))
+        elif lower_value == "non-problème":
+            return ("Non-problème", (43, 43, 43), (255, 255, 255))
+
+    # If we still don't know how to handle it, return default
+    return default_status
