@@ -176,7 +176,7 @@ class ReviztoPDF(FPDF):
 
         self.set_xy(x + width + 5, y)
 
-    def add_observation(self, observation, comments=None):
+    def add_observation(self, observation, comments=None, status_map=None):
         """
         Add an observation to the report with the layout:
         - Top: Two columns (image + information)
@@ -186,6 +186,7 @@ class ReviztoPDF(FPDF):
         Args:
             observation (dict): The observation data
             comments (list, optional): List of comments/history for this observation
+            status_map (dict, optional): Map of status UUIDs to status display data
         """
         # Check required fields
         if not observation.get('id'):
@@ -199,8 +200,90 @@ class ReviztoPDF(FPDF):
             elif isinstance(observation['title'], dict) and observation['title'].get('value'):
                 title = observation['title']['value']
 
-        # Get status display information
-        status_text, bg_color, text_color = self.get_status_display(observation)
+        # Get status info - updated to use the status_map
+        status_text = "Inconnu"
+        bg_color = (110, 110, 110)  # Default gray
+        text_color = (255, 255, 255)  # Default white
+
+        # Extract status ID using the same method as in the JS
+        status_id = None
+        if observation.get('customStatus'):
+            if isinstance(observation['customStatus'], str):
+                status_id = observation['customStatus']
+            elif isinstance(observation['customStatus'], dict) and observation['customStatus'].get('value'):
+                status_id = observation['customStatus']['value']
+        elif observation.get('status'):
+            if isinstance(observation['status'], str):
+                status_id = observation['status']
+            elif isinstance(observation['status'], dict) and observation['status'].get('value'):
+                status_id = observation['status']['value']
+
+        # Log the detected status ID for debugging
+        print(f"[PDF-DEBUG] Detected status ID for issue {observation.get('id')}: {status_id}")
+
+        # Special handling for the "En attente" status which often has issues
+        if status_id == "5947b7d1-70b9-425b-aba6-7187eb0251ff" or status_id == "c70f7d38-1d60-4df3-b85b-14e59174d7ba":
+            print(f"[PDF-DEBUG] Using special handling for En attente status")
+            status_text = "En attente"
+            bg_color = (255, 211, 46)  # Yellow
+        # Look up status in the provided status map
+        elif status_map and status_id in status_map:
+            status_info = status_map[status_id]
+            status_text = status_info.get('displayName', status_info.get('name', 'Inconnu'))
+            print(f"[PDF-DEBUG] Found status in map: {status_text}")
+
+            # Parse background color
+            bg_str = status_info.get('backgroundColor', '#6F7E93')
+            if bg_str.startswith('#') and len(bg_str) == 7:
+                try:
+                    bg_color = (
+                        int(bg_str[1:3], 16),
+                        int(bg_str[3:5], 16),
+                        int(bg_str[5:7], 16)
+                    )
+                    print(f"[PDF-DEBUG] Parsed bg color: {bg_color}")
+                except ValueError:
+                    print(f"[PDF-DEBUG] Could not parse bg color: {bg_str}")
+
+            # Parse text color
+            text_str = status_info.get('textColor', '#FFFFFF')
+            if text_str.startswith('#') and len(text_str) == 7:
+                try:
+                    text_color = (
+                        int(text_str[1:3], 16),
+                        int(text_str[3:5], 16),
+                        int(text_str[5:7], 16)
+                    )
+                    print(f"[PDF-DEBUG] Parsed text color: {text_color}")
+                except ValueError:
+                    print(f"[PDF-DEBUG] Could not parse text color: {text_str}")
+        # Fallback status handling for common statuses - using the same logic as JS
+        elif status_id == "2ed005c6-43cd-4907-a4d6-807dbd0197d5":  # Open
+            status_text = "Ouvert"
+            bg_color = (204, 41, 41)  # Red
+            print(f"[PDF-DEBUG] Using fallback for Open status")
+        elif status_id == "cd52ac3e-f345-4f99-870f-5be95dc33245":  # In progress
+            status_text = "En cours"
+            bg_color = (255, 170, 0)  # Orange
+            print(f"[PDF-DEBUG] Using fallback for In progress status")
+        elif status_id == "b8504242-3489-43a2-9831-54f64053b226":  # Solved
+            status_text = "Resolu"
+            bg_color = (66, 190, 101)  # Green
+            print(f"[PDF-DEBUG] Using fallback for Solved status")
+        elif status_id == "135b58c6-1e14-4716-a134-bbba2bbc90a7":  # Closed
+            status_text = "Ferme"
+            bg_color = (184, 184, 184)  # Gray
+            print(f"[PDF-DEBUG] Using fallback for Closed status")
+        elif status_id == "912abbbf-3155-4e3c-b437-5778bdfd73f4":  # non-problème
+            status_text = "Non-probleme"
+            bg_color = (43, 43, 43)  # Dark gray
+            print(f"[PDF-DEBUG] Using fallback for Non-probleme status")
+        elif status_id == "337e2fe6-e2a3-4e3f-b098-30aac68a191c":  # Corrigé
+            status_text = "Corrige"
+            bg_color = (137, 46, 251)  # Purple
+            print(f"[PDF-DEBUG] Using fallback for Corrige status")
+        else:
+            print(f"[PDF-DEBUG] No status match found, using default")
 
         # Get preview image URL if exists
         imageUrl = ''
@@ -1581,80 +1664,189 @@ def get_best_image_for_issue(issue, comments):
     return ''
 
 
-def generate_report_pdf_with_error_handling(project_id, project_data, observations, instructions, deficiencies,
-                                            issue_comments=None):
+def generate_report_pdf_with_status_fix(project_id, project_data, observations, instructions, deficiencies,
+                                        issue_comments=None):
     """
-    Generate a PDF report with robust error handling for character encoding issues.
-
-    This wrapper function calls the main PDF generation function but catches any
-    errors related to character encoding and attempts to generate a clean PDF without
-    the problematic content.
-
-    Args:
-        project_id (int): Project ID
-        project_data (dict): Project information
-        observations (list): List of observations
-        instructions (list): List of instructions
-        deficiencies (list): List of deficiencies
-        issue_comments (dict, optional): Dictionary mapping issue IDs to comments
-
-    Returns:
-        BytesIO: PDF file as a BytesIO object
+    Modified version that properly handles statuses from the API
     """
-    logger = logging.getLogger(__name__)
+    # Create PDF
+    pdf = ReviztoPDF()
 
+    # First fetch and store status information directly from the API
+    from core.api.service import ReviztoService
+
+    # Create a status map with hardcoded fallback statuses
+    status_map = {
+        "2ed005c6-43cd-4907-a4d6-807dbd0197d5": {
+            "name": "Open",
+            "displayName": "Ouvert",
+            "textColor": "#FFFFFF",
+            "backgroundColor": "#CC2929"
+        },
+        "cd52ac3e-f345-4f99-870f-5be95dc33245": {
+            "name": "In progress",
+            "displayName": "En cours",
+            "textColor": "#FFFFFF",
+            "backgroundColor": "#FFAA00"
+        },
+        "b8504242-3489-43a2-9831-54f64053b226": {
+            "name": "Solved",
+            "displayName": "Résolu",
+            "textColor": "#FFFFFF",
+            "backgroundColor": "#42BE65"
+        },
+        "135b58c6-1e14-4716-a134-bbba2bbc90a7": {
+            "name": "Closed",
+            "displayName": "Fermé",
+            "textColor": "#FFFFFF",
+            "backgroundColor": "#B8B8B8"
+        },
+        "5947b7d1-70b9-425b-aba6-7187eb0251ff": {
+            "name": "En attente",
+            "displayName": "En attente",
+            "textColor": "#FFFFFF",
+            "backgroundColor": "#FFD32E"
+        },
+        "912abbbf-3155-4e3c-b437-5778bdfd73f4": {
+            "name": "non-problème",
+            "displayName": "Non-problème",
+            "textColor": "#FFFFFF",
+            "backgroundColor": "#2B2B2B"
+        },
+        "337e2fe6-e2a3-4e3f-b098-30aac68a191c": {
+            "name": "Corrigé",
+            "displayName": "Corrigé",
+            "textColor": "#FFFFFF",
+            "backgroundColor": "#892EFB"
+        },
+        # Special handling for the problematic En attente status
+        "c70f7d38-1d60-4df3-b85b-14e59174d7ba": {
+            "name": "En attente",
+            "displayName": "En attente",
+            "textColor": "#FFFFFF",
+            "backgroundColor": "#FFD32E"
+        }
+    }
+
+    # Try to fetch status data from the API, but don't fail if it doesn't work
     try:
-        # First attempt to generate the PDF with normal sanitization
-        return generate_report_pdf(project_id, project_data, observations, instructions, deficiencies, issue_comments)
+        print(f"[DEBUG PDF] Fetching workflow settings for project {project_id}")
+        # Get status information from the API - use the proper method signature
+        # If your service method requires a 'self' parameter first, you may need to instantiate the service
+        status_response = ReviztoService.get_project_workflow_settings(project_id)
 
+        # Process status information if the API call was successful
+        if status_response and status_response.get('result') == 0 and status_response.get('data'):
+            data = status_response.get('data')
+            statuses = data.get('statuses', [])
+
+            print(f"[DEBUG PDF] Found {len(statuses)} statuses from the API")
+
+            # Process each status and add to our status map
+            for status in statuses:
+                uuid = status.get('uuid')
+                if uuid:
+                    status_map[uuid] = {
+                        'name': status.get('name'),
+                        'displayName': status.get('name'),  # Use the same for display name
+                        'backgroundColor': status.get('backgroundColor'),
+                        'textColor': status.get('textColor'),
+                        'category': status.get('category')
+                    }
+                    print(f"[DEBUG PDF] Added status from API: {status.get('name')} ({uuid})")
     except Exception as e:
-        error_msg = str(e)
-        logger.error(f"PDF generation error: {error_msg}")
+        import traceback
+        print(f"[DEBUG PDF] Error fetching project statuses for PDF: {e}")
+        print(f"[DEBUG PDF] Traceback: {traceback.format_exc()}")
+        print(f"[DEBUG PDF] Continuing with hardcoded status map")
 
-        # Check if this is a character encoding error
-        if "outside the range of characters supported by the font" in error_msg:
-            logger.info("Attempting to recover from character encoding error")
+    # Set metadata
+    pdf.set_title(f"Rapport de visite - Projet {project_data.get('projectName', project_id)}")
+    pdf.set_author("STGM Architecture")
+    pdf.set_creator("STGM Revizto Report Generator")
 
-            # Extract the problematic character if possible
-            import re
-            char_match = re.search(r'Character "([^"]*)" at index', error_msg)
-            problem_char = char_match.group(1) if char_match else None
+    # Set PDF properties
+    pdf.project_name = project_data.get('projectName', f"Projet {project_id}")
+    if project_data.get('reportDate'):
+        try:
+            pdf.report_date = datetime.strptime(project_data['reportDate'], '%Y-%m-%d').strftime('%d/%m/%Y')
+        except:
+            pdf.report_date = project_data['reportDate']
 
-            if problem_char:
-                logger.info(f"Problematic character identified: {repr(problem_char)}")
+    # Initialize issue_comments dict if not provided
+    if issue_comments is None:
+        issue_comments = {}
 
-                # Apply a more aggressive sanitization to all text data
-                # Sanitize project data
-                sanitized_project_data = sanitize_dict_for_pdf(project_data)
+    # Add project information page
+    pdf.add_info_page(project_data)
 
-                # Sanitize observations, instructions, and deficiencies
-                sanitized_observations = [sanitize_dict_for_pdf(obs) for obs in observations]
-                sanitized_instructions = [sanitize_dict_for_pdf(ins) for ins in instructions]
-                sanitized_deficiencies = [sanitize_dict_for_pdf(def_item) for def_item in deficiencies]
+    # Add general notes
+    pdf.add_general_notes()
 
-                # Sanitize comments
-                sanitized_comments = {}
-                if issue_comments:
-                    for issue_id, comments in issue_comments.items():
-                        sanitized_comments[issue_id] = [sanitize_dict_for_pdf(comment) for comment in comments]
+    # Add observations section if any observations
+    if observations and len(observations) > 0:
+        pdf.add_page()
+        pdf.chapter_title("1 - OBSERVATIONS")
 
-                # Try generating the PDF again with sanitized data
-                try:
-                    return generate_report_pdf(
-                        project_id,
-                        sanitized_project_data,
-                        sanitized_observations,
-                        sanitized_instructions,
-                        sanitized_deficiencies,
-                        sanitized_comments
-                    )
-                except Exception as sanitized_error:
-                    logger.error(f"PDF generation still failed after sanitization: {sanitized_error}")
+        # Filter out closed issues
+        open_observations = [obs for obs in observations if not is_closed_issue(obs)]
 
-        # If we get here, the error was not a character encoding issue or sanitization didn't help
-        # Create a simple error PDF to return instead
-        return create_error_pdf(project_id, project_data, str(e))
+        if len(open_observations) > 0:
+            for observation in open_observations:
+                # Get comments for this observation if available
+                obs_comments = issue_comments.get(str(observation.get('id')), [])
+                # Pass the status map to the add_observation method
+                pdf.add_observation(observation, obs_comments, status_map)
+        else:
+            pdf.set_font('helvetica', 'I', 10)
+            pdf.cell(0, 6, "Aucune observation trouvée", 0, 1, 'L')
 
+    # Add instructions section if any instructions
+    if instructions and len(instructions) > 0:
+        pdf.add_page()
+        pdf.chapter_title("2 - INSTRUCTIONS")
+
+        # Filter out closed issues
+        open_instructions = [ins for ins in instructions if not is_closed_issue(ins)]
+
+        if len(open_instructions) > 0:
+            for instruction in open_instructions:
+                # Get comments for this instruction if available
+                ins_comments = issue_comments.get(str(instruction.get('id')), [])
+                # Pass the status map to the add_instruction method
+                pdf.add_instruction(instruction, ins_comments, status_map)
+        else:
+            pdf.set_font('helvetica', 'I', 10)
+            pdf.cell(0, 6, "Aucune instruction trouvée", 0, 1, 'L')
+
+    # Add deficiencies section if any deficiencies
+    if deficiencies and len(deficiencies) > 0:
+        pdf.add_page()
+        pdf.chapter_title("3 - DÉFICIENCES")
+
+        # Filter out closed issues
+        open_deficiencies = [df for df in deficiencies if not is_closed_issue(df)]
+
+        if len(open_deficiencies) > 0:
+            for deficiency in open_deficiencies:
+                # Get comments for this deficiency if available
+                def_comments = issue_comments.get(str(deficiency.get('id')), [])
+                # Pass the status map to the add_deficiency method
+                pdf.add_deficiency(deficiency, def_comments, status_map)
+        else:
+            pdf.set_font('helvetica', 'I', 10)
+            pdf.cell(0, 6, "Aucune déficience trouvée", 0, 1, 'L')
+
+    # Create a BytesIO object to store the PDF
+    pdf_buffer = BytesIO()
+
+    # Save PDF to BytesIO object
+    pdf.output(pdf_buffer)
+
+    # Reset buffer position to the beginning
+    pdf_buffer.seek(0)
+
+    return pdf_buffer
 
 def sanitize_dict_for_pdf(data_dict):
     """
@@ -1817,3 +2009,171 @@ def format_status_value(value):
 
     # If we still don't know how to handle it, return default
     return default_status
+
+
+def generate_report_pdf_with_status_fix(project_id, project_data, observations, instructions, deficiencies,
+                                        issue_comments=None):
+    """
+    Modified version that properly handles statuses from the API
+    """
+    # Create PDF
+    pdf = ReviztoPDF()
+
+    # First fetch and store status information directly from the API
+    from core.api.service import ReviztoService
+
+    # Get status information from the API
+    status_response = ReviztoService.get_project_workflow_settings(project_id)
+    status_map = {}
+
+    # Process status information
+    if status_response and status_response.get('result') == 0 and status_response.get('data'):
+        data = status_response.get('data')
+        statuses = data.get('statuses', [])
+
+        # Store status info in a map for easy lookup
+        for status in statuses:
+            status_map[status.get('uuid')] = {
+                'name': status.get('name'),
+                'displayName': status.get('name'),  # Use the same for display name
+                'backgroundColor': status.get('backgroundColor'),
+                'textColor': status.get('textColor'),
+                'category': status.get('category')
+            }
+
+    # Also add hardcoded fallback statuses
+    fallback_statuses = {
+        "2ed005c6-43cd-4907-a4d6-807dbd0197d5": {
+            "name": "Open",
+            "displayName": "Ouvert",
+            "textColor": "#FFFFFF",
+            "backgroundColor": "#CC2929"
+        },
+        "cd52ac3e-f345-4f99-870f-5be95dc33245": {
+            "name": "In progress",
+            "displayName": "En cours",
+            "textColor": "#FFFFFF",
+            "backgroundColor": "#FFAA00"
+        },
+        "b8504242-3489-43a2-9831-54f64053b226": {
+            "name": "Solved",
+            "displayName": "Résolu",
+            "textColor": "#FFFFFF",
+            "backgroundColor": "#42BE65"
+        },
+        "135b58c6-1e14-4716-a134-bbba2bbc90a7": {
+            "name": "Closed",
+            "displayName": "Fermé",
+            "textColor": "#FFFFFF",
+            "backgroundColor": "#B8B8B8"
+        },
+        "5947b7d1-70b9-425b-aba6-7187eb0251ff": {
+            "name": "En attente",
+            "displayName": "En attente",
+            "textColor": "#FFFFFF",
+            "backgroundColor": "#FFD32E"
+        },
+        "912abbbf-3155-4e3c-b437-5778bdfd73f4": {
+            "name": "non-problème",
+            "displayName": "Non-problème",
+            "textColor": "#FFFFFF",
+            "backgroundColor": "#2B2B2B"
+        },
+        "337e2fe6-e2a3-4e3f-b098-30aac68a191c": {
+            "name": "Corrigé",
+            "displayName": "Corrigé",
+            "textColor": "#FFFFFF",
+            "backgroundColor": "#892EFB"
+        }
+    }
+
+    # Merge the maps, with API data taking precedence
+    combined_status_map = {**fallback_statuses, **status_map}
+
+    # Set metadata
+    pdf.set_title(f"Rapport de visite - Projet {project_data.get('projectName', project_id)}")
+    pdf.set_author("STGM Architecture")
+    pdf.set_creator("STGM Revizto Report Generator")
+
+    # Set PDF properties
+    pdf.project_name = project_data.get('projectName', f"Projet {project_id}")
+    if project_data.get('reportDate'):
+        try:
+            pdf.report_date = datetime.strptime(project_data['reportDate'], '%Y-%m-%d').strftime('%d/%m/%Y')
+        except:
+            pdf.report_date = project_data['reportDate']
+
+    # Initialize issue_comments dict if not provided
+    if issue_comments is None:
+        issue_comments = {}
+
+    # Add project information page
+    pdf.add_info_page(project_data)
+
+    # Add general notes
+    pdf.add_general_notes()
+
+    # Add observations section if any observations
+    if observations and len(observations) > 0:
+        pdf.add_page()
+        pdf.chapter_title("1 - OBSERVATIONS")
+
+        # Filter out closed issues
+        open_observations = [obs for obs in observations if not is_closed_issue(obs)]
+
+        if len(open_observations) > 0:
+            for observation in open_observations:
+                # Get comments for this observation if available
+                obs_comments = issue_comments.get(str(observation.get('id')), [])
+                # Pass the status map to the add_observation method
+                pdf.add_observation(observation, obs_comments, combined_status_map)
+        else:
+            pdf.set_font('helvetica', 'I', 10)
+            pdf.cell(0, 6, "Aucune observation trouvée", 0, 1, 'L')
+
+    # Add instructions section if any instructions
+    if instructions and len(instructions) > 0:
+        pdf.add_page()
+        pdf.chapter_title("2 - INSTRUCTIONS")
+
+        # Filter out closed issues
+        open_instructions = [ins for ins in instructions if not is_closed_issue(ins)]
+
+        if len(open_instructions) > 0:
+            for instruction in open_instructions:
+                # Get comments for this instruction if available
+                ins_comments = issue_comments.get(str(instruction.get('id')), [])
+                # Pass the status map to the add_instruction method
+                pdf.add_instruction(instruction, ins_comments, combined_status_map)
+        else:
+            pdf.set_font('helvetica', 'I', 10)
+            pdf.cell(0, 6, "Aucune instruction trouvée", 0, 1, 'L')
+
+    # Add deficiencies section if any deficiencies
+    if deficiencies and len(deficiencies) > 0:
+        pdf.add_page()
+        pdf.chapter_title("3 - DÉFICIENCES")
+
+        # Filter out closed issues
+        open_deficiencies = [df for df in deficiencies if not is_closed_issue(df)]
+
+        if len(open_deficiencies) > 0:
+            for deficiency in open_deficiencies:
+                # Get comments for this deficiency if available
+                def_comments = issue_comments.get(str(deficiency.get('id')), [])
+                # Pass the status map to the add_deficiency method
+                pdf.add_deficiency(deficiency, def_comments, combined_status_map)
+        else:
+            pdf.set_font('helvetica', 'I', 10)
+            pdf.cell(0, 6, "Aucune déficience trouvée", 0, 1, 'L')
+
+    # Create a BytesIO object to store the PDF
+    pdf_buffer = BytesIO()
+
+    # Save PDF to BytesIO object
+    pdf.output(pdf_buffer)
+
+    # Reset buffer position to the beginning
+    pdf_buffer.seek(0)
+
+    return pdf_buffer
