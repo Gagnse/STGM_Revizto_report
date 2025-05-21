@@ -742,6 +742,51 @@ class ReviztoPDF(FPDF):
                         file_text = f"Fichier joint: {filename}"
                         self.cell(page_width - 20, 4, file_text, 0, 1, 'L')
 
+                        # Si le fichier est une image, afficher l'image
+                        if comment.get('mimetype', '').startswith('image/') and comment.get('preview'):
+                            preview = comment.get('preview')
+                            image_url = preview.get('original') or preview.get('middle')
+
+                            if image_url:
+                                try:
+                                    import uuid
+                                    temp_file = os.path.join(tempfile.gettempdir(), f"comment_img_{uuid.uuid4()}.png")
+
+                                    if image_url.startswith('data:image'):
+                                        img_data = re.sub('^data:image/.+;base64,', '', image_url)
+                                        with open(temp_file, 'wb') as f:
+                                            f.write(base64.b64decode(img_data))
+                                    else:
+                                        import urllib.request
+                                        urllib.request.urlretrieve(image_url, temp_file)
+
+                                    # Définir les dimensions max de l'image
+                                    max_width = 40  # marges
+                                    max_height = 40
+
+                                    from PIL import Image
+                                    img = Image.open(temp_file)
+                                    img_width, img_height = img.size
+                                    aspect_ratio = img_width / img_height
+                                    img.close()
+
+                                    if aspect_ratio > 1:
+                                        image_width = min(max_width, img_width)
+                                        image_height = image_width / aspect_ratio
+                                    else:
+                                        image_height = min(max_height, img_height)
+                                        image_width = image_height * aspect_ratio
+
+                                    x = self.l_margin + 10
+                                    y = self.get_y()
+
+                                    self.image(temp_file, x=x, y=y, w=image_width)
+                                    self.ln(image_height + 2)
+
+                                    os.remove(temp_file)
+                                except Exception as e:
+                                    logger.warning(f"Erreur lors de l'affichage de l'image dans les commentaires: {e}")
+
                     elif comment_type == 'markup':
                         # Just show a simple indication for markups
                         self.set_font('helvetica', 'I', 8)
@@ -781,10 +826,11 @@ class ReviztoPDF(FPDF):
                             'L')  # Avoid "é" for PDF compatibility
 
         # CRITICAL FIX: Measure actual content height AFTER rendering all content
-        history_content_height = self.get_y() - history_content_start_y + 5  # Add small padding
+        history_section_height = max(20, self.get_y() - history_y + 5)  # Add small padding
 
-        # Add minimum padding for the history section
-        history_section_height = max(20, history_content_height)  # At least 20mm
+        # Draw full history section background + border (including title and comments)
+        self.set_fill_color(255, 255, 255)
+        self.rect(self.l_margin, history_y, page_width, history_section_height, 'D')
 
         # ----- STEP 4: DRAW FINAL BORDER AFTER ALL CONTENT -----
 
@@ -1555,6 +1601,7 @@ def sanitize_text_for_pdf(text):
     return result
 
 
+
 def get_best_image_for_issue(issue, comments):
     """
     Gets the best available image for an issue based on priority:
@@ -1953,247 +2000,3 @@ def create_error_pdf(project_id, project_data, error_message):
     buffer.seek(0)
 
     return buffer
-
-
-def format_status_value(value):
-    """
-    Format a status ID or value object to a display string.
-
-    Args:
-        value: Status ID (string) or value object
-
-    Returns:
-        tuple: (display_string, bg_color, text_color)
-    """
-    # Default values
-    default_status = ("Inconnu", (110, 110, 110), (255, 255, 255))
-
-    # If value is None or empty, return default
-    if not value:
-        return default_status
-
-    # Extract UUID from complex object formats
-    status_id = None
-
-    # If value is an object with 'value' property (from API)
-    if isinstance(value, dict):
-        if 'value' in value:
-            status_id = value['value']
-        elif 'customStatus' in value:
-            if isinstance(value['customStatus'], str):
-                status_id = value['customStatus']
-            elif isinstance(value['customStatus'], dict) and 'value' in value['customStatus']:
-                status_id = value['customStatus']['value']
-        elif 'status' in value:
-            if isinstance(value['status'], str):
-                status_id = value['status']
-            elif isinstance(value['status'], dict) and 'value' in value['status']:
-                status_id = value['status']['value']
-    else:
-        status_id = value
-
-    # Direct mapping of all known status UUIDs
-    status_map = {
-        "2ed005c6-43cd-4907-a4d6-807dbd0197d5": ("Ouvert", (204, 41, 41), (255, 255, 255)),  # Open - Red
-        "cd52ac3e-f345-4f99-870f-5be95dc33245": ("En cours", (255, 170, 0), (255, 255, 255)),  # In progress - Orange
-        "b8504242-3489-43a2-9831-54f64053b226": ("Résolu", (66, 190, 101), (255, 255, 255)),  # Solved - Green
-        "135b58c6-1e14-4716-a134-bbba2bbc90a7": ("Fermé", (184, 184, 184), (255, 255, 255)),  # Closed - Gray
-        "5947b7d1-70b9-425b-aba6-7187eb0251ff": ("En attente", (255, 211, 46), (255, 255, 255)),  # Waiting - Yellow
-        "c70f7d38-1d60-4df3-b85b-14e59174d7ba": ("En attente", (255, 211, 46), (255, 255, 255)),  # Alt Waiting - Yellow
-        "912abbbf-3155-4e3c-b437-5778bdfd73f4": ("Non-problème", (43, 43, 43), (255, 255, 255)),
-        # Non-issue - Dark Gray
-        "337e2fe6-e2a3-4e3f-b098-30aac68a191c": ("Corrigé", (137, 46, 251), (255, 255, 255)),  # Fixed - Purple
-    }
-
-    # Check if the value is a known UUID
-    if isinstance(status_id, str) and status_id in status_map:
-        return status_map[status_id]
-
-    # Basic string translations if UUID not found
-    if isinstance(status_id, str):
-        lower_value = status_id.lower()
-        if lower_value == "open" or lower_value == "opened":
-            return ("Ouvert", (204, 41, 41), (255, 255, 255))
-        elif lower_value == "closed":
-            return ("Fermé", (184, 184, 184), (255, 255, 255))
-        elif lower_value == "solved":
-            return ("Résolu", (66, 190, 101), (255, 255, 255))
-        elif lower_value == "in progress" or lower_value == "in_progress":
-            return ("En cours", (255, 170, 0), (255, 255, 255))
-        elif lower_value == "en attente":
-            return ("En attente", (255, 211, 46), (255, 255, 255))
-        elif lower_value == "corrigé":
-            return ("Corrigé", (137, 46, 251), (255, 255, 255))
-        elif lower_value == "non-problème":
-            return ("Non-problème", (43, 43, 43), (255, 255, 255))
-
-    # If we still don't know how to handle it, return default
-    return default_status
-
-
-def generate_report_pdf_with_status_fix(project_id, project_data, observations, instructions, deficiencies,
-                                        issue_comments=None):
-    """
-    Modified version that properly handles statuses from the API
-    """
-    # Create PDF
-    pdf = ReviztoPDF()
-
-    # First fetch and store status information directly from the API
-    from core.api.service import ReviztoService
-
-    # Get status information from the API
-    status_response = ReviztoService.get_project_workflow_settings(project_id)
-    status_map = {}
-
-    # Process status information
-    if status_response and status_response.get('result') == 0 and status_response.get('data'):
-        data = status_response.get('data')
-        statuses = data.get('statuses', [])
-
-        # Store status info in a map for easy lookup
-        for status in statuses:
-            status_map[status.get('uuid')] = {
-                'name': status.get('name'),
-                'displayName': status.get('name'),  # Use the same for display name
-                'backgroundColor': status.get('backgroundColor'),
-                'textColor': status.get('textColor'),
-                'category': status.get('category')
-            }
-
-    # Also add hardcoded fallback statuses
-    fallback_statuses = {
-        "2ed005c6-43cd-4907-a4d6-807dbd0197d5": {
-            "name": "Open",
-            "displayName": "Ouvert",
-            "textColor": "#FFFFFF",
-            "backgroundColor": "#CC2929"
-        },
-        "cd52ac3e-f345-4f99-870f-5be95dc33245": {
-            "name": "In progress",
-            "displayName": "En cours",
-            "textColor": "#FFFFFF",
-            "backgroundColor": "#FFAA00"
-        },
-        "b8504242-3489-43a2-9831-54f64053b226": {
-            "name": "Solved",
-            "displayName": "Résolu",
-            "textColor": "#FFFFFF",
-            "backgroundColor": "#42BE65"
-        },
-        "135b58c6-1e14-4716-a134-bbba2bbc90a7": {
-            "name": "Closed",
-            "displayName": "Fermé",
-            "textColor": "#FFFFFF",
-            "backgroundColor": "#B8B8B8"
-        },
-        "5947b7d1-70b9-425b-aba6-7187eb0251ff": {
-            "name": "En attente",
-            "displayName": "En attente",
-            "textColor": "#FFFFFF",
-            "backgroundColor": "#FFD32E"
-        },
-        "912abbbf-3155-4e3c-b437-5778bdfd73f4": {
-            "name": "non-problème",
-            "displayName": "Non-problème",
-            "textColor": "#FFFFFF",
-            "backgroundColor": "#2B2B2B"
-        },
-        "337e2fe6-e2a3-4e3f-b098-30aac68a191c": {
-            "name": "Corrigé",
-            "displayName": "Corrigé",
-            "textColor": "#FFFFFF",
-            "backgroundColor": "#892EFB"
-        }
-    }
-
-    # Merge the maps, with API data taking precedence
-    combined_status_map = {**fallback_statuses, **status_map}
-
-    # Set metadata
-    pdf.set_title(f"Rapport de visite - Projet {project_data.get('projectName', project_id)}")
-    pdf.set_author("STGM Architecture")
-    pdf.set_creator("STGM Revizto Report Generator")
-
-    # Set PDF properties
-    pdf.project_name = project_data.get('projectName', f"Projet {project_id}")
-    if project_data.get('reportDate'):
-        try:
-            pdf.report_date = datetime.strptime(project_data['reportDate'], '%Y-%m-%d').strftime('%d/%m/%Y')
-        except:
-            pdf.report_date = project_data['reportDate']
-
-    # Initialize issue_comments dict if not provided
-    if issue_comments is None:
-        issue_comments = {}
-
-    # Add project information page
-    pdf.add_info_page(project_data)
-
-    # Add general notes
-    pdf.add_general_notes()
-
-    # Add observations section if any observations
-    if observations and len(observations) > 0:
-        pdf.add_page()
-        pdf.chapter_title("1 - OBSERVATIONS")
-
-        # Filter out closed issues
-        open_observations = [obs for obs in observations if not is_closed_issue(obs)]
-
-        if len(open_observations) > 0:
-            for observation in open_observations:
-                # Get comments for this observation if available
-                obs_comments = issue_comments.get(str(observation.get('id')), [])
-                # Pass the status map to the add_observation method
-                pdf.add_observation(observation, obs_comments, combined_status_map)
-        else:
-            pdf.set_font('helvetica', 'I', 10)
-            pdf.cell(0, 6, "Aucune observation trouvée", 0, 1, 'L')
-
-    # Add instructions section if any instructions
-    if instructions and len(instructions) > 0:
-        pdf.add_page()
-        pdf.chapter_title("2 - INSTRUCTIONS")
-
-        # Filter out closed issues
-        open_instructions = [ins for ins in instructions if not is_closed_issue(ins)]
-
-        if len(open_instructions) > 0:
-            for instruction in open_instructions:
-                # Get comments for this instruction if available
-                ins_comments = issue_comments.get(str(instruction.get('id')), [])
-                # Pass the status map to the add_instruction method
-                pdf.add_instruction(instruction, ins_comments, combined_status_map)
-        else:
-            pdf.set_font('helvetica', 'I', 10)
-            pdf.cell(0, 6, "Aucune instruction trouvée", 0, 1, 'L')
-
-    # Add deficiencies section if any deficiencies
-    if deficiencies and len(deficiencies) > 0:
-        pdf.add_page()
-        pdf.chapter_title("3 - DÉFICIENCES")
-
-        # Filter out closed issues
-        open_deficiencies = [df for df in deficiencies if not is_closed_issue(df)]
-
-        if len(open_deficiencies) > 0:
-            for deficiency in open_deficiencies:
-                # Get comments for this deficiency if available
-                def_comments = issue_comments.get(str(deficiency.get('id')), [])
-                # Pass the status map to the add_deficiency method
-                pdf.add_deficiency(deficiency, def_comments, combined_status_map)
-        else:
-            pdf.set_font('helvetica', 'I', 10)
-            pdf.cell(0, 6, "Aucune déficience trouvée", 0, 1, 'L')
-
-    # Create a BytesIO object to store the PDF
-    pdf_buffer = BytesIO()
-
-    # Save PDF to BytesIO object
-    pdf.output(pdf_buffer)
-
-    # Reset buffer position to the beginning
-    pdf_buffer.seek(0)
-
-    return pdf_buffer
