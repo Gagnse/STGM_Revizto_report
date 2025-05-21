@@ -367,46 +367,63 @@ def get_project_deficiencies(request, project_id):
 
 def get_project_workflow_settings(request, project_id):
     """
-    API endpoint to get workflow settings for a project.
+    API endpoint to get workflow settings for a project with enhanced debugging.
     This includes custom statuses, types, and workflows.
     """
-    print(f"\n[DEBUG-STATUS] ===== WORKFLOW SETTINGS REQUEST =====")
-    print(f"[DEBUG-STATUS] Workflow settings request received for project ID: {project_id}")
+    print("\n\n================ DEBUG WORKFLOW SETTINGS ================")
+    print(f"[SERVER-DEBUG] Workflow settings request received for project ID: {project_id}")
 
     try:
         # Get workflow settings from the API via service
         response_data = ReviztoService.get_project_workflow_settings(project_id)
 
-        # Debug the response data structure
-        print(f"[DEBUG-STATUS] Received workflow settings response")
+        # Deep debug the response data structure
+        print(f"[SERVER-DEBUG] Received workflow settings response")
         if isinstance(response_data, dict):
-            print(f"[DEBUG-STATUS] Response keys: {list(response_data.keys())}")
+            print(f"[SERVER-DEBUG] Response keys: {list(response_data.keys())}")
 
             if response_data.get('result') == 0 and 'data' in response_data:
                 data = response_data['data']
-                print(f"[DEBUG-STATUS] Data keys: {list(data.keys())}")
+                print(f"[SERVER-DEBUG] Data keys: {list(data.keys())}")
 
                 # Log all statuses for debugging
                 if 'statuses' in data and isinstance(data['statuses'], list):
                     statuses = data['statuses']
-                    print(f"[DEBUG-STATUS] Found {len(statuses)} statuses")
+                    print(f"[SERVER-DEBUG] Found {len(statuses)} statuses")
 
+                    # Print each status with exact details to verify content
                     for status in statuses:
                         status_uuid = status.get('uuid', 'No UUID')
                         status_name = status.get('name', 'No Name')
                         status_bg = status.get('backgroundColor', 'No BG Color')
-                        print(f"[DEBUG-STATUS] Status: {status_name}, UUID: {status_uuid}, BG: {status_bg}")
+
+                        # Check for any special characters in the UUID
+                        uuid_special_chars = [c for c in status_uuid if not c.isalnum() and c != '-']
+                        if uuid_special_chars:
+                            print(f"[SERVER-DEBUG] WARNING: UUID contains special chars: {uuid_special_chars}")
+                            print(f"[SERVER-DEBUG] Raw UUID bytes: {[ord(c) for c in status_uuid]}")
+
+                        # Print with explicitly labeled value for clarity
+                        print(f"[SERVER-DEBUG] Status: UUID='{status_uuid}', Name='{status_name}', BG='{status_bg}'")
 
                         # Special check for "En attente"
                         if status_name == "En attente":
-                            print(f"[DEBUG-STATUS] FOUND 'En attente' status: {status}")
+                            print(f"[SERVER-DEBUG] FOUND 'En attente' status:")
+                            import json
+                            print(f"[SERVER-DEBUG] Full JSON: {json.dumps(status, indent=2)}")
+                            print(f"[SERVER-DEBUG] UUID: '{status_uuid}'")
+                            print(f"[SERVER-DEBUG] UUID length: {len(status_uuid)}")
+                            print(
+                                f"[SERVER-DEBUG] UUID hex representation: {' '.join([hex(ord(c)) for c in status_uuid])}")
+
+        print("================ END DEBUG WORKFLOW SETTINGS ================\n\n")
 
         # Return the response data
         return JsonResponse(response_data)
     except Exception as e:
-        print(f"[DEBUG-STATUS] Error in get_project_workflow_settings: {e}")
+        print(f"[SERVER-DEBUG] Error in get_project_workflow_settings: {e}")
         import traceback
-        print(f"[DEBUG-STATUS] Traceback: {traceback.format_exc()}")
+        print(f"[SERVER-DEBUG] Traceback: {traceback.format_exc()}")
         return JsonResponse({"result": 1, "message": str(e), "data": {}})
 
 def get_issue_comments(request, project_id, issue_id):
