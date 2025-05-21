@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Your custom styles can go below this line */
+/* Custom styles beyond Tailwind */
+
+/* You can add any custom CSS that's not easily accomplished with Tailwind here */
+
+/* Example custom styles for hover effects on the search dropdown */
+#search-dropdown:focus + #autocomplete-dropdown {
+    display: block;
+}
+
+/* Custom scrollbar for the dropdown */
+#autocomplete-dropdown {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Custom styling for active search results */
+#autocomplete-dropdown a.active {
+    background-color: #EFF6FF;
+    color: #1D4ED8;
+}
+
+/* Date picker customization */
+input[datepicker] {
+    cursor: pointer;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .flex.items-center.space-x-4 {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    #search-dropdown {
+        width: 100%;
+    }
+}
