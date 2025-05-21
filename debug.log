@@ -7429,3 +7429,82 @@ Loaded project data for project 712307
 "GET /api/projects/712307/issues/14/comments/ HTTP/1.1" 200 2948
 "GET /api/projects/712307/issues/12/comments/ HTTP/1.1" 200 4487
 "GET /api/projects/712307/issues/11/comments/ HTTP/1.1" 200 5862
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+Token refresh failed with status code: 403
+"GET / HTTP/1.1" 200 9834
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+Not Found: /static/css/tailwindcss
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/css/tailwindcss HTTP/1.1" 404 179
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 21140
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+Not Found: /static/css/tailwindcss
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/css/tailwindcss HTTP/1.1" 404 179
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+Search request with query: gym
+"GET /api/search/?query=gym HTTP/1.1" 200 90
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 28975
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+Loaded project data for project 712307
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682675
+"GET /api/projects/712307/issues/15/comments/ HTTP/1.1" 200 2330
+"GET /api/projects/712307/issues/13/comments/ HTTP/1.1" 200 8013
+"GET /api/projects/712307/issues/16/comments/ HTTP/1.1" 200 3222
+"GET /api/projects/712307/issues/14/comments/ HTTP/1.1" 200 2948
+"GET /api/projects/712307/issues/7/comments/ HTTP/1.1" 200 9424
+"GET /api/projects/712307/issues/11/comments/ HTTP/1.1" 200 5862
+"GET /api/projects/712307/issues/12/comments/ HTTP/1.1" 200 4487
+Not Found: /static/css/tailwindcss
+"GET /static/css/tailwindcss HTTP/1.1" 404 179
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 179
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 21599
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+Not Found: /static/js/status-fix.js
+"GET /static/js/status-fix.js HTTP/1.1" 404 179
+Not Found: /static/css/tailwindcss
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/css/tailwindcss HTTP/1.1" 404 179
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+Search request with query: gym
+"GET /api/search/?query=gym HTTP/1.1" 200 90
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 28975
+Loaded project data for project 712307
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682675
+"GET /api/projects/712307/issues/12/comments/ HTTP/1.1" 200 4487
+"GET /api/projects/712307/issues/15/comments/ HTTP/1.1" 200 2330
+"GET /api/projects/712307/issues/16/comments/ HTTP/1.1" 200 3222
+"GET /api/projects/712307/issues/7/comments/ HTTP/1.1" 200 9424
+"GET /api/projects/712307/issues/14/comments/ HTTP/1.1" 200 2948
+"GET /api/projects/712307/issues/13/comments/ HTTP/1.1" 200 8013
+"GET /api/projects/712307/issues/11/comments/ HTTP/1.1" 200 5862

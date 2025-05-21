@@ -1,84 +1,3 @@
-function fetchProjectStatuses(projectId) {
-    console.log('[DEBUG-UUID] Fetching workflow settings for project ID:', projectId);
-
-    return fetch(`/api/projects/${projectId}/workflow-settings/`)
-        .then(response => {
-            console.log('[DEBUG-UUID] Workflow settings response status:', response.status);
-            return response.json();
-        })
-        .then(data => {
-            console.log('[DEBUG-UUID] Received workflow settings with result:', data.result);
-
-            // DEEP DEBUG: Reset the status map completely
-            console.log('[DEBUG-UUID] Clearing status map');
-            window.statusMap = {};
-
-            // Process and store status information from API
-            if (data && data.result === 0 && data.data) {
-                // Process statuses from the response
-                if (data.data.statuses && Array.isArray(data.data.statuses)) {
-                    console.log('[DEBUG-UUID] Found', data.data.statuses.length, 'statuses in response');
-
-                    // Process each status and add it to the map
-                    data.data.statuses.forEach(status => {
-                        if (status.uuid) {
-                            // Inspect UUID for encoding issues
-                            const cleanUuid = inspectUUID(status.uuid, `Status: ${status.name}`);
-
-                            console.log(`[DEBUG-UUID] Adding to map: ${status.name} (UUID: ${cleanUuid})`);
-
-                            // Add to status map
-                            window.statusMap[cleanUuid] = {
-                                name: status.name,
-                                displayName: mapStatusNameToFrench(status.name),
-                                textColor: status.textColor || "#FFFFFF",
-                                backgroundColor: status.backgroundColor || "#6F7E93",
-                                category: status.category || "Unknown"
-                            };
-
-                            // Additional logging for the En attente status
-                            if (status.name === "En attente") {
-                                console.log(`[DEBUG-UUID] "En attente" status added with UUID: ${cleanUuid}`);
-
-                                // Store in global variable for testing
-                                window.enAttenteUUID = cleanUuid;
-                            }
-                        }
-                    });
-
-                    // Deep debug log all keys
-                    console.log('[DEBUG-UUID] Status map keys:', Object.keys(window.statusMap));
-
-                    // Also add statuses by name for fallback lookup
-                    data.data.statuses.forEach(status => {
-                        if (status.name) {
-                            const lowerName = status.name.toLowerCase();
-                            window.statusMap[lowerName] = {
-                                name: status.name,
-                                displayName: mapStatusNameToFrench(status.name),
-                                textColor: status.textColor || "#FFFFFF",
-                                backgroundColor: status.backgroundColor || "#6F7E93",
-                                category: status.category || "Unknown"
-                            };
-                        }
-                    });
-                }
-            }
-
-            // Store statuses in global state
-            window.issueData.projectStatuses = window.statusMap;
-
-            // Add global debug function to inspect UUIDs
-            window.inspectUUID = inspectUUID;
-
-            return data;
-        })
-        .catch(error => {
-            console.error('[DEBUG-UUID] Error fetching workflow settings:', error);
-            return {};
-        });
-}
-
 // Modified getStatusDisplay function with UUID inspection
 // Add this to replace your existing getStatusDisplay function
 function getStatusDisplay(statusId) {
@@ -190,42 +109,6 @@ function getStatusDisplay(statusId) {
     return defaultStatus;
 }
 
-// Helper function to map status names to French
-function mapStatusNameToFrench(statusName) {
-    if (!statusName) return 'Inconnu';
-
-    const statusLower = statusName.toLowerCase();
-
-    // Map by exact case-insensitive matching
-    const statusMap = {
-        'open': 'Ouvert',
-        'opened': 'Ouvert',
-        'closed': 'Fermé',
-        'solved': 'Résolu',
-        'in progress': 'En cours',
-        'in_progress': 'En cours'
-    };
-
-    // Check for direct mapping
-    if (statusMap[statusLower]) {
-        return statusMap[statusLower];
-    }
-
-    // For statuses already in French (like "En attente"), keep them as is
-    if (statusLower.includes('attente') ||
-        statusLower.includes('corrigé') ||
-        statusLower.includes('fermé') ||
-        statusLower.includes('ouvert') ||
-        statusLower.includes('résolu') ||
-        statusLower.includes('cours') ||
-        statusLower.includes('problème')) {
-        return statusName;
-    }
-
-    // If no mapping exists, preserve the original name
-    return statusName;
-}
-
 // Helper function to safely extract and format creation date
 function getFormattedCreationDate(item) {
     if (!item.created) return 'N/A';
@@ -322,60 +205,6 @@ function getReviztoLinks(item) {
     }
 
     return links;
-}
-
-// Fetch observations from the API
-function fetchObservations(projectId) {
-    console.log('[DEBUG] Fetching observations for project ID:', projectId);
-    showLoadingState('observations');
-
-    fetch(`/api/projects/${projectId}/observations/`)
-        .then(response => {
-            console.log('[DEBUG] Observations response status:', response.status);
-            return response.json();
-        })
-        .then(data => {
-            // Extract observations from the correct nested structure
-            let observations = [];
-            if (data && data.result === 0 && data.data && data.data.data) {
-                observations = data.data.data;
-                console.log('[DEBUG] Found', observations.length, 'observations in data.data.data');
-            }
-
-            window.issueData.observations = observations;
-            renderItemsDirectly(observations, 'observations-container', 'Observation');
-        })
-        .catch(error => {
-            console.error('[DEBUG] Error fetching observations:', error);
-            showError('observations');
-        });
-}
-
-// Fetch instructions from the API
-function fetchInstructions(projectId) {
-    console.log('[DEBUG] Fetching instructions for project ID:', projectId);
-    showLoadingState('instructions');
-
-    fetch(`/api/projects/${projectId}/instructions/`)
-        .then(response => {
-            console.log('[DEBUG] Instructions response status:', response.status);
-            return response.json();
-        })
-        .then(data => {
-            // Extract instructions from the correct nested structure
-            let instructions = [];
-            if (data && data.result === 0 && data.data && data.data.data) {
-                instructions = data.data.data;
-                console.log('[DEBUG] Found', instructions.length, 'instructions in data.data.data');
-            }
-
-            window.issueData.instructions = instructions;
-            renderItemsDirectly(instructions, 'instructions-container', 'Instruction');
-        })
-        .catch(error => {
-            console.error('[DEBUG] Error fetching instructions:', error);
-            showError('instructions');
-        });
 }
 
 // Fetch deficiencies from the API
@@ -508,69 +337,6 @@ function filterOutClosedIssues(issues) {
     })
 };
 
-function fetchIssueHistory(projectId, issueId) {
-    console.log(`[DEBUG] Fetching history for issue ID: ${issueId} in project: ${projectId}`);
-
-    const historyPanelId = `history-panel-${issueId}`;
-    const historyPanel = document.getElementById(historyPanelId);
-
-    if (!historyPanel) {
-        console.error(`[DEBUG] History panel not found with ID: ${historyPanelId}`);
-        return;
-    }
-
-    // Show loading state
-    historyPanel.innerHTML = `
-        <div class="p-3">
-            <div class="flex items-center">
-                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
-                <span class="text-sm text-gray-500">Chargement de l'historique...</span>
-            </div>
-        </div>
-    `;
-
-    fetch(`/api/projects/${projectId}/issues/${issueId}/comments/`)
-        .then(response => {
-            console.log(`[DEBUG] Comment history response status for issue ${issueId}:`, response.status);
-            return response.json();
-        })
-        .then(data => {
-            console.log(`[DEBUG] Comment history data for issue ${issueId}:`, data);
-
-            // Extract comments from the response
-            let comments = [];
-
-            // Check for data in the expected structure
-            if (data && data.result === 0 && data.data) {
-                if (Array.isArray(data.data)) {
-                    comments = data.data;
-                } else if (data.data.data && Array.isArray(data.data.data)) {
-                    comments = data.data.data;
-                }
-                console.log(`[DEBUG] Found ${comments.length} comments for issue ${issueId}`);
-            }
-
-            if (!comments || comments.length === 0) {
-                historyPanel.innerHTML = '<div class="p-3 text-sm text-gray-500">Aucun historique disponible.</div>';
-                return;
-            }
-
-            // Store the comments in the global state for this specific issue
-            if (!window.issueData.history) {
-                window.issueData.history = {};
-            }
-            window.issueData.history[issueId] = comments;
-
-            // Render the comments for this specific issue
-            const html = renderCommentsHTML(comments);
-            historyPanel.innerHTML = html;
-        })
-        .catch(error => {
-            console.error(`[DEBUG] Error fetching comments for issue ${issueId}:`, error);
-            historyPanel.innerHTML = '<div class="p-3 text-sm text-red-500">Erreur lors du chargement de l\'historique.</div>';
-        });
-}
-
 function renderCommentsHTML(comments) {
     // Sort comments by date (newest first)
     comments.sort((a, b) => {
@@ -660,44 +426,6 @@ function renderCommentsHTML(comments) {
     return html;
 }
 
-function renderDiffComment(comment) {
-    if (!comment.diff) return '<p class="text-gray-500 text-sm italic">Modification non spécifiée</p>';
-
-    let html = '<div class="bg-gray-50 p-2 rounded-md text-sm">';
-
-    // Only process the comment.diff properties we want to show
-    if (comment.diff.customStatus) {
-        const change = comment.diff.customStatus;
-        const oldValue = change.old || '-';
-        const newValue = change.new || '-';
-
-        html += `
-            <div class="mb-1">
-                <span class="font-medium">État:</span> 
-                <span class="text">${formatStatusValue(oldValue)}</span> → 
-                <span class="text">${formatStatusValue(newValue)}</span>
-            </div>
-        `;
-    }
-
-    if (comment.diff.assignee) {
-        const change = comment.diff.assignee;
-        const oldValue = change.old || '-';
-        const newValue = change.new || '-';
-
-        html += `
-            <div class="mb-1">
-                <span class="font-medium">Assigné à:</span> 
-                <span class="text">${oldValue}</span> → 
-                <span class="text">${newValue}</span>
-            </div>
-        `;
-    }
-
-    html += '</div>';
-    return html;
-}
-
 function renderFileComment(comment) {
 if (!comment.filename) return '<p class="text-gray-500 text-sm italic">Fichier joint</p>';
 
@@ -734,22 +462,6 @@ return `
 `;
 }
 
-function formatStatusValue(value) {
-// Try to map status UUIDs to display names if available
-if (window.statusMap && window.statusMap[value]) {
-    return window.statusMap[value].displayName || window.statusMap[value].name;
-}
-
-// Basic status translations
-if (typeof value === 'string') {
-    if (value.toLowerCase() === 'open') return 'Ouvert';
-    if (value.toLowerCase() === 'solved') return 'Résolu';
-    if (value.toLowerCase() === 'closed') return 'Fermé';
-    if (value.toLowerCase() === 'in_progress') return 'En cours';
-}
-
-return value;
-}
 
 /**
  * Gets the best available image for an issue based on priority:
@@ -1142,40 +854,4 @@ function inspectUUID(uuid, label) {
 
     console.log(`===== END UUID INSPECTOR =====\n`);
     return uuid;
-}
-
-function checkProperty(obj, prop) {
-    console.log(`Checking for property "${prop}" in object:`, obj);
-
-    // Try various methods to access the property
-    console.log(`Direct access obj[${prop}]:`, obj[prop]);
-    console.log(`hasOwnProperty:`, obj.hasOwnProperty(prop));
-    console.log(`in operator:`, prop in obj);
-
-    // Check if any keys match regardless of case or encoding
-    const keys = Object.keys(obj);
-    console.log(`All keys:`, keys);
-
-    let foundSimilar = false;
-    keys.forEach(key => {
-        if (key.length === prop.length) {
-            let differences = 0;
-            for (let i = 0; i < key.length; i++) {
-                if (key.charAt(i) !== prop.charAt(i)) {
-                    differences++;
-                    console.log(`Difference at position ${i}: "${key.charAt(i)}" vs "${prop.charAt(i)}"`);
-                }
-            }
-            if (differences > 0 && differences < 3) {
-                console.log(`Similar key found: "${key}" (${differences} differences)`);
-                foundSimilar = true;
-            }
-        }
-    });
-
-    if (!foundSimilar) {
-        console.log(`No similar keys found`);
-    }
-
-    return obj[prop];
 }
