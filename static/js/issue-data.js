@@ -1,5 +1,115 @@
-// Modified getStatusDisplay function with UUID inspection
-// Add this to replace your existing getStatusDisplay function
+window.statusMap = {
+
+};
+
+// Special UUID tracking for problematic statuses
+window.enAttenteUUID = null;
+
+// Enhanced issue data handler with custom status support
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('[DEBUG] Issue data handler initialized');
+
+    // Initialize global state
+    window.issueData = {
+        observations: [],
+        instructions: [],
+        deficiencies: [],
+        projectStatuses: {}, // Store project-specific status information
+        activeProjectId: null,
+        history:{}
+    };
+
+    // Add the listener here
+    document.addEventListener('projectSelected', function(e) {
+        const projectId = e.detail.projectId;
+        console.log('[DEBUG] Project selected event received for ID:', projectId);
+
+        if (projectId) {
+            window.issueData.activeProjectId = projectId;
+
+            // First fetch custom statuses, then fetch issues
+            fetchProjectStatuses(projectId).then(() => {
+                // After statuses are loaded, fetch issues
+                console.log('[DEBUG] Fetching all issue data for project ID:', projectId);
+                fetchObservations(projectId);
+                fetchInstructions(projectId);
+                fetchDeficiencies(projectId);
+            }).catch(error => {
+                console.error('[DEBUG] Error fetching project statuses:', error);
+                // Still try to fetch issues even if statuses fail
+                fetchObservations(projectId);
+                fetchInstructions(projectId);
+                fetchDeficiencies(projectId);
+            });
+        }
+    });
+
+    // Other initialization code...
+});
+
+function fetchProjectStatuses(projectId) {
+    console.log('[DEBUG] Fetching workflow settings for project ID:', projectId);
+
+    return fetch(`/api/projects/${projectId}/workflow-settings/`)
+        .then(response => {
+            console.log('[DEBUG] Workflow settings response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('[DEBUG] Received workflow settings with result:', data.result);
+            console.log('[DEBUG] Workflow data keys:', data.data ? Object.keys(data.data) : 'No data property');
+
+            // Process and store status information
+            if (data && data.result === 0 && data.data) {
+                // Create a merged status map starting with our hardcoded values
+                const mergedStatusMap = {...window.statusMap};
+                console.log('[DEBUG] Starting with', Object.keys(mergedStatusMap).length, 'hardcoded statuses');
+
+                // Process statuses from the response
+                if (data.data.statuses && Array.isArray(data.data.statuses)) {
+                    console.log('[DEBUG] Found', data.data.statuses.length, 'statuses in response');
+
+                    data.data.statuses.forEach(status => {
+                        console.log(`[DEBUG] Processing status: ${status.name} (UUID: ${status.uuid})`);
+
+                        // Add or update the status in the merged map
+                        mergedStatusMap[status.uuid] = {
+                            name: status.name,
+                            displayName: status.name, // Can be customized for language
+                            textColor: status.textColor,
+                            backgroundColor: status.backgroundColor,
+                            category: status.category
+                        };
+
+                        // Special handling for En attente
+                        if (status.name === "En attente") {
+                            // Store this UUID globally for special handling
+                            window.enAttenteUUID = status.uuid;
+                            console.log(`[DEBUG] Stored En attente UUID: ${status.uuid}`);
+                        }
+                    });
+
+                    // Replace the window.statusMap with the merged version
+                    window.statusMap = mergedStatusMap;
+                    console.log('[DEBUG] Updated status map with', Object.keys(window.statusMap).length, 'entries');
+                } else {
+                    console.warn('[DEBUG] No statuses array found in data or it is not an array');
+                    console.log('[DEBUG] Data structure:', JSON.stringify(data.data).substring(0, 200) + '...');
+                }
+
+                return window.statusMap;
+            } else {
+                console.warn('[DEBUG] Invalid workflow settings data format:', data);
+                return window.statusMap; // Return existing map without changes
+            }
+        })
+        .catch(error => {
+            console.error('[DEBUG] Error fetching workflow settings:', error);
+            return window.statusMap; // Return existing map without changes
+        });
+}
+
+// Get status display information based on status UUID
 function getStatusDisplay(statusId) {
     console.log(`[DEBUG-UUID] Getting status display for:`, statusId);
 
@@ -48,11 +158,8 @@ function getStatusDisplay(statusId) {
         console.log(`[DEBUG-UUID] Status is a string: "${statusValue}"`);
     }
 
-    // If we found a status value, inspect it for encoding issues and try lookup
+    // If we found a status value, try lookup
     if (statusValue) {
-        // Diagnose any UUID encoding issues
-        statusValue = inspectUUID(statusValue, "Lookup Value");
-
         console.log(`[DEBUG-UUID] Looking up status with value: "${statusValue}"`);
         console.log(`[DEBUG-UUID] Status map keys (${Object.keys(window.statusMap).length}):`, Object.keys(window.statusMap));
 
@@ -67,6 +174,7 @@ function getStatusDisplay(statusId) {
 
         // Special handling for "En attente" status which is consistently problematic
         if (statusValue === 'c70f7d38-1d60-4df3-b85b-14e59174d7ba' ||
+            statusValue === '5947b7d1-70b9-425b-aba6-7187eb0251ff' ||
             (window.enAttenteUUID && statusValue === window.enAttenteUUID)) {
 
             console.log('[DEBUG-UUID] Detected "En attente" status - using special handling');
@@ -79,7 +187,7 @@ function getStatusDisplay(statusId) {
 
             // Fallback to finding by name
             for (const [key, status] of Object.entries(window.statusMap)) {
-                if (status.name === 'En attente') {
+                if (status.name === 'En attente' || status.displayName === 'En attente') {
                     console.log(`[DEBUG-UUID] Found "En attente" status by name`);
                     return status;
                 }
