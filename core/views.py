@@ -460,21 +460,30 @@ def get_issue_comments(request, project_id, issue_id):
         print(f"[DEBUG] Traceback: {traceback.format_exc()}")
         return JsonResponse({"result": 1, "message": str(e), "data": []})
 
+
+"""
+Debug version of the generate_pdf function in views.py
+"""
+
+
 def generate_pdf(request, project_id):
     """
     Generate a PDF report for the project with enhanced error handling
     """
-    print(f"[DEBUG] PDF generation requested for project: {project_id}")
+    print(f"[DEBUG-VIEWS] =====================================================")
+    print(f"[DEBUG-VIEWS] PDF generation requested for project: {project_id} (type: {type(project_id)})")
 
     try:
         # Get project data from the database
         project_data = ProjectData.objects.filter(id=project_id).first()
 
+        print(f"[DEBUG-VIEWS] ProjectData lookup result: {project_data is not None}")
+
         if not project_data:
-            print(f"[DEBUG] No project data found for project ID: {project_id}")
+            print(f"[DEBUG-VIEWS] No project data found for project ID: {project_id}")
             return JsonResponse({'error': 'Project data not found'}, status=404)
 
-        # Convert ProjectData to a dictionary format similar to what would be returned by load_project_data
+        # Convert ProjectData to a dictionary format
         report_date = ''
         if project_data.rapportdate:
             report_date = project_data.rapportdate.strftime('%Y-%m-%d')
@@ -484,6 +493,7 @@ def generate_pdf(request, project_id):
             visit_date = project_data.datevisite.strftime('%Y-%m-%d')
 
         project_info = {
+            'id': project_id,  # IMPORTANT: Explicitly include the ID in project_info
             'architectFile': project_data.nodossier or '',
             'projectName': project_data.noprojet or '',
             'projectOwner': project_data.maitreouvragge or '',
@@ -498,6 +508,8 @@ def generate_pdf(request, project_id):
             'imageUrl': project_data.image or '',
         }
 
+        print(f"[DEBUG-VIEWS] Project info prepared with keys: {list(project_info.keys())}")
+
         # Get observations, instructions, and deficiencies from the API
         observations = []
         instructions = []
@@ -505,10 +517,12 @@ def generate_pdf(request, project_id):
         issue_comments = {}  # Dictionary to store comments for each issue
 
         # Get observations
+        print(f"[DEBUG-VIEWS] Fetching observations for project ID: {project_id}")
         observations_response = ReviztoService.get_observations(project_id)
-        if observations_response and observations_response.get('result') == 0 and observations_response.get('data') and observations_response['data'].get('data'):
+        if observations_response and observations_response.get('result') == 0 and observations_response.get('data') and \
+                observations_response['data'].get('data'):
             observations = observations_response['data']['data']
-            print(f"[DEBUG] Found {len(observations)} observations")
+            print(f"[DEBUG-VIEWS] Found {len(observations)} observations")
 
             # Fetch comments for each observation
             for obs in observations:
@@ -516,7 +530,9 @@ def generate_pdf(request, project_id):
                     # Use a fixed date in the past to ensure we get all comments
                     comments_response = ReviztoService.get_issue_comments(project_id, obs['id'], '2018-05-30')
                     if comments_response and comments_response.get('result') == 0:
+                        # Extract the comments data properly
                         comments_data = comments_response.get('data', [])
+                        # Handle both list and dict formats for comments
                         if isinstance(comments_data, list):
                             issue_comments[str(obs['id'])] = comments_data
                         elif isinstance(comments_data, dict):
@@ -530,34 +546,104 @@ def generate_pdf(request, project_id):
                         issue_comments[str(obs['id'])] = []
 
         # Get instructions
+        print(f"[DEBUG-VIEWS] Fetching instructions for project ID: {project_id}")
         instructions_response = ReviztoService.get_instructions(project_id)
-        if instructions_response and instructions_response.get('result') == 0 and instructions_response.get('data') and instructions_response['data'].get('data'):
+        if instructions_response and instructions_response.get('result') == 0 and instructions_response.get('data') and \
+                instructions_response['data'].get('data'):
             instructions = instructions_response['data']['data']
-            print(f"[DEBUG] Found {len(instructions)} instructions")
+            print(f"[DEBUG-VIEWS] Found {len(instructions)} instructions")
 
-            # Same comments fetching logic...
+            # Fetch comments for each instruction
+            for ins in instructions:
+                if ins.get('id'):
+                    comments_response = ReviztoService.get_issue_comments(project_id, ins['id'], '2018-05-30')
+                    if comments_response and comments_response.get('result') == 0:
+                        comments_data = comments_response.get('data', [])
+                        if isinstance(comments_data, list):
+                            issue_comments[str(ins['id'])] = comments_data
+                        elif isinstance(comments_data, dict):
+                            if 'items' in comments_data and isinstance(comments_data['items'], list):
+                                issue_comments[str(ins['id'])] = comments_data['items']
+                            else:
+                                issue_comments[str(ins['id'])] = []
+                        else:
+                            issue_comments[str(ins['id'])] = []
+                    else:
+                        issue_comments[str(ins['id'])] = []
 
         # Get deficiencies
+        print(f"[DEBUG-VIEWS] Fetching deficiencies for project ID: {project_id}")
         deficiencies_response = ReviztoService.get_deficiencies(project_id)
-        if deficiencies_response and deficiencies_response.get('result') == 0 and deficiencies_response.get('data') and deficiencies_response['data'].get('data'):
+        if deficiencies_response and deficiencies_response.get('result') == 0 and deficiencies_response.get('data') and \
+                deficiencies_response['data'].get('data'):
             deficiencies = deficiencies_response['data']['data']
-            print(f"[DEBUG] Found {len(deficiencies)} deficiencies")
+            print(f"[DEBUG-VIEWS] Found {len(deficiencies)} deficiencies")
 
-            # Same comments fetching logic...
+            # Fetch comments for each deficiency
+            for def_item in deficiencies:
+                if def_item.get('id'):
+                    comments_response = ReviztoService.get_issue_comments(project_id, def_item['id'], '2018-05-30')
+                    if comments_response and comments_response.get('result') == 0:
+                        comments_data = comments_response.get('data', [])
+                        if isinstance(comments_data, list):
+                            issue_comments[str(def_item['id'])] = comments_data
+                        elif isinstance(comments_data, dict):
+                            if 'items' in comments_data and isinstance(comments_data['items'], list):
+                                issue_comments[str(def_item['id'])] = comments_data['items']
+                            else:
+                                issue_comments[str(def_item['id'])] = []
+                        else:
+                            issue_comments[str(def_item['id'])] = []
+                    else:
+                        issue_comments[str(def_item['id'])] = []
 
-        # Import the enhanced PDF generator with the status fix
-        from .pdf_generator import generate_report_pdf_with_status_fix
+        # Import the enhanced PDF generator with error handling
+        print(f"[DEBUG-VIEWS] Import PDF generator functions")
+        try:
+            from .pdf_generator import generate_report_pdf_with_status_fix
+            print(f"[DEBUG-VIEWS] Successfully imported generate_report_pdf_with_status_fix")
+        except ImportError as import_err:
+            print(f"[DEBUG-VIEWS] Error importing generate_report_pdf_with_status_fix: {import_err}")
+            from .pdf_generator import generate_report_pdf_with_error_handling
+            print(f"[DEBUG-VIEWS] Falling back to generate_report_pdf_with_error_handling")
 
-        # Generate PDF with enhanced status handling
-        print(f"[DEBUG] Generating PDF with enhanced status handling...")
-        pdf_buffer = generate_report_pdf_with_status_fix(
-            project_id,
-            project_info,
-            observations,
-            instructions,
-            deficiencies,
-            issue_comments
-        )
+        # Generate PDF with enhanced error handling - check the arguments being passed
+        print(f"[DEBUG-VIEWS] Generating PDF with enhanced error handling...")
+        print(f"[DEBUG-VIEWS] Arguments being passed to PDF generator:")
+        print(f"[DEBUG-VIEWS] - project_id: {project_id} (type: {type(project_id)})")
+        print(f"[DEBUG-VIEWS] - project_info: {list(project_info.keys())}")
+        print(f"[DEBUG-VIEWS] - observations: {len(observations)} items")
+        print(f"[DEBUG-VIEWS] - instructions: {len(instructions)} items")
+        print(f"[DEBUG-VIEWS] - deficiencies: {len(deficiencies)} items")
+        print(f"[DEBUG-VIEWS] - issue_comments: {len(issue_comments)} items")
+
+        # Try the actual PDF generation with proper error handling
+        try:
+            # Make sure we're passing project_id correctly
+            pdf_buffer = generate_report_pdf_with_status_fix(
+                project_id,  # Make sure this is actually passed
+                project_info,
+                observations,
+                instructions,
+                deficiencies,
+                issue_comments
+            )
+            print(f"[DEBUG-VIEWS] PDF generation function returned successfully")
+        except Exception as pdf_gen_error:
+            import traceback
+            print(f"[DEBUG-VIEWS] Error in PDF generation function: {pdf_gen_error}")
+            print(f"[DEBUG-VIEWS] Error traceback: {traceback.format_exc()}")
+            # Fallback to regular generation
+            from .pdf_generator import generate_report_pdf
+            pdf_buffer = generate_report_pdf(
+                project_id,
+                project_info,
+                observations,
+                instructions,
+                deficiencies,
+                issue_comments
+            )
+            print(f"[DEBUG-VIEWS] Fallback PDF generation successful")
 
         # Create a response with PDF content
         from django.http import HttpResponse
@@ -569,15 +655,16 @@ def generate_pdf(request, project_id):
 
         response['Content-Disposition'] = f'attachment; filename="Rapport_Visite_{project_name}.pdf"'
 
-        print(f"[DEBUG] PDF successfully generated for project {project_id}")
+        print(f"[DEBUG-VIEWS] PDF successfully generated for project {project_id}")
+        print(f"[DEBUG-VIEWS] =====================================================")
         return response
 
     except Exception as e:
         import traceback
-        print(f"[DEBUG] Error generating PDF: {e}")
-        print(f"[DEBUG] Traceback: {traceback.format_exc()}")
+        print(f"[DEBUG-VIEWS] Error generating PDF: {e}")
+        print(f"[DEBUG-VIEWS] Traceback: {traceback.format_exc()}")
+        print(f"[DEBUG-VIEWS] =====================================================")
         return JsonResponse({'error': str(e)}, status=500)
-
 def debug_token_state(request):
     """
     Debug endpoint that shows the current token state (without revealing the tokens)

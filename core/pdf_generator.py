@@ -1116,7 +1116,7 @@ class ReviztoPDF(FPDF):
         self.set_line_width(0.2)
 
 
-def generate_report_pdf(project_id, project_data, observations, instructions, deficiencies, issue_comments=None):
+def generate_report_pdf(project_id, project_data, observations, instructions, deficiencies, issue_comments=None, status_map=None):
     """
     Generate a PDF report for the project
 
@@ -1127,49 +1127,17 @@ def generate_report_pdf(project_id, project_data, observations, instructions, de
         instructions (list): List of instructions
         deficiencies (list): List of deficiencies
         issue_comments (dict, optional): Dictionary mapping issue IDs to comments
+        status_map (dict, optional): Custom status mapping for enhanced status display
 
     Returns:
         BytesIO: PDF file as a BytesIO object
     """
-    # ADDED: First try to fetch status mapping from the API
-    project_statuses = {}
-    try:
-        # Use the same endpoint the frontend uses - CORRECTED with proper project path
-        from .api.service import ReviztoService
-        print(f"[DEBUG PDF] Fetching workflow settings for project {project_id}")
-        workflow_response = ReviztoService.get_project_workflow_settings(project_id)
-
-        if workflow_response and workflow_response.get('result') == 0 and workflow_response.get('data'):
-            # Process statuses from the response
-            if workflow_response['data'].get('statuses') and isinstance(workflow_response['data']['statuses'], list):
-                print(f"[DEBUG PDF] Found {len(workflow_response['data']['statuses'])} statuses in API response")
-                for status in workflow_response['data']['statuses']:
-                    # Store each status with its UUID as the key
-                    if status.get('uuid') and status.get('name'):
-                        project_statuses[status['uuid']] = {
-                            'name': status['name'],
-                            'displayName': status['name'],  # You can customize this if needed
-                            'textColor': status.get('textColor', '#FFFFFF'),
-                            'backgroundColor': status.get('backgroundColor', '#6F7E93'),
-                            'category': status.get('category', '')
-                        }
-                        print(f"[DEBUG PDF] Mapped status: {status['uuid']} -> {status['name']}")
-
-        # Print what we found for debugging
-        print(f"[DEBUG PDF] Found {len(project_statuses)} statuses from API")
-        if project_statuses:
-            for uuid, status in project_statuses.items():
-                print(f"[DEBUG PDF] Status mapping: {uuid} -> {status['name']}")
-
-    except Exception as e:
-        print(f"[DEBUG PDF] Error fetching project statuses for PDF: {e}")
-        project_statuses = {}
-
-    # Now create the PDF
+    # Create PDF
     pdf = ReviztoPDF()
 
-    # ADDED: Pass the status map to the PDF object
-    pdf.status_map = project_statuses
+    # If custom status mapping is provided, add it to the PDF instance
+    if status_map:
+        pdf.status_map = status_map
 
     # Set metadata
     pdf.set_title(f"Rapport de visite - Projet {project_data.get('projectName', project_id)}")
@@ -1667,186 +1635,238 @@ def get_best_image_for_issue(issue, comments):
 def generate_report_pdf_with_status_fix(project_id, project_data, observations, instructions, deficiencies,
                                         issue_comments=None):
     """
-    Modified version that properly handles statuses from the API
+    Generate a PDF report with additional status mapping to handle problematic status UUIDs.
+    Particularly focuses on the 'En attente' status which has caused issues.
+
+    Args:
+        project_id (int): Project ID
+        project_data (dict): Project information
+        observations (list): List of observations
+        instructions (list): List of instructions
+        deficiencies (list): List of deficiencies
+        issue_comments (dict, optional): Dictionary mapping issue IDs to comments
+
+    Returns:
+        BytesIO: PDF file as a BytesIO object
     """
-    # Create PDF
-    pdf = ReviztoPDF()
+    print(f"[DEBUG-START] =====================================================")
+    print(f"[DEBUG] Starting generate_report_pdf_with_status_fix")
+    print(f"[DEBUG] Received project_id: {project_id} (type: {type(project_id)})")
+    print(f"[DEBUG] Project data keys: {list(project_data.keys()) if project_data else 'None'}")
+    print(f"[DEBUG] Observations count: {len(observations) if observations else 'None'}")
+    print(f"[DEBUG] Instructions count: {len(instructions) if instructions else 'None'}")
+    print(f"[DEBUG] Deficiencies count: {len(deficiencies) if deficiencies else 'None'}")
+    print(f"[DEBUG] Issue comments keys count: {len(issue_comments) if issue_comments else 'None'}")
 
-    # First fetch and store status information directly from the API
-    from core.api.service import ReviztoService
-
-    # Create a status map with hardcoded fallback statuses
-    status_map = {
-        "2ed005c6-43cd-4907-a4d6-807dbd0197d5": {
-            "name": "Open",
-            "displayName": "Ouvert",
-            "textColor": "#FFFFFF",
-            "backgroundColor": "#CC2929"
-        },
-        "cd52ac3e-f345-4f99-870f-5be95dc33245": {
-            "name": "In progress",
-            "displayName": "En cours",
-            "textColor": "#FFFFFF",
-            "backgroundColor": "#FFAA00"
-        },
-        "b8504242-3489-43a2-9831-54f64053b226": {
-            "name": "Solved",
-            "displayName": "Résolu",
-            "textColor": "#FFFFFF",
-            "backgroundColor": "#42BE65"
-        },
-        "135b58c6-1e14-4716-a134-bbba2bbc90a7": {
-            "name": "Closed",
-            "displayName": "Fermé",
-            "textColor": "#FFFFFF",
-            "backgroundColor": "#B8B8B8"
-        },
-        "5947b7d1-70b9-425b-aba6-7187eb0251ff": {
-            "name": "En attente",
-            "displayName": "En attente",
-            "textColor": "#FFFFFF",
-            "backgroundColor": "#FFD32E"
-        },
-        "912abbbf-3155-4e3c-b437-5778bdfd73f4": {
-            "name": "non-problème",
-            "displayName": "Non-problème",
-            "textColor": "#FFFFFF",
-            "backgroundColor": "#2B2B2B"
-        },
-        "337e2fe6-e2a3-4e3f-b098-30aac68a191c": {
-            "name": "Corrigé",
-            "displayName": "Corrigé",
-            "textColor": "#FFFFFF",
-            "backgroundColor": "#892EFB"
-        },
-        # Special handling for the problematic En attente status
-        "c70f7d38-1d60-4df3-b85b-14e59174d7ba": {
-            "name": "En attente",
-            "displayName": "En attente",
-            "textColor": "#FFFFFF",
-            "backgroundColor": "#FFD32E"
-        }
-    }
-
-    # Try to fetch status data from the API, but don't fail if it doesn't work
     try:
-        print(f"[DEBUG PDF] Fetching workflow settings for project {project_id}")
-        # Get status information from the API - use the proper method signature
-        # If your service method requires a 'self' parameter first, you may need to instantiate the service
-        status_response = ReviztoService.get_project_workflow_settings(project_id)
+        # Import services - with debug information
+        print(f"[DEBUG] Importing ReviztoService")
+        from .api.service import ReviztoService
+        print(f"[DEBUG] ReviztoService imported successfully")
 
-        # Process status information if the API call was successful
+        # DEBUG: Check if the method exists and what parameters it takes
+        try:
+            import inspect
+            method = getattr(ReviztoService, 'get_project_workflow_settings', None)
+            if method:
+                print(f"[DEBUG] Method 'get_project_workflow_settings' exists")
+                sig = inspect.signature(method)
+                print(f"[DEBUG] Method signature: {sig}")
+                print(f"[DEBUG] Method parameters: {list(sig.parameters.keys())}")
+            else:
+                print(f"[DEBUG] Method 'get_project_workflow_settings' does NOT exist in ReviztoService")
+                # List available methods
+                methods = [name for name in dir(ReviztoService) if
+                           callable(getattr(ReviztoService, name)) and not name.startswith('__')]
+                print(f"[DEBUG] Available methods in ReviztoService: {methods}")
+        except Exception as e:
+            print(f"[DEBUG] Error inspecting method: {e}")
+
+        print(f"[DEBUG] About to call ReviztoService.get_project_workflow_settings with project_id={project_id}")
+        status_response = None  # Default to None
+
+        # Try to call the method safely
+        try:
+            # If project_id is None, try to extract it from other sources
+            if project_id is None:
+                print(f"[DEBUG] project_id is None, attempting to extract from other sources")
+                # Try to get from project_data
+                if project_data and 'id' in project_data:
+                    project_id = project_data['id']
+                    print(f"[DEBUG] Extracted project_id from project_data: {project_id}")
+                # Check observations for project_id
+                elif observations and len(observations) > 0 and 'projectId' in observations[0]:
+                    project_id = observations[0]['projectId']
+                    print(f"[DEBUG] Extracted project_id from first observation: {project_id}")
+                # If still None, see if we can get it from activeProjectId in the database
+                if project_id is None:
+                    print(f"[DEBUG] Could not extract project_id from available data")
+                    print(f"[DEBUG] Skipping workflow settings fetch")
+                    status_response = None
+                else:
+                    print(f"[DEBUG] Calling with extracted project_id: {project_id}")
+                    status_response = ReviztoService.get_project_workflow_settings(project_id)
+            else:
+                print(f"[DEBUG] Calling with provided project_id: {project_id}")
+                status_response = ReviztoService.get_project_workflow_settings(project_id)
+
+            print(f"[DEBUG] Call to get_project_workflow_settings returned successfully")
+            print(f"[DEBUG] Response type: {type(status_response)}")
+            if isinstance(status_response, dict):
+                print(f"[DEBUG] Response keys: {list(status_response.keys())}")
+                print(f"[DEBUG] Result value: {status_response.get('result')}")
+        except Exception as call_error:
+            print(f"[DEBUG] Error calling get_project_workflow_settings: {call_error}")
+            import traceback
+            print(f"[DEBUG] Call error traceback: {traceback.format_exc()}")
+            status_response = None
+
+        # Enhanced status mapping
+        print(f"[DEBUG] Creating status map")
+        status_map = {}
+
+        # Default statuses (fallbacks)
+        status_map.update({
+            "2ed005c6-43cd-4907-a4d6-807dbd0197d5": {  # Open
+                "name": "Ouvert",
+                "color": (204, 41, 41)  # Red
+            },
+            "cd52ac3e-f345-4f99-870f-5be95dc33245": {  # In progress
+                "name": "En cours",
+                "color": (255, 170, 0)  # Orange
+            },
+            "b8504242-3489-43a2-9831-54f64053b226": {  # Solved
+                "name": "Resolu",
+                "color": (66, 190, 101)  # Green
+            },
+            "135b58c6-1e14-4716-a134-bbba2bbc90a7": {  # Closed
+                "name": "Ferme",
+                "color": (184, 184, 184)  # Gray
+            },
+            # Special case - 'En attente' UUID that has been problematic
+            "5947b7d1-70b9-425b-aba6-7187eb0251ff": {  # En attente
+                "name": "En attente",
+                "color": (255, 211, 46)  # Yellow
+            },
+            # Alternate UUID that has been seen for 'En attente'
+            "c70f7d38-1d60-4df3-b85b-14e59174d7ba": {
+                "name": "En attente",
+                "color": (255, 211, 46)  # Yellow
+            }
+        })
+        print(f"[DEBUG] Default status map created with {len(status_map)} entries")
+
+        # Add statuses from API response if available
         if status_response and status_response.get('result') == 0 and status_response.get('data'):
-            data = status_response.get('data')
-            statuses = data.get('statuses', [])
-
-            print(f"[DEBUG PDF] Found {len(statuses)} statuses from the API")
-
-            # Process each status and add to our status map
+            statuses = status_response['data'].get('statuses', [])
+            print(f"[DEBUG] Found {len(statuses)} statuses in API response")
             for status in statuses:
-                uuid = status.get('uuid')
-                if uuid:
-                    status_map[uuid] = {
-                        'name': status.get('name'),
-                        'displayName': status.get('name'),  # Use the same for display name
-                        'backgroundColor': status.get('backgroundColor'),
-                        'textColor': status.get('textColor'),
-                        'category': status.get('category')
+                if 'uuid' in status and 'name' in status:
+                    # Convert hex color to RGB tuple
+                    bg_color = status.get('backgroundColor', '#808080')
+                    if bg_color.startswith('#'):
+                        try:
+                            r = int(bg_color[1:3], 16)
+                            g = int(bg_color[3:5], 16)
+                            b = int(bg_color[5:7], 16)
+                            color = (r, g, b)
+                        except:
+                            color = (128, 128, 128)  # Default gray
+                    else:
+                        color = (128, 128, 128)  # Default gray
+
+                    # Add to status map
+                    status_map[status['uuid']] = {
+                        "name": status['name'],
+                        "color": color
                     }
-                    print(f"[DEBUG PDF] Added status from API: {status.get('name')} ({uuid})")
+            print(f"[DEBUG] Status map updated with API data, now has {len(status_map)} entries")
+        else:
+            print(f"[DEBUG] No valid status data from API, using default status map only")
+
+        # Generate PDF with enhanced status mapping
+        print(f"[DEBUG] Calling generate_report_pdf with enhanced status map")
+        from io import BytesIO
+
+        # First check if generate_report_pdf can accept the status_map parameter
+        import inspect
+        from .pdf_generator import generate_report_pdf
+        try:
+            pdf_sig = inspect.signature(generate_report_pdf)
+            pdf_params = list(pdf_sig.parameters.keys())
+            print(f"[DEBUG] generate_report_pdf parameters: {pdf_params}")
+
+            if 'status_map' in pdf_params:
+                print(f"[DEBUG] generate_report_pdf accepts status_map parameter")
+                result = generate_report_pdf(
+                    project_id,
+                    project_data,
+                    observations,
+                    instructions,
+                    deficiencies,
+                    issue_comments,
+                    status_map
+                )
+            else:
+                print(f"[DEBUG] generate_report_pdf does NOT accept status_map parameter, calling without it")
+                result = generate_report_pdf(
+                    project_id,
+                    project_data,
+                    observations,
+                    instructions,
+                    deficiencies,
+                    issue_comments
+                )
+        except Exception as pdf_sig_error:
+            print(f"[DEBUG] Error checking generate_report_pdf signature: {pdf_sig_error}")
+            print(f"[DEBUG] Calling generate_report_pdf without status_map to be safe")
+            result = generate_report_pdf(
+                project_id,
+                project_data,
+                observations,
+                instructions,
+                deficiencies,
+                issue_comments
+            )
+
+        print(f"[DEBUG] PDF generation successful")
+        print(f"[DEBUG-END] =====================================================")
+        return result
     except Exception as e:
         import traceback
-        print(f"[DEBUG PDF] Error fetching project statuses for PDF: {e}")
-        print(f"[DEBUG PDF] Traceback: {traceback.format_exc()}")
-        print(f"[DEBUG PDF] Continuing with hardcoded status map")
+        print(f"[DEBUG] Error generating PDF: {e}")
+        print(f"[DEBUG] Error traceback: {traceback.format_exc()}")
+        print(f"[DEBUG] Falling back to standard PDF generation")
 
-    # Set metadata
-    pdf.set_title(f"Rapport de visite - Projet {project_data.get('projectName', project_id)}")
-    pdf.set_author("STGM Architecture")
-    pdf.set_creator("STGM Revizto Report Generator")
-
-    # Set PDF properties
-    pdf.project_name = project_data.get('projectName', f"Projet {project_id}")
-    if project_data.get('reportDate'):
+        # Fall back to standard PDF generation without enhanced status handling
         try:
-            pdf.report_date = datetime.strptime(project_data['reportDate'], '%Y-%m-%d').strftime('%d/%m/%Y')
-        except:
-            pdf.report_date = project_data['reportDate']
-
-    # Initialize issue_comments dict if not provided
-    if issue_comments is None:
-        issue_comments = {}
-
-    # Add project information page
-    pdf.add_info_page(project_data)
-
-    # Add general notes
-    pdf.add_general_notes()
-
-    # Add observations section if any observations
-    if observations and len(observations) > 0:
-        pdf.add_page()
-        pdf.chapter_title("1 - OBSERVATIONS")
-
-        # Filter out closed issues
-        open_observations = [obs for obs in observations if not is_closed_issue(obs)]
-
-        if len(open_observations) > 0:
-            for observation in open_observations:
-                # Get comments for this observation if available
-                obs_comments = issue_comments.get(str(observation.get('id')), [])
-                # Pass the status map to the add_observation method
-                pdf.add_observation(observation, obs_comments, status_map)
-        else:
-            pdf.set_font('helvetica', 'I', 10)
-            pdf.cell(0, 6, "Aucune observation trouvée", 0, 1, 'L')
-
-    # Add instructions section if any instructions
-    if instructions and len(instructions) > 0:
-        pdf.add_page()
-        pdf.chapter_title("2 - INSTRUCTIONS")
-
-        # Filter out closed issues
-        open_instructions = [ins for ins in instructions if not is_closed_issue(ins)]
-
-        if len(open_instructions) > 0:
-            for instruction in open_instructions:
-                # Get comments for this instruction if available
-                ins_comments = issue_comments.get(str(instruction.get('id')), [])
-                # Pass the status map to the add_instruction method
-                pdf.add_instruction(instruction, ins_comments, status_map)
-        else:
-            pdf.set_font('helvetica', 'I', 10)
-            pdf.cell(0, 6, "Aucune instruction trouvée", 0, 1, 'L')
-
-    # Add deficiencies section if any deficiencies
-    if deficiencies and len(deficiencies) > 0:
-        pdf.add_page()
-        pdf.chapter_title("3 - DÉFICIENCES")
-
-        # Filter out closed issues
-        open_deficiencies = [df for df in deficiencies if not is_closed_issue(df)]
-
-        if len(open_deficiencies) > 0:
-            for deficiency in open_deficiencies:
-                # Get comments for this deficiency if available
-                def_comments = issue_comments.get(str(deficiency.get('id')), [])
-                # Pass the status map to the add_deficiency method
-                pdf.add_deficiency(deficiency, def_comments, status_map)
-        else:
-            pdf.set_font('helvetica', 'I', 10)
-            pdf.cell(0, 6, "Aucune déficience trouvée", 0, 1, 'L')
-
-    # Create a BytesIO object to store the PDF
-    pdf_buffer = BytesIO()
-
-    # Save PDF to BytesIO object
-    pdf.output(pdf_buffer)
-
-    # Reset buffer position to the beginning
-    pdf_buffer.seek(0)
-
-    return pdf_buffer
+            from .pdf_generator import generate_report_pdf
+            result = generate_report_pdf(
+                project_id,
+                project_data,
+                observations,
+                instructions,
+                deficiencies,
+                issue_comments
+            )
+            print(f"[DEBUG] Fallback PDF generation successful")
+            return result
+        except Exception as fallback_error:
+            print(f"[DEBUG] Fallback PDF generation failed: {fallback_error}")
+            print(f"[DEBUG] Returning empty PDF")
+            # Return empty PDF as last resort
+            from io import BytesIO
+            from fpdf import FPDF
+            pdf = FPDF()
+            pdf.add_page()
+            pdf.set_font("helvetica", size=12)
+            pdf.cell(200, 10, txt="Error generating PDF report", ln=True, align="C")
+            pdf.cell(200, 10, txt=f"Error: {str(e)}", ln=True, align="C")
+            buffer = BytesIO()
+            pdf.output(buffer)
+            buffer.seek(0)
+            print(f"[DEBUG-END] =====================================================")
+            return buffer
 
 def sanitize_dict_for_pdf(data_dict):
     """
