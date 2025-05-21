@@ -489,8 +489,9 @@ class ReviztoService:
                 print(f"[DEBUG] Token store is missing tokens, aborting workflow settings request")
                 return {"result": 1, "message": "API tokens not available", "data": {}}
 
-            # Use the correct endpoint for workflow settings
-            endpoint = "issue-workflow/settings"
+            # Use the correct endpoint for the project workflow settings
+            endpoint = f"project/{project_id}/issue-workflow/settings"
+            print(f"[DEBUG] Using workflow settings endpoint: {endpoint}")
 
             # Make API request
             response = ReviztoAPI.get(endpoint)

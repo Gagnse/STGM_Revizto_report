@@ -94,56 +94,87 @@ function fetchProjectStatuses(projectId) {
         })
         .then(data => {
             console.log('[DEBUG] Received workflow settings with result:', data.result);
-            console.log('[DEBUG] Workflow data keys:', data.data ? Object.keys(data.data) : 'No data property');
 
-            // Process and store status information
+            // Create a new status map for this project
+            const newStatusMap = {};
+
+            // First, add default statuses as fallback
+            newStatusMap['open'] = {
+                name: "Open",
+                displayName: "Ouvert",
+                textColor: "#FFFFFF",
+                backgroundColor: "#CC2929"
+            };
+            newStatusMap['in_progress'] = {
+                name: "In progress",
+                displayName: "En cours",
+                textColor: "#FFFFFF",
+                backgroundColor: "#FFAA00"
+            };
+            newStatusMap['solved'] = {
+                name: "Solved",
+                displayName: "Résolu",
+                textColor: "#FFFFFF",
+                backgroundColor: "#42BE65"
+            };
+            newStatusMap['closed'] = {
+                name: "Closed",
+                displayName: "Fermé",
+                textColor: "#FFFFFF",
+                backgroundColor: "#B8B8B8"
+            };
+
+            // Process and store status information from API
             if (data && data.result === 0 && data.data) {
-                // Store all statuses in a map for easy lookup
-                const statusMap = {};
-
                 // Process statuses from the response
                 if (data.data.statuses && Array.isArray(data.data.statuses)) {
                     console.log('[DEBUG] Found', data.data.statuses.length, 'statuses in response');
 
                     data.data.statuses.forEach(status => {
-                        console.log(`[DEBUG] Processing status: ${status.name} (UUID: ${status.uuid})`);
+                        if (status.uuid) {
+                            console.log(`[DEBUG] Processing status: ${status.name} (UUID: ${status.uuid})`);
 
-                        // *** IMPORTANT FIX: Add status to map by UUID ***
-                        statusMap[status.uuid] = {
-                            name: status.name,
-                            displayName: mapStatusNameToFrench(status.name),
-                            textColor: status.textColor,
-                            backgroundColor: status.backgroundColor,
-                            category: status.category
-                        };
+                            // Add status to map by UUID
+                            newStatusMap[status.uuid] = {
+                                name: status.name,
+                                displayName: mapStatusNameToFrench(status.name),
+                                textColor: status.textColor || "#FFFFFF",
+                                backgroundColor: status.backgroundColor || "#6F7E93",
+                                category: status.category || "Unknown"
+                            };
+
+                            // Special logging for "En attente" status
+                            if (status.name === "En attente") {
+                                console.log(`[DEBUG] "En attente" status added with UUID ${status.uuid}`);
+                            }
+                        }
                     });
 
-                    console.log('[DEBUG] Processed', Object.keys(statusMap).length, 'custom statuses');
-                    console.log('[DEBUG] Status map keys:', Object.keys(statusMap));
+                    console.log('[DEBUG] Total status map entries:', Object.keys(newStatusMap).length);
 
-                    // *** IMPORTANT FIX: Directly assign to window.statusMap ***
-                    window.statusMap = statusMap;
-                    console.log('[DEBUG] Updated window.statusMap directly with UUIDs');
-
-                    // Also check if "En attente" is in the map
-                    const enAttenteUuid = "c70f7d38-1d60-4df3-b85b-14e59174d7ba";
-                    if (window.statusMap[enAttenteUuid]) {
-                        console.log(`[DEBUG] Verified "En attente" is in statusMap: ${window.statusMap[enAttenteUuid].displayName}`);
-                    } else {
-                        console.log(`[DEBUG] "En attente" is NOT in statusMap!`);
-                    }
-                } else {
-                    console.warn('[DEBUG] No statuses array found in data or it is not an array');
-                    console.log('[DEBUG] Data structure:', JSON.stringify(data.data).substring(0, 200) + '...');
+                    // Also add statuses by name for fallback lookup
+                    data.data.statuses.forEach(status => {
+                        if (status.name) {
+                            const lowerName = status.name.toLowerCase();
+                            newStatusMap[lowerName] = {
+                                name: status.name,
+                                displayName: mapStatusNameToFrench(status.name),
+                                textColor: status.textColor || "#FFFFFF",
+                                backgroundColor: status.backgroundColor || "#6F7E93",
+                                category: status.category || "Unknown"
+                            };
+                        }
+                    });
                 }
-
-                // Store in global state
-                window.issueData.projectStatuses = statusMap;
-                return statusMap;
-            } else {
-                console.warn('[DEBUG] Invalid workflow settings data format:', data);
-                return {};
             }
+
+            // Update the global status map
+            window.statusMap = newStatusMap;
+            console.log('[DEBUG] Status map updated with', Object.keys(window.statusMap).length, 'entries');
+
+            // Store statuses in global state
+            window.issueData.projectStatuses = newStatusMap;
+            return data;
         })
         .catch(error => {
             console.error('[DEBUG] Error fetching workflow settings:', error);
@@ -151,87 +182,117 @@ function fetchProjectStatuses(projectId) {
         });
 }
 
-// Get status display information based on status UUID
+// Get status display information based on status UUID or object
 function getStatusDisplay(statusId) {
-  console.log(`[DEBUG-STATUS] Getting status display for ID: ${statusId}`);
+    console.log(`[DEBUG] Getting status display for:`, statusId);
 
-  // Default status if nothing else matches
-  const defaultStatus = {
-    name: "Unknown",
-    displayName: "Inconnu",
-    textColor: "#FFFFFF",
-    backgroundColor: "#6F7E93"
-  };
-
-  // Check for UUID in custom status value format
-  if (typeof statusId === 'object' && statusId !== null) {
-    console.log('[DEBUG-STATUS] Status is an object:', statusId);
-
-    // Handle the customStatus.value format seen in logs
-    if (statusId.value) {
-      console.log(`[DEBUG-STATUS] Using status.value: ${statusId.value}`);
-      statusId = statusId.value;
-    } else if (statusId.uuid) {
-      console.log(`[DEBUG-STATUS] Using status.uuid: ${statusId.uuid}`);
-      statusId = statusId.uuid;
-    } else {
-      console.log('[DEBUG-STATUS] Could not extract status ID from object');
-      return defaultStatus;
+    // If the enhanced version from status-map-enhancer.js is available, use that instead
+    if (window.statusDirectMap) {
+        return window.getStatusDisplay(statusId);
     }
-  }
 
-  // Now statusId should be a string, look it up in our map
-   if (typeof statusId === 'string' && statusDirectMap[statusId]) {
-    console.log(`[DEBUG-STATUS] Found direct UUID match for ${statusId}: ${statusDirectMap[statusId].displayName}`);
-    return statusDirectMap[statusId];
-  }
+    // Default status as fallback
+    const defaultStatus = {
+        name: "Unknown",
+        displayName: "Inconnu",
+        textColor: "#FFFFFF",
+        backgroundColor: "#6F7E93"
+    };
 
-  console.log('[DEBUG-STATUS] Status not found in map, checking for specific IDs');
-  // Debug: print all status UUIDs to check
-  console.log('[DEBUG-STATUS] All available status UUIDs:', Object.keys(window.statusMap).join(', '));
+    // Extract status UUID or name from different possible formats
+    let statusValue = null;
 
-  // Specific check for the "En attente" UUID
-  const enAttenteUuid = "c70f7d38-1d60-4df3-b85b-14e59174d7ba"; // From your data
-  if (statusId === enAttenteUuid) {
-    console.log('[DEBUG-STATUS] This is the "En attente" status but it was not found in the map');
-  }
+    // Handle object format
+    if (typeof statusId === 'object' && statusId !== null) {
+        console.log('[DEBUG] Status is an object:', statusId);
 
-  // If still not found, try to match by lowercase string
-  if (typeof statusId === 'string') {
-    const statusLower = statusId.toLowerCase();
-    console.log('[DEBUG-STATUS] Trying string match for:', statusLower);
-
-    if (statusLower.includes('open')) {
-      return window.statusMap['open'];
-    } else if (statusLower.includes('progress')) {
-      return window.statusMap['in_progress'];
-    } else if (statusLower.includes('solved') || statusLower.includes('fixed')) {
-      return window.statusMap['solved'];
-    } else if (statusLower.includes('closed')) {
-      return window.statusMap['closed'];
-    } else if (statusLower.includes('attente')) {
-      console.log('[DEBUG-STATUS] Found string match for "attente"');
-      // Look for any status with "attente" in name
-      for (const [uuid, status] of Object.entries(window.statusMap)) {
-        if (status.name.toLowerCase().includes('attente') ||
-            status.displayName.toLowerCase().includes('attente')) {
-          console.log('[DEBUG-STATUS] Found "attente" status in map:', status);
-          return status;
+        // Handle different object structures
+        if (statusId.value) {
+            statusValue = statusId.value;
+            console.log(`[DEBUG] Extracted status value: ${statusValue}`);
+        } else if (statusId.uuid) {
+            statusValue = statusId.uuid;
+            console.log(`[DEBUG] Extracted status UUID: ${statusValue}`);
+        } else if (statusId.customStatus) {
+            if (typeof statusId.customStatus === 'string') {
+                statusValue = statusId.customStatus;
+                console.log(`[DEBUG] Extracted status from customStatus string: ${statusValue}`);
+            } else if (typeof statusId.customStatus === 'object' && statusId.customStatus.value) {
+                statusValue = statusId.customStatus.value;
+                console.log(`[DEBUG] Extracted status from customStatus.value: ${statusValue}`);
+            }
+        } else if (statusId.status) {
+            if (typeof statusId.status === 'string') {
+                statusValue = statusId.status;
+                console.log(`[DEBUG] Extracted status from status string: ${statusValue}`);
+            } else if (typeof statusId.status === 'object' && statusId.status.value) {
+                statusValue = statusId.status.value;
+                console.log(`[DEBUG] Extracted status from status.value: ${statusValue}`);
+            }
         }
-      }
+    } else if (typeof statusId === 'string') {
+        // If it's already a string, use it directly
+        statusValue = statusId;
+        console.log(`[DEBUG] Status is already a string: ${statusValue}`);
     }
-  }
 
-  console.log('[DEBUG-STATUS] No status match found, using default');
-  return defaultStatus;
+    // Look for the status in our status map
+    if (statusValue && window.statusMap) {
+        // Try direct lookup first
+        if (window.statusMap[statusValue]) {
+            console.log(`[DEBUG] Found status in map with direct lookup: ${window.statusMap[statusValue].displayName}`);
+            return window.statusMap[statusValue];
+        }
+
+        // Try case-insensitive name match if it's not a UUID
+        if (typeof statusValue === 'string' && statusValue.length < 36) {
+            const lowerValue = statusValue.toLowerCase();
+
+            // Check for common status names
+            if (lowerValue.includes('open')) {
+                console.log('[DEBUG] Matched status by "open" keyword');
+                return window.statusMap['open'] || defaultStatus;
+            } else if (lowerValue.includes('progress')) {
+                console.log('[DEBUG] Matched status by "progress" keyword');
+                return window.statusMap['in_progress'] || defaultStatus;
+            } else if (lowerValue.includes('solv') || lowerValue.includes('solved')) {
+                console.log('[DEBUG] Matched status by "solved" keyword');
+                return window.statusMap['solved'] || defaultStatus;
+            } else if (lowerValue.includes('closed') || lowerValue.includes('close')) {
+                console.log('[DEBUG] Matched status by "closed" keyword');
+                return window.statusMap['closed'] || defaultStatus;
+            } else if (lowerValue.includes('attend')) {
+                console.log('[DEBUG] Matched status by "attend" keyword');
+
+                // Look for any status with "attente" in the name
+                for (const [key, status] of Object.entries(window.statusMap)) {
+                    if (status.name.toLowerCase().includes('attend') ||
+                        status.displayName.toLowerCase().includes('attend')) {
+                        console.log(`[DEBUG] Found "attente" status: ${status.displayName}`);
+                        return status;
+                    }
+                }
+            }
+
+            // Try all entries in the status map for name match
+            for (const [key, status] of Object.entries(window.statusMap)) {
+                if (status.name.toLowerCase() === lowerValue ||
+                    status.displayName.toLowerCase() === lowerValue) {
+                    console.log(`[DEBUG] Found status by name match: ${status.displayName}`);
+                    return status;
+                }
+            }
+        }
+    }
+
+    console.log('[DEBUG] No matching status found, using default');
+    return defaultStatus;
 }
 
-// Helper function to map status names to French
 // Helper function to map status names to French
 function mapStatusNameToFrench(statusName) {
     if (!statusName) return 'Inconnu';
 
-    console.log(`[DEBUG-STATUS] Mapping status name to French: "${statusName}"`);
     const statusLower = statusName.toLowerCase();
 
     // Map by exact case-insensitive matching
@@ -241,20 +302,25 @@ function mapStatusNameToFrench(statusName) {
         'closed': 'Fermé',
         'solved': 'Résolu',
         'in progress': 'En cours',
-        'in_progress': 'En cours',
-        'en attente': 'En attente',    // Already French
-        'corrigé': 'Corrigé',          // Already French
-        'non-problème': 'Non-problème' // Already French
+        'in_progress': 'En cours'
     };
 
     // Check for direct mapping
     if (statusMap[statusLower]) {
-        console.log(`[DEBUG-STATUS] Found direct mapping for "${statusName}": "${statusMap[statusLower]}"`);
         return statusMap[statusLower];
     }
 
+    // For statuses already in French (like "En attente"), keep them as is
+    if (statusLower.includes('attente') ||
+        statusLower.includes('corrigé') ||
+        statusLower.includes('fermé') ||
+        statusLower.includes('ouvert') ||
+        statusLower.includes('résolu') ||
+        statusLower.includes('cours')) {
+        return statusName;
+    }
+
     // If no mapping exists, preserve the original name
-    console.log(`[DEBUG-STATUS] No mapping found for "${statusName}", using original`);
     return statusName;
 }
 
