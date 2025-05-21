@@ -8615,3 +8615,122 @@ Checking 2 comments for images
 Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712062/.static/issues/551/comments/4a5083e3-e4a7-4696-ac32-d96dd540e38e/3dc6ca00
 Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_dc2ae59f-3d71-4a5c-9fec-f84816d4a605.png
 "GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 1513576
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24445
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/status-fix.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+Search request with query: matim
+"GET /api/search/?query=matim HTTP/1.1" 200 94
+"GET /api/projects/712062/workflow-settings/ HTTP/1.1" 200 4768
+Loaded project data for project 712062
+"GET /api/projects/712062/data/load/ HTTP/1.1" 200 800520
+"GET /api/projects/712062/observations/ HTTP/1.1" 200 6444
+"GET /api/projects/712062/deficiencies/ HTTP/1.1" 200 19416
+"GET /api/projects/712062/instructions/ HTTP/1.1" 200 127
+"GET /api/projects/712062/issues/553/comments/ HTTP/1.1" 200 2849
+"GET /api/projects/712062/issues/550/comments/ HTTP/1.1" 200 3549
+"GET /api/projects/712062/issues/551/comments/ HTTP/1.1" 200 4090
+Finding best image for issue 553
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712062/.static/issues/553/comments/6a2793dd-1495-4386-81d7-c41242f837f2/bbee7a73
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_c082b657-3a40-40d6-b9e5-35da06f52039.png
+Finding best image for issue 550
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712062/.static/issues/550/comments/79fdba92-2ae6-432c-8e6c-1183b8e78b62/750364f7
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_ebe83a97-f9c3-40b2-b291-eeb1cd45099b.png
+Finding best image for issue 551
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712062/.static/issues/551/comments/4a5083e3-e4a7-4696-ac32-d96dd540e38e/3dc6ca00
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_ec5b439a-1d69-4e41-a05b-52f7c24895de.png
+"GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 1513576
+C:\Users\sgagnon\PycharmProject\DjangoProject\core\api\service.py changed, reloading.
+API client initialized with tokens
+Watching for file changes with StatReloader
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24445
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/status-fix.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+"GET / HTTP/1.1" 200 24445
+Search request with query: mat
+"GET /api/search/?query=mat HTTP/1.1" 200 178
+"GET /api/projects/712062/workflow-settings/ HTTP/1.1" 200 4768
+Loaded project data for project 712062
+"GET /api/projects/712062/data/load/ HTTP/1.1" 200 800520
+"GET /api/projects/712062/observations/ HTTP/1.1" 200 6444
+"GET /api/projects/712062/instructions/ HTTP/1.1" 200 127
+"GET /api/projects/712062/deficiencies/ HTTP/1.1" 200 19416
+"GET /api/projects/712062/issues/551/comments/ HTTP/1.1" 200 4090
+"GET /api/projects/712062/issues/550/comments/ HTTP/1.1" 200 3549
+"GET /api/projects/712062/issues/553/comments/ HTTP/1.1" 200 2849
+Finding best image for issue 553
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712062/.static/issues/553/comments/6a2793dd-1495-4386-81d7-c41242f837f2/bbee7a73
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_7d85c0fb-ecc5-4c9f-ad38-d8be17f33b6b.png
+Finding best image for issue 550
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712062/.static/issues/550/comments/79fdba92-2ae6-432c-8e6c-1183b8e78b62/750364f7
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_929e60d3-1e5d-48a3-9b31-e980ba844627.png
+Finding best image for issue 551
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712062/.static/issues/551/comments/4a5083e3-e4a7-4696-ac32-d96dd540e38e/3dc6ca00
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_45882784-8e29-4e6a-9ba6-5104675a0e08.png
+"GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 1513546
+"GET / HTTP/1.1" 200 24445
+Search request with query: mati
+"GET /api/search/?query=mati HTTP/1.1" 200 178
+"GET /api/projects/712062/workflow-settings/ HTTP/1.1" 200 4768
+Loaded project data for project 712062
+"GET /api/projects/712062/data/load/ HTTP/1.1" 200 800520
+"GET /api/projects/712062/instructions/ HTTP/1.1" 200 127
+"GET /api/projects/712062/observations/ HTTP/1.1" 200 6444
+"GET /api/projects/712062/deficiencies/ HTTP/1.1" 200 19416
+"GET /api/projects/712062/issues/553/comments/ HTTP/1.1" 200 2849
+"GET /api/projects/712062/issues/551/comments/ HTTP/1.1" 200 4090
+"GET /api/projects/712062/issues/550/comments/ HTTP/1.1" 200 3549
+Finding best image for issue 553
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712062/.static/issues/553/comments/6a2793dd-1495-4386-81d7-c41242f837f2/bbee7a73
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_bb5b4b8b-5795-48cc-b460-6bed5b385f9f.png
+Finding best image for issue 550
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712062/.static/issues/550/comments/79fdba92-2ae6-432c-8e6c-1183b8e78b62/750364f7
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_3bb66f04-b6bd-4b73-8176-2b53b7dbdd36.png
+Finding best image for issue 551
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712062/.static/issues/551/comments/4a5083e3-e4a7-4696-ac32-d96dd540e38e/3dc6ca00
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_d33ec3f4-4005-4a61-93cf-9881d35570cf.png
+"GET /api/projects/712062/generate-pdf/ HTTP/1.1" 200 1513546
+C:\Users\sgagnon\PycharmProject\DjangoProject\core\pdf_generator.py changed, reloading.
+API client initialized with tokens
+Watching for file changes with StatReloader
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24445
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/status-fix.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0

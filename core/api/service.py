@@ -471,10 +471,9 @@ class ReviztoService:
             print(f"[DEBUG-SERVICE] Traceback: {traceback.format_exc()}")
             return {"result": 1, "message": str(e), "data": [], "issueId": issue_id}
 
-    @classmethod
     def get_project_workflow_settings(cls, project_id):
         """
-        Get workflow settings for a specific project.
+        Get workflow settings for a specific project with enhanced debugging.
 
         Args:
             project_id (int): Project ID
@@ -482,25 +481,45 @@ class ReviztoService:
         Returns:
             dict: Response with workflow settings data
         """
-        print(f"[DEBUG] Fetching workflow settings for project ID: {project_id}")
+        print(f"[SERVER-DEBUG-API] Fetching workflow settings for project ID: {project_id}")
         try:
             # Verify tokens are available before making request
             if not token_store.has_tokens():
-                print(f"[DEBUG] Token store is missing tokens, aborting workflow settings request")
+                print(f"[SERVER-DEBUG-API] Token store is missing tokens, aborting workflow settings request")
                 return {"result": 1, "message": "API tokens not available", "data": {}}
 
-            # Use the correct endpoint for workflow settings
-            endpoint = "issue-workflow/settings"
+            # Use the correct endpoint for the project workflow settings - FIXED
+            endpoint = f"project/{project_id}/issue-workflow/settings"
+            print(f"[SERVER-DEBUG-API] Using workflow settings endpoint: {endpoint}")
 
             # Make API request
+            print(f"[SERVER-DEBUG-API] Making request to Revizto API...")
             response = ReviztoAPI.get(endpoint)
-            print(f"[DEBUG] Workflow settings API response received: {type(response)}")
+            print(f"[SERVER-DEBUG-API] Workflow settings API response received: {type(response)}")
+
+            # Debug the status UUIDs in the response
+            if isinstance(response, dict) and response.get('result') == 0 and 'data' in response:
+                data = response.get('data', {})
+                statuses = data.get('statuses', [])
+                if statuses:
+                    print(f"[SERVER-DEBUG-API] Found {len(statuses)} statuses in API response")
+                    for status in statuses:
+                        if status.get('name') == 'En attente':
+                            import json
+                            print(f"[SERVER-DEBUG-API] 'En attente' status details from API:")
+                            print(f"[SERVER-DEBUG-API] {json.dumps(status, indent=2)}")
+
+                            # Check for any encoding issues in the UUID
+                            status_uuid = status.get('uuid', '')
+                            print(f"[SERVER-DEBUG-API] UUID direct value: '{status_uuid}'")
+                            print(f"[SERVER-DEBUG-API] UUID byte representation: {[ord(c) for c in status_uuid]}")
+                            print(f"[SERVER-DEBUG-API] UUID repr: {repr(status_uuid)}")
 
             # Return the raw API response
             return response
 
         except Exception as e:
             import traceback
-            print(f"[DEBUG] Failed to get workflow settings: {e}")
-            print(f"[DEBUG] Exception traceback: {traceback.format_exc()}")
+            print(f"[SERVER-DEBUG-API] Failed to get workflow settings: {e}")
+            print(f"[SERVER-DEBUG-API] Exception traceback: {traceback.format_exc()}")
             return {"result": 1, "message": str(e), "data": {}}

@@ -1048,16 +1048,18 @@ def generate_report_pdf(project_id, project_data, observations, instructions, de
     Returns:
         BytesIO: PDF file as a BytesIO object
     """
-    # ADDED: First fetch status mapping from the API
+    # ADDED: First try to fetch status mapping from the API
     project_statuses = {}
     try:
-        # Use the same endpoint the frontend uses
+        # Use the same endpoint the frontend uses - CORRECTED with proper project path
         from .api.service import ReviztoService
+        print(f"[DEBUG PDF] Fetching workflow settings for project {project_id}")
         workflow_response = ReviztoService.get_project_workflow_settings(project_id)
 
         if workflow_response and workflow_response.get('result') == 0 and workflow_response.get('data'):
             # Process statuses from the response
             if workflow_response['data'].get('statuses') and isinstance(workflow_response['data']['statuses'], list):
+                print(f"[DEBUG PDF] Found {len(workflow_response['data']['statuses'])} statuses in API response")
                 for status in workflow_response['data']['statuses']:
                     # Store each status with its UUID as the key
                     if status.get('uuid') and status.get('name'):
@@ -1068,97 +1070,19 @@ def generate_report_pdf(project_id, project_data, observations, instructions, de
                             'backgroundColor': status.get('backgroundColor', '#6F7E93'),
                             'category': status.get('category', '')
                         }
+                        print(f"[DEBUG PDF] Mapped status: {status['uuid']} -> {status['name']}")
 
-        # Add default mappings for common statuses
-        default_statuses = {
-            "2ed005c6-43cd-4907-a4d6-807dbd0197d5": {
-                "name": "Open",
-                "displayName": "Ouvert",
-                "textColor": "#FFFFFF",
-                "backgroundColor": "#CC2929"
-            },
-            "cd52ac3e-f345-4f99-870f-5be95dc33245": {
-                "name": "In progress",
-                "displayName": "En cours",
-                "textColor": "#FFFFFF",
-                "backgroundColor": "#FFAA00"
-            },
-            "b8504242-3489-43a2-9831-54f64053b226": {
-                "name": "Solved",
-                "displayName": "Résolu",
-                "textColor": "#FFFFFF",
-                "backgroundColor": "#42BE65"
-            },
-            "135b58c6-1e14-4716-a134-bbba2bbc90a7": {
-                "name": "Closed",
-                "displayName": "Fermé",
-                "textColor": "#FFFFFF",
-                "backgroundColor": "#B8B8B8"
-            },
-            # Add a mapping for "En attente" with both possible UUIDs
-            "5947b7d1-70b9-425b-aba6-7187eb0251ff": {
-                "name": "En attente",
-                "displayName": "En attente",
-                "textColor": "#FFFFFF",
-                "backgroundColor": "#FFD32E"
-            },
-            "c70f7d38-1d60-4df3-b85b-14e59174d7ba": {
-                "name": "En attente",
-                "displayName": "En attente",
-                "textColor": "#FFFFFF",
-                "backgroundColor": "#FFD32E"
-            }
-        }
-
-        # Merge default statuses with project-specific ones
-        # Project statuses take precedence over defaults
-        for uuid, status in default_statuses.items():
-            if uuid not in project_statuses:
-                project_statuses[uuid] = status
+        # Print what we found for debugging
+        print(f"[DEBUG PDF] Found {len(project_statuses)} statuses from API")
+        if project_statuses:
+            for uuid, status in project_statuses.items():
+                print(f"[DEBUG PDF] Status mapping: {uuid} -> {status['name']}")
 
     except Exception as e:
-        print(f"[DEBUG] Error fetching project statuses for PDF: {e}")
-        # If there's an error, use default statuses
-        project_statuses = {
-            "2ed005c6-43cd-4907-a4d6-807dbd0197d5": {
-                "name": "Open",
-                "displayName": "Ouvert",
-                "textColor": "#FFFFFF",
-                "backgroundColor": "#CC2929"
-            },
-            "cd52ac3e-f345-4f99-870f-5be95dc33245": {
-                "name": "In progress",
-                "displayName": "En cours",
-                "textColor": "#FFFFFF",
-                "backgroundColor": "#FFAA00"
-            },
-            "b8504242-3489-43a2-9831-54f64053b226": {
-                "name": "Solved",
-                "displayName": "Résolu",
-                "textColor": "#FFFFFF",
-                "backgroundColor": "#42BE65"
-            },
-            "135b58c6-1e14-4716-a134-bbba2bbc90a7": {
-                "name": "Closed",
-                "displayName": "Fermé",
-                "textColor": "#FFFFFF",
-                "backgroundColor": "#B8B8B8"
-            },
-            "5947b7d1-70b9-425b-aba6-7187eb0251ff": {
-                "name": "En attente",
-                "displayName": "En attente",
-                "textColor": "#FFFFFF",
-                "backgroundColor": "#FFD32E"
-            },
-            "c70f7d38-1d60-4df3-b85b-14e59174d7ba": {
-                "name": "En attente",
-                "displayName": "En attente",
-                "textColor": "#FFFFFF",
-                "backgroundColor": "#FFD32E"
-            }
-        }
+        print(f"[DEBUG PDF] Error fetching project statuses for PDF: {e}")
+        project_statuses = {}
 
-    # Now continue with PDF creation
+    # Now create the PDF
     pdf = ReviztoPDF()
 
     # ADDED: Pass the status map to the PDF object
@@ -1287,56 +1211,122 @@ def is_closed_issue(issue):
     return False
 
 
-def format_status_value(value):
+def format_status_value(self, observation):
     """
     Format a status ID or value object to a display string.
+    Uses a combination of the dynamic status map and fallback hardcoded values.
 
     Args:
-        value: Status ID (string) or value object
+        observation: The complete observation object
 
     Returns:
-        str: Formatted display string
+        tuple: (display_string, bg_color, text_color)
     """
-    # If value is None or empty, return default
-    if not value:
-        return "Inconnu"
+    # Default values
+    default_status = ("Inconnu", (110, 110, 110), (255, 255, 255))
 
-    # If value is an object with 'value' property (from API)
-    if isinstance(value, dict) and 'value' in value:
-        value = value['value']
+    # Add debug output for the observation
+    print(f"[DEBUG PDF] Processing observation status: {observation.get('id')}")
 
-    # Status ID to display name mapping
-    status_map = {
-        "2ed005c6-43cd-4907-a4d6-807dbd0197d5": "Ouvert",
-        "cd52ac3e-f345-4f99-870f-5be95dc33245": "En cours",
-        "b8504242-3489-43a2-9831-54f64053b226": "Resolu",  # Avoid "é" for PDF compatibility
-        "135b58c6-1e14-4716-a134-bbba2bbc90a7": "Ferme",   # Avoid "é" for PDF compatibility
-        "5947b7d1-70b9-425b-aba6-7187eb0251ff": "En attente",
-        "912abbbf-3155-4e3c-b437-5778bdfd73f4": "Non-probleme",  # Avoid "è" for PDF compatibility
-        "337e2fe6-e2a3-4e3f-b098-30aac68a191c": "Corrige",  # Avoid "é" for PDF compatibility
-    }
+    # Extract status from observation
+    status_id = None
 
-    # Check if the value is a known UUID
-    if isinstance(value, str) and value in status_map:
-        return status_map[value]
+    # Check for customStatus first (priority over regular status)
+    if observation.get('customStatus'):
+        print(f"[DEBUG PDF] Found customStatus in observation {observation.get('id')}")
+        if isinstance(observation['customStatus'], str):
+            status_id = observation['customStatus']
+            print(f"[DEBUG PDF] customStatus is string: {status_id}")
+        elif isinstance(observation['customStatus'], dict) and observation['customStatus'].get('value'):
+            status_id = observation['customStatus']['value']
+            print(f"[DEBUG PDF] customStatus is object with value: {status_id}")
+    # Then check for regular status
+    elif observation.get('status'):
+        print(f"[DEBUG PDF] Found regular status in observation {observation.get('id')}")
+        if isinstance(observation['status'], str):
+            status_id = observation['status']
+            print(f"[DEBUG PDF] status is string: {status_id}")
+        elif isinstance(observation['status'], dict) and observation['status'].get('value'):
+            status_id = observation['status']['value']
+            print(f"[DEBUG PDF] status is object with value: {status_id}")
 
-    # Basic string translations
-    if isinstance(value, str):
-        lower_value = value.lower()
-        if lower_value == "open" or lower_value == "opened":
-            return "Ouvert"
-        elif lower_value == "closed":
-            return "Ferme"  # Avoid "é" for PDF compatibility
-        elif lower_value == "solved":
-            return "Resolu"  # Avoid "é" for PDF compatibility
-        elif lower_value == "in progress" or lower_value == "in_progress":
-            return "En cours"
-        # Return the value as is if no translation
-        return value
+    print(f"[DEBUG PDF] Extracted status_id: {status_id}")
 
-    # If we still don't know how to handle it, convert to string
-    return str(value)
+    # If we found a status ID, try to look it up
+    if status_id:
+        # First, check if we have a status map from the API
+        if hasattr(self, 'status_map') and self.status_map:
+            print(f"[DEBUG PDF] Found status_map with {len(self.status_map)} entries")
 
+            # First, try the dynamic status map from the API
+            if status_id in self.status_map:
+                status_info = self.status_map[status_id]
+                print(f"[DEBUG PDF] Found status in dynamic map: {status_id} -> {status_info.get('name')}")
+
+                # Get the name from the dynamically loaded status
+                status_name = status_info.get('displayName', status_info.get('name', "Inconnu"))
+
+                # Convert hex colors to RGB tuples
+                bg_hex = status_info.get('backgroundColor', '#6F7E93')
+                text_hex = status_info.get('textColor', '#FFFFFF')
+
+                bg_color = self._hex_to_rgb(bg_hex)
+                text_color = self._hex_to_rgb(text_hex)
+
+                return (status_name, bg_color, text_color)
+            else:
+                print(f"[DEBUG PDF] Status not found in dynamic map: {status_id}")
+                print(f"[DEBUG PDF] Available keys in status_map: {list(self.status_map.keys())}")
+        else:
+            print(f"[DEBUG PDF] No status_map available or it's empty")
+
+        # If not found in dynamic map, use our hardcoded mappings
+        # Direct mapping of known status UUIDs
+        hardcoded_map = {
+            "2ed005c6-43cd-4907-a4d6-807dbd0197d5": ("Ouvert", (204, 41, 41), (255, 255, 255)),  # Open - Red
+            "cd52ac3e-f345-4f99-870f-5be95dc33245": ("En cours", (255, 170, 0), (255, 255, 255)),
+            # In progress - Orange
+            "b8504242-3489-43a2-9831-54f64053b226": ("Résolu", (66, 190, 101), (255, 255, 255)),  # Solved - Green
+            "135b58c6-1e14-4716-a134-bbba2bbc90a7": ("Fermé", (184, 184, 184), (255, 255, 255)),  # Closed - Gray
+            "5947b7d1-70b9-425b-aba6-7187eb0251ff": ("En attente", (255, 211, 46), (255, 255, 255)),  # Waiting - Yellow
+            "c70f7d38-1d60-4df3-b85b-14e59174d7ba": ("En attente", (255, 211, 46), (255, 255, 255)),
+            # Alt Waiting - Yellow
+            "912abbbf-3155-4e3c-b437-5778bdfd73f4": ("Non-problème", (43, 43, 43), (255, 255, 255)),
+            # Non-issue - Dark Gray
+            "337e2fe6-e2a3-4e3f-b098-30aac68a191c": ("Corrigé", (137, 46, 251), (255, 255, 255)),  # Fixed - Purple
+        }
+
+        # Check hardcoded map
+        if status_id in hardcoded_map:
+            print(f"[DEBUG PDF] Found status in hardcoded map: {status_id} -> {hardcoded_map[status_id][0]}")
+            return hardcoded_map[status_id]
+        else:
+            print(f"[DEBUG PDF] Status not found in hardcoded map: {status_id}")
+            print(f"[DEBUG PDF] Available keys in hardcoded_map: {list(hardcoded_map.keys())}")
+
+        # If UUID not recognized, try name-based matching
+        if isinstance(status_id, str):
+            lower_value = status_id.lower()
+            if lower_value == "open" or lower_value == "opened":
+                return ("Ouvert", (204, 41, 41), (255, 255, 255))
+            elif lower_value == "closed":
+                return ("Fermé", (184, 184, 184), (255, 255, 255))
+            elif lower_value == "solved":
+                return ("Résolu", (66, 190, 101), (255, 255, 255))
+            elif lower_value == "in progress" or lower_value == "in_progress":
+                return ("En cours", (255, 170, 0), (255, 255, 255))
+            elif lower_value == "en attente" or lower_value == "waiting":
+                return ("En attente", (255, 211, 46), (255, 255, 255))
+            elif lower_value == "corrigé" or lower_value == "fixed":
+                return ("Corrigé", (137, 46, 251), (255, 255, 255))
+            elif lower_value == "non-problème" or lower_value == "non-issue":
+                return ("Non-problème", (43, 43, 43), (255, 255, 255))
+    else:
+        print(f"[DEBUG PDF] No status_id found for observation {observation.get('id')}")
+
+    # If all lookups failed, return default
+    print(f"[DEBUG PDF] All lookups failed, returning default status for observation {observation.get('id')}")
+    return default_status
 
 def format_diff_value(value):
     """
