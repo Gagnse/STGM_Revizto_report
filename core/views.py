@@ -370,53 +370,59 @@ def get_project_workflow_settings(request, project_id):
     API endpoint to get workflow settings for a project.
     This includes custom statuses, types, and workflows.
     """
-    print(f"\n[DEBUG] ===== WORKFLOW SETTINGS REQUEST =====")
-    print(f"[DEBUG] Workflow settings request received for project ID: {project_id}")
+    print(f"\n[DEBUG-STATUS] ===== WORKFLOW SETTINGS REQUEST =====")
+    print(f"[DEBUG-STATUS] Workflow settings request received for project ID: {project_id}")
 
     try:
         # Create endpoint URL using project ID - IMPORTANT: Using the correct endpoint format
-        # The endpoint should be 'issue-workflow/settings' not 'project/{project_id}/issue-workflow/settings'
-        endpoint = f"issue-workflow/settings"
-        print(f"[DEBUG] Using endpoint: {endpoint}")
+        endpoint = f"project/{project_id}/issue-workflow/settings"
+        print(f"[DEBUG-STATUS] Using endpoint: {endpoint}")
 
         # Make API request
         try:
             response_data = ReviztoAPI.get(endpoint)
-            print(f"[DEBUG] Workflow settings response received with status:{response_data.get('result')}")
+            print(f"[DEBUG-STATUS] Workflow settings response received with status: {response_data.get('result')}")
 
-            # Debug the response data
+            # Debug the response data structure in detail
             if isinstance(response_data, dict):
-                print(f"[DEBUG] Response keys: {list(response_data.keys())}")
+                print(f"[DEBUG-STATUS] Response keys: {list(response_data.keys())}")
 
                 if response_data.get('result') == 0 and 'data' in response_data:
                     data = response_data['data']
-                    print(f"[DEBUG] Data keys: {list(data.keys())}")
+                    print(f"[DEBUG-STATUS] Data keys: {list(data.keys())}")
 
                     # Debug statuses specifically
-                    if 'statuses' in data:
+                    if 'statuses' in data and isinstance(data['statuses'], list):
                         statuses = data['statuses']
-                        print(f"[DEBUG] Found {len(statuses)} statuses")
+                        print(f"[DEBUG-STATUS] Found {len(statuses)} statuses")
 
-                        # Print first few statuses
-                        for i, status in enumerate(statuses[:3]):
-                            print(f"[DEBUG] Status {i + 1}: {status.get('name')} - UUID: {status.get('uuid')}")
+                        # Print all statuses for debugging
+                        for status in statuses:
+                            status_uuid = status.get('uuid', 'No UUID')
+                            status_name = status.get('name', 'No Name')
+                            status_bg = status.get('backgroundColor', 'No BG Color')
+                            print(f"[DEBUG-STATUS] Status: {status_name}, UUID: {status_uuid}, BG: {status_bg}")
+
+                            # Special check for "En attente"
+                            if status_name == "En attente":
+                                print(f"[DEBUG-STATUS] FOUND 'En attente' status: {status}")
                 else:
-                    print(f"[DEBUG] Error in response: {response_data.get('message', 'No message')}")
+                    print(f"[DEBUG-STATUS] Error in response: {response_data.get('message', 'No message')}")
             else:
-                print(f"[DEBUG] Response data is not a dictionary: {type(response_data)}")
+                print(f"[DEBUG-STATUS] Response data is not a dictionary: {type(response_data)}")
 
         except Exception as api_error:
-            print(f"[DEBUG] API request failed: {api_error}")
+            print(f"[DEBUG-STATUS] API request failed: {api_error}")
             import traceback
-            print(f"[DEBUG] API error traceback: {traceback.format_exc()}")
+            print(f"[DEBUG-STATUS] API error traceback: {traceback.format_exc()}")
             response_data = {"result": 1, "message": str(api_error), "data": {}}
 
         # Return the raw API response
         return JsonResponse(response_data)
     except Exception as e:
-        print(f"[DEBUG] Error in get_project_workflow_settings: {e}")
+        print(f"[DEBUG-STATUS] Error in get_project_workflow_settings: {e}")
         import traceback
-        print(f"[DEBUG] Traceback: {traceback.format_exc()}")
+        print(f"[DEBUG-STATUS] Traceback: {traceback.format_exc()}")
         return JsonResponse({"result": 1, "message": str(e), "data": {}})
 
 

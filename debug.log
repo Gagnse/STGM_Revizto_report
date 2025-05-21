@@ -6621,3 +6621,231 @@ Checking 3 comments for images
 Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/8/comments/80450c07-7d29-4fbe-bd77-d25504efe9e4/803dbe95
 Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_d47f236d-e18b-4be4-a38b-33be9334aaf7.png
 "GET /api/projects/712301/generate-pdf/ HTTP/1.1" 200 2843296
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+C:\Users\sgagnon\PycharmProject\DjangoProject\core\views.py changed, reloading.
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 19863
+"GET /static/css/styles.css HTTP/1.1" 200 762
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 200 62967
+"GET /static/js/main.js HTTP/1.1" 200 3229
+"GET /static/js/project-form.js HTTP/1.1" 200 16771
+"GET /static/js/search.js HTTP/1.1" 200 14367
+"GET /static/js/issue-data.js HTTP/1.1" 200 44023
+"GET /static/js/datepicker.js HTTP/1.1" 200 2245
+"GET /static/js/pdf-generator.js HTTP/1.1" 200 4990
+Not Found: /static/css/tailwindcss
+"GET /static/css/tailwindcss HTTP/1.1" 404 179
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 179
+Search request with query: mat
+"GET /api/search/?query=mat HTTP/1.1" 200 178
+"GET /api/projects/712062/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712062/instructions/ HTTP/1.1" 200 127
+"GET /api/projects/712062/deficiencies/ HTTP/1.1" 200 19402
+"GET /api/projects/712062/observations/ HTTP/1.1" 200 6437
+Loaded project data for project 712062
+"GET /api/projects/712062/data/load/ HTTP/1.1" 200 800520
+"GET /api/projects/712062/issues/551/comments/ HTTP/1.1" 200 3468
+"GET /api/projects/712062/issues/553/comments/ HTTP/1.1" 200 2227
+"GET /api/projects/712062/issues/550/comments/ HTTP/1.1" 200 2927
+Search request with query: gym
+"GET /api/search/?query=gym HTTP/1.1" 200 90
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 14485
+Loaded project data for project 712307
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682652
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
+"GET /api/projects/712307/issues/12/comments/ HTTP/1.1" 200 4487
+"GET /api/projects/712307/issues/7/comments/ HTTP/1.1" 200 9424
+"GET /api/projects/712307/issues/13/comments/ HTTP/1.1" 200 8013
+"GET /api/projects/712307/issues/11/comments/ HTTP/1.1" 200 5862
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 19863
+Not Found: /static/css/tailwindcss
+"GET /static/css/tailwindcss HTTP/1.1" 404 179
+Search request with query: gymn
+"GET /api/search/?query=gymn HTTP/1.1" 200 90
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+Loaded project data for project 712307
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682652
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 14485
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
+"GET /api/projects/712307/issues/12/comments/ HTTP/1.1" 200 4487
+"GET /api/projects/712307/issues/13/comments/ HTTP/1.1" 200 8013
+"GET /api/projects/712307/issues/7/comments/ HTTP/1.1" 200 9424
+"GET /api/projects/712307/issues/11/comments/ HTTP/1.1" 200 5862
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 19863
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+Not Found: /static/css/tailwindcss
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/css/tailwindcss HTTP/1.1" 404 179
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+Search request with query: gymn
+"GET /api/search/?query=gymn HTTP/1.1" 200 90
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 14485
+Loaded project data for project 712307
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682652
+"GET /api/projects/712307/issues/12/comments/ HTTP/1.1" 200 4487
+"GET /api/projects/712307/issues/7/comments/ HTTP/1.1" 200 9424
+"GET /api/projects/712307/issues/13/comments/ HTTP/1.1" 200 8013
+"GET /api/projects/712307/issues/11/comments/ HTTP/1.1" 200 5862
+C:\Users\sgagnon\PycharmProject\DjangoProject\core\views.py changed, reloading.
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 19863
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+Not Found: /static/css/tailwindcss
+"GET /static/css/tailwindcss HTTP/1.1" 404 179
+Search request with query: hy
+"GET /api/search/?query=hy HTTP/1.1" 200 15
+Search request with query: gym
+"GET /api/search/?query=gym HTTP/1.1" 200 90
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 14485
+Loaded project data for project 712307
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682652
+"GET /api/projects/712307/issues/13/comments/ HTTP/1.1" 200 8013
+"GET /api/projects/712307/issues/12/comments/ HTTP/1.1" 200 4487
+"GET /api/projects/712307/issues/7/comments/ HTTP/1.1" 200 9424
+"GET /api/projects/712307/issues/11/comments/ HTTP/1.1" 200 5862
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 19863
+Not Found: /static/css/tailwindcss
+"GET /static/css/tailwindcss HTTP/1.1" 404 179
+Search request with query: gymn
+"GET /api/search/?query=gymn HTTP/1.1" 200 90
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 14485
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+Loaded project data for project 712307
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682652
+"GET /api/projects/712307/issues/13/comments/ HTTP/1.1" 200 8013
+"GET /api/projects/712307/issues/7/comments/ HTTP/1.1" 200 9424
+"GET /api/projects/712307/issues/11/comments/ HTTP/1.1" 200 5862
+"GET /api/projects/712307/issues/12/comments/ HTTP/1.1" 200 4487
+"GET /static/css/styles.css HTTP/1.1" 304 0
+Not Found: /static/css/tailwindcss
+"GET /static/css/tailwindcss HTTP/1.1" 404 179
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 179
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 19916
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+Not Found: /static/css/tailwindcss
+Not Found: /static/js/status-fix.js
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/css/tailwindcss HTTP/1.1" 404 179
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+"GET /static/js/status-fix.js HTTP/1.1" 404 179
+Search request with query: gymn
+"GET /api/search/?query=gymn HTTP/1.1" 200 90
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+Loaded project data for project 712307
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682652
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 19276
+"GET /api/projects/712307/issues/13/comments/ HTTP/1.1" 200 8013
+"GET /api/projects/712307/issues/7/comments/ HTTP/1.1" 200 9424
+"GET /api/projects/712307/issues/11/comments/ HTTP/1.1" 200 5862
+"GET /api/projects/712307/issues/12/comments/ HTTP/1.1" 200 4487
+"GET /api/projects/712307/issues/14/comments/ HTTP/1.1" 200 2383
+Not Found: /static/css/tailwindcss
+"GET /static/css/tailwindcss HTTP/1.1" 404 179
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 179
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 19916
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+Not Found: /static/css/tailwindcss
+Not Found: /static/js/status-fix.js
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+"GET /static/css/tailwindcss HTTP/1.1" 404 179
+"GET /static/js/status-fix.js HTTP/1.1" 404 179
+Search request with query: gymn
+"GET /api/search/?query=gymn HTTP/1.1" 200 90
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+Loaded project data for project 712307
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682652
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 19276
+"GET /api/projects/712307/issues/14/comments/ HTTP/1.1" 200 2383
+"GET /api/projects/712307/issues/11/comments/ HTTP/1.1" 200 5862
+"GET /api/projects/712307/issues/13/comments/ HTTP/1.1" 200 8013
+"GET /api/projects/712307/issues/12/comments/ HTTP/1.1" 200 4487
+"GET /api/projects/712307/issues/7/comments/ HTTP/1.1" 200 9424
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24445
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+Not Found: /static/css/tailwindcss
+Not Found: /static/js/status-fix.js
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+"GET /static/css/tailwindcss HTTP/1.1" 404 179
+"GET /static/js/status-fix.js HTTP/1.1" 404 179
+Search request with query: gymn
+"GET /api/search/?query=gymn HTTP/1.1" 200 90
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+Loaded project data for project 712307
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682652
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 19276
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+"GET /api/projects/712307/issues/13/comments/ HTTP/1.1" 200 8013
+"GET /api/projects/712307/issues/11/comments/ HTTP/1.1" 200 5862
+"GET /api/projects/712307/issues/14/comments/ HTTP/1.1" 200 2383
+"GET /api/projects/712307/issues/7/comments/ HTTP/1.1" 200 9424
+"GET /api/projects/712307/issues/12/comments/ HTTP/1.1" 200 4487

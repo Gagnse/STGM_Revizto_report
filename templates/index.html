@@ -40,6 +40,91 @@
     <script src="{% static 'js/project-form.js' %}"></script>
     <script src="{% static 'js/search.js' %}"></script>
     <script src="{% static 'js/issue-data.js' %}"></script>
+    <script>
+    // Fix status map not being properly assigned
+    document.addEventListener('DOMContentLoaded', function() {
+        // Wait a little bit for issue-data.js to finish initializing
+        setTimeout(function() {
+            console.log('[FIX] Status map fix script running');
+
+            // Keep track of the original fetchProjectStatuses function
+            if (window.issueDataHandler && window.issueDataHandler.fetchProjectStatuses) {
+                const originalFetchProjectStatuses = window.issueDataHandler.fetchProjectStatuses;
+
+                // Replace with our fixed version
+                window.issueDataHandler.fetchProjectStatuses = function(projectId) {
+                    console.log('[FIX] Using enhanced fetchProjectStatuses');
+
+                    return fetch(`/api/projects/${projectId}/workflow-settings/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            // Process the data as normal first
+                            const result = originalFetchProjectStatuses(projectId);
+
+                            // But also build our own direct status map
+                            if (data && data.result === 0 && data.data && data.data.statuses) {
+                                console.log('[FIX] Building direct status map from API data');
+
+                                // Create a map directly from UUIDs to status objects
+                                const directMap = {};
+
+                                data.data.statuses.forEach(status => {
+                                    const uuid = status.uuid;
+                                    if (!uuid) return;
+
+                                    // Create a proper status object
+                                    directMap[uuid] = {
+                                        name: status.name,
+                                        displayName: status.name,
+                                        textColor: status.textColor,
+                                        backgroundColor: status.backgroundColor,
+                                        category: status.category
+                                    };
+
+                                    // Translate common statuses to French
+                                    if (status.name === "Open") {
+                                        directMap[uuid].displayName = "Ouvert";
+                                    } else if (status.name === "In progress") {
+                                        directMap[uuid].displayName = "En cours";
+                                    } else if (status.name === "Solved") {
+                                        directMap[uuid].displayName = "Résolu";
+                                    } else if (status.name === "Closed") {
+                                        directMap[uuid].displayName = "Fermé";
+                                    }
+                                    // Keep others as is (already in French)
+
+                                    // Log "En attente" status
+                                    if (status.name === "En attente") {
+                                        console.log(`[FIX] Added "En attente" status with UUID ${uuid} to directMap`);
+                                    }
+                                });
+
+                                // Now replace the window.statusMap entirely
+                                window.statusMap = directMap;
+                                console.log(`[FIX] Directly replaced window.statusMap with ${Object.keys(directMap).length} entries`);
+
+                                // Store in issueData for reference
+                                window.issueData.projectStatuses = directMap;
+                            }
+
+                            return result;
+                        });
+                };
+
+                console.log('[FIX] fetchProjectStatuses successfully enhanced');
+
+                // If there's already an active project, refresh the statuses
+                if (window.issueData && window.issueData.activeProjectId) {
+                    console.log('[FIX] Found active project, refreshing statuses');
+                    window.issueDataHandler.fetchProjectStatuses(window.issueData.activeProjectId);
+                }
+            } else {
+                console.error('[FIX] Could not find issueDataHandler.fetchProjectStatuses');
+            }
+        }, 500); // Give time for the original scripts to load
+    });
+</script>
+    <script src="{% static 'js/status-fix.js' %}"></script>
     <script src="{% static 'js/datepicker.js' %}"></script>
     <script src="{% static 'js/pdf-generator.js' %}"></script>
 
