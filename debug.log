@@ -7735,3 +7735,49 @@ Search request with query: gym
 "GET /api/search/?query=gym HTTP/1.1" 200 90
 Loaded project data for project 712307
 "GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682675
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 21140
+Not Found: /static/css/styles.css
+Not Found: /static/js/main.js
+Not Found: /static/images/STGM_Logotype_RVB_Architecture_Noir.png
+"GET /static/css/styles.css HTTP/1.1" 404 179
+"GET /static/js/main.js HTTP/1.1" 404 179
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 404 179
+Not Found: /static/js/project-form.js
+"GET /static/js/project-form.js HTTP/1.1" 404 179
+Not Found: /static/js/search.js
+Not Found: /static/js/issue-data.js
+Not Found: /static/css/styles.css
+"GET /static/js/search.js HTTP/1.1" 404 179
+"GET /static/js/issue-data.js HTTP/1.1" 404 179
+"GET /static/css/styles.css HTTP/1.1" 404 179
+Not Found: /static/js/datepicker.js
+Not Found: /static/js/pdf-generator.js
+"GET /static/js/datepicker.js HTTP/1.1" 404 179
+"GET /static/js/pdf-generator.js HTTP/1.1" 404 179
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 21140
+Not Found: /static/css/styles.css
+Not Found: /static/images/STGM_Logotype_RVB_Architecture_Noir.png
+Not Found: /static/js/main.js
+"GET /static/css/styles.css HTTP/1.1" 404 179
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 404 179
+"GET /static/js/main.js HTTP/1.1" 404 179
+Not Found: /static/js/project-form.js
+"GET /static/js/project-form.js HTTP/1.1" 404 179
+Not Found: /static/js/search.js
+Not Found: /static/js/issue-data.js
+"GET /static/js/search.js HTTP/1.1" 404 179
+"GET /static/js/issue-data.js HTTP/1.1" 404 179
+Not Found: /static/css/styles.css
+Not Found: /static/js/datepicker.js
+Not Found: /static/js/pdf-generator.js
+"GET /static/js/datepicker.js HTTP/1.1" 404 179
+"GET /static/css/styles.css HTTP/1.1" 404 179
+"GET /static/js/pdf-generator.js HTTP/1.1" 404 179
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 179

@@ -1,7 +1,7 @@
 // Modified getStatusDisplay function with UUID inspection
 // Add this to replace your existing getStatusDisplay function
 function getStatusDisplay(statusId) {
-    console.log(`[DEBUG] Getting status display for:`, statusId);
+    console.log(`[DEBUG-UUID] Getting status display for:`, statusId);
 
     // Default status as fallback
     const defaultStatus = {
@@ -16,128 +16,96 @@ function getStatusDisplay(statusId) {
 
     // Handle object format
     if (typeof statusId === 'object' && statusId !== null) {
-        console.log('[DEBUG] Status is an object:', statusId);
+        console.log('[DEBUG-UUID] Status is an object:', JSON.stringify(statusId));
 
         // Handle different object structures
         if (statusId.customStatus !== undefined) {
             if (typeof statusId.customStatus === 'string') {
                 statusValue = statusId.customStatus;
-                console.log(`[DEBUG] Extracted from customStatus string: "${statusValue}"`);
+                console.log(`[DEBUG-UUID] Extracted from customStatus string: "${statusValue}"`);
             } else if (typeof statusId.customStatus === 'object' && statusId.customStatus !== null) {
                 if (statusId.customStatus.value) {
                     statusValue = statusId.customStatus.value;
-                    console.log(`[DEBUG] Extracted from customStatus.value: "${statusValue}"`);
+                    console.log(`[DEBUG-UUID] Extracted from customStatus.value: "${statusValue}"`);
                 }
             }
         } else if (statusId.status !== undefined) {
             if (typeof statusId.status === 'string') {
                 statusValue = statusId.status;
-                console.log(`[DEBUG] Extracted from status string: "${statusValue}"`);
+                console.log(`[DEBUG-UUID] Extracted from status string: "${statusValue}"`);
             } else if (typeof statusId.status === 'object' && statusId.status !== null) {
                 if (statusId.status.value) {
                     statusValue = statusId.status.value;
-                    console.log(`[DEBUG] Extracted from status.value: "${statusValue}"`);
+                    console.log(`[DEBUG-UUID] Extracted from status.value: "${statusValue}"`);
                 }
             }
         } else if (statusId.value !== undefined) {
             statusValue = statusId.value;
-            console.log(`[DEBUG] Extracted from direct value: "${statusValue}"`);
+            console.log(`[DEBUG-UUID] Extracted from direct value: "${statusValue}"`);
         }
     } else if (typeof statusId === 'string') {
         statusValue = statusId;
-        console.log(`[DEBUG] Status is a string: "${statusValue}"`);
+        console.log(`[DEBUG-UUID] Status is a string: "${statusValue}"`);
     }
 
-    // Debug what's in the status map for diagnosis
-    if (window.statusMap) {
-        console.log(`[DEBUG] Status map contains ${Object.keys(window.statusMap).length} entries`);
-        console.log(`[DEBUG] Status map keys:`, Object.keys(window.statusMap));
-    } else {
-        console.log(`[DEBUG] Status map is not defined or empty`);
-    }
-
-    // If we found a status value, try lookup
+    // If we found a status value, inspect it for encoding issues and try lookup
     if (statusValue) {
-        console.log(`[DEBUG] Looking up status with value: "${statusValue}"`);
+        // Diagnose any UUID encoding issues
+        statusValue = inspectUUID(statusValue, "Lookup Value");
 
-        // Direct lookup in statusMap
-        if (window.statusMap && window.statusMap[statusValue]) {
-            console.log(`[DEBUG] Found direct match in statusMap: ${window.statusMap[statusValue].displayName}`);
-            return window.statusMap[statusValue];
+        console.log(`[DEBUG-UUID] Looking up status with value: "${statusValue}"`);
+        console.log(`[DEBUG-UUID] Status map keys (${Object.keys(window.statusMap).length}):`, Object.keys(window.statusMap));
+
+        // Try direct equality
+        const directResult = window.statusMap[statusValue];
+        console.log(`[DEBUG-UUID] Direct lookup result:`, directResult);
+
+        if (directResult) {
+            console.log(`[DEBUG-UUID] Found status via direct lookup: ${directResult.displayName}`);
+            return directResult;
         }
 
-        // Our logs show we have the right UUID in the map but it's not finding it
-        // Let's check for exact string equality issues
-        if (window.statusMap) {
-            for (const [key, status] of Object.entries(window.statusMap)) {
-                // Compare the status UUID with our extracted value
-                if (key === statusValue) {
-                    console.log(`[DEBUG] Found status via direct key equality: ${status.displayName}`);
-                    return status;
-                }
+        // Special handling for "En attente" status which is consistently problematic
+        if (statusValue === 'c70f7d38-1d60-4df3-b85b-14e59174d7ba' ||
+            (window.enAttenteUUID && statusValue === window.enAttenteUUID)) {
 
-                // Handle "En attente" status specifically
-                if (statusValue === 'c70f7d38-1d60-4df3-b85b-14e59174d7ba' &&
-                    (key === 'c70f7d38-1d60-4df3-b85b-14e59174d7ba' ||
-                     status.name === 'En attente' ||
-                     status.displayName === 'En attente')) {
-                    console.log(`[DEBUG] Found "En attente" status using special handling`);
+            console.log('[DEBUG-UUID] Detected "En attente" status - using special handling');
+
+            // Try lookup with stored UUID if available
+            if (window.enAttenteUUID && window.statusMap[window.enAttenteUUID]) {
+                console.log('[DEBUG-UUID] Using stored En attente UUID for lookup');
+                return window.statusMap[window.enAttenteUUID];
+            }
+
+            // Fallback to finding by name
+            for (const [key, status] of Object.entries(window.statusMap)) {
+                if (status.name === 'En attente') {
+                    console.log(`[DEBUG-UUID] Found "En attente" status by name`);
                     return status;
                 }
             }
-        }
 
-        // If still not found, provide a hardcoded fallback for common statuses
-        if (statusValue === 'c70f7d38-1d60-4df3-b85b-14e59174d7ba') {
-            console.log('[DEBUG] Using hardcoded fallback for "En attente" status');
+            // Last resort - create a new status object
+            console.log('[DEBUG-UUID] Creating new En attente status object as last resort');
             return {
                 name: "En attente",
                 displayName: "En attente",
                 textColor: "#FFFFFF",
-                backgroundColor: "#FFD32E", // Yellow color from the server logs
-                category: "Tracking"
-            };
-        } else if (statusValue === '2ed005c6-43cd-4907-a4d6-807dbd0197d5') {
-            console.log('[DEBUG] Using hardcoded fallback for "Open" status');
-            return {
-                name: "Open",
-                displayName: "Ouvert",
-                textColor: "#FFFFFF",
-                backgroundColor: "#CC2929", // Red
-                category: "Tracking"
-            };
-        } else if (statusValue === 'cd52ac3e-f345-4f99-870f-5be95dc33245') {
-            console.log('[DEBUG] Using hardcoded fallback for "In progress" status');
-            return {
-                name: "In progress",
-                displayName: "En cours",
-                textColor: "#FFFFFF",
-                backgroundColor: "#FFAA00", // Orange
-                category: "Tracking"
-            };
-        } else if (statusValue === 'b8504242-3489-43a2-9831-54f64053b226') {
-            console.log('[DEBUG] Using hardcoded fallback for "Solved" status');
-            return {
-                name: "Solved",
-                displayName: "Résolu",
-                textColor: "#FFFFFF",
-                backgroundColor: "#42BE65", // Green
+                backgroundColor: "#FFD32E",
                 category: "Tracking"
             };
         }
 
-        // Try finding by name - useful for cases where the UUID doesn't match but name does
-        if (window.statusMap) {
-            for (const [key, status] of Object.entries(window.statusMap)) {
-                if (status.name === statusValue || status.displayName === statusValue) {
-                    console.log(`[DEBUG] Found status by name match: ${status.displayName}`);
-                    return status;
-                }
+        // Try name-based lookup
+        for (const [key, status] of Object.entries(window.statusMap)) {
+            if (status.name === statusValue || status.displayName === statusValue) {
+                console.log(`[DEBUG-UUID] Found status by name match: ${status.displayName}`);
+                return status;
             }
         }
     }
 
-    console.log('[DEBUG] No status match found, using default');
+    console.log('[DEBUG-UUID] No status found, using default');
     return defaultStatus;
 }
 
