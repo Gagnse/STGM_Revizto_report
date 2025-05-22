@@ -176,7 +176,7 @@ class ReviztoPDF(FPDF):
 
         self.set_xy(x + width + 5, y)
 
-    def add_observation(self, observation, comments=None, status_map=None):
+    def add_observation(self, observation, comments=None, status_map=None, is_first_in_chapter=False):
         """
         Add an observation to the report with the layout:
         - Top: Two columns (image + information)
@@ -293,6 +293,9 @@ class ReviztoPDF(FPDF):
             elif observation['preview'].get('original'):
                 imageUrl = observation['preview']['original']
 
+        # Start each issue on a new page for clean formatting
+        self.add_page()
+
         # Calculate page dimensions
         page_width = self.w - 2 * self.l_margin
 
@@ -300,18 +303,10 @@ class ReviztoPDF(FPDF):
         header_height = 10
         top_section_height = 60
 
-        # First, calculate how much space we have left on the current page
-        space_left = self.h - self.b_margin - self.get_y()
-
-        # If less than minimum required space, start a new page
-        min_required_space = header_height + top_section_height + 30  # minimum 30mm for history
-        if space_left < min_required_space:
-            self.add_page()
-            # Set a proper top margin after page break
-            self.set_y(self.t_margin + 30)
-
-        # Remember the start position of the card
-        card_start_y = self.get_y()
+        # Start the card below the header area
+        header_space = 45  # Space taken by header (logo, project info, line)
+        card_start_y = self.t_margin + header_space
+        self.set_y(card_start_y)
 
         # ===== HEADER SECTION =====
 
@@ -511,10 +506,6 @@ class ReviztoPDF(FPDF):
         # Start position for metadata
         info_y = self.get_y() + 2
 
-        # Metadata layout - using a more efficient layout with proper spacing
-        # UPDATED: Modified field widths and layout to bring values closer to labels
-        # and prevent overlapping by ensuring proper cell widths
-
         # Calculate optimal field widths for the two columns
         col_padding = 5  # Padding for each column
         col_width = (info_col_width - (col_padding * 2)) / 2  # Width of each column
@@ -631,32 +622,12 @@ class ReviztoPDF(FPDF):
         # History section starts below top section
         history_y = top_section_y + top_section_height
 
-        # IMPORTANT: First draw the history section background without a fixed height
-        # We'll redraw it later with the correct height
-        # Just draw the horizontal divider line for now
-        self.line(self.l_margin, history_y, self.l_margin + page_width, history_y)
+        # Check if we actually have valid comments to display
+        has_valid_comments = False
+        valid_comments = []
 
-        # History title
-        self.set_xy(self.l_margin + 5, history_y + 3)
-        self.set_font('helvetica', 'B', 9)
-        self.cell(page_width - 10, 5, "Historique", 0, 1, 'L')
-
-        # Save position BEFORE rendering comments - this is crucial for measurement
-        history_start_position = self.get_y()
-
-        # Remember the start position for comments
-        history_content_start_y = self.get_y() + 2
-
-        # Show comments if available
         if comments and len(comments) > 0:
-            # Debug comments information
-            print(f"[DEBUG PDF] Processing {len(comments)} comments for issue {observation.get('id')}")
-            print(f"[DEBUG PDF] First comment type: {type(comments[0]) if comments else 'None'}")
-
             # Process the comments list - filter out diff comments
-            valid_comments = []
-
-            # First, ensure we have valid comments data
             for comment in comments:
                 # Handle both string and dict formats
                 if isinstance(comment, dict):
@@ -674,174 +645,168 @@ class ReviztoPDF(FPDF):
                         # If parsing fails, skip this comment
                         continue
 
-            # Only proceed if we have valid comments
+            # Sort comments by date (newest first)
             if valid_comments:
-                print(f"[DEBUG PDF] Valid non-diff comments: {len(valid_comments)}")
+                valid_comments = sorted(valid_comments,
+                                        key=lambda x: x.get('created', ''),
+                                        reverse=True)
+                has_valid_comments = True
 
-                # Sort comments by date (newest first)
-                sorted_comments = sorted(valid_comments,
-                                         key=lambda x: x.get('created', ''),
-                                         reverse=True)
+        # Only add history section if we have valid comments
+        if has_valid_comments:
+            # History title
+            self.set_xy(self.l_margin + 5, history_y + 3)
+            self.set_font('helvetica', 'B', 9)
+            self.cell(page_width - 10, 5, "Historique", 0, 1, 'L')
 
-                print(f"[DEBUG PDF] Sorted non-diff comments: {len(sorted_comments)}")
+            # History content starts here
+            history_content_start_y = self.get_y() + 2
 
-                # Display comments (limit to first 5 to save space)
-                for i, comment in enumerate(sorted_comments[:5]):
-                    if i > 0:
-                        # Add a light separator line between comments
-                        self.set_draw_color(200, 200, 200)  # Light gray
-                        self.line(self.l_margin + 10, self.get_y() - 1, self.l_margin + page_width - 10,
-                                  self.get_y() - 1)
-                        self.set_draw_color(0, 0, 0)  # Reset to black
+            # Display comments (limit to first 5 to save space)
+            for i, comment in enumerate(valid_comments[:5]):
+                if i > 0:
+                    # Add a light separator line between comments
+                    self.set_draw_color(200, 200, 200)  # Light gray
+                    self.line(self.l_margin + 10, self.get_y() - 1, self.l_margin + page_width - 10,
+                              self.get_y() - 1)
+                    self.set_draw_color(0, 0, 0)  # Reset to black
 
-                    # Extract author info
-                    author_name = 'Utilisateur inconnu'
-                    if comment.get('author'):
-                        if isinstance(comment['author'], str):
-                            author_name = sanitize_text_for_pdf(comment['author'])
-                        elif isinstance(comment['author'], dict):
-                            if comment['author'].get('firstname') and comment['author'].get('lastname'):
-                                author_name = sanitize_text_for_pdf(
-                                    f"{comment['author']['firstname']} {comment['author']['lastname']}"
-                                )
-                            elif comment['author'].get('email'):
-                                author_name = sanitize_text_for_pdf(comment['author']['email'])
+                # Extract author info
+                author_name = 'Utilisateur inconnu'
+                if comment.get('author'):
+                    if isinstance(comment['author'], str):
+                        author_name = sanitize_text_for_pdf(comment['author'])
+                    elif isinstance(comment['author'], dict):
+                        if comment['author'].get('firstname') and comment['author'].get('lastname'):
+                            author_name = sanitize_text_for_pdf(
+                                f"{comment['author']['firstname']} {comment['author']['lastname']}"
+                            )
+                        elif comment['author'].get('email'):
+                            author_name = sanitize_text_for_pdf(comment['author']['email'])
 
-                    # Format date
-                    comment_date = "Date inconnue"
-                    if comment.get('created'):
-                        try:
-                            date_obj = datetime.fromisoformat(comment['created'].replace('Z', '+00:00'))
-                            comment_date = date_obj.strftime('%d/%m/%Y %H:%M')
-                        except:
-                            comment_date = comment['created']
+                # Format date
+                comment_date = "Date inconnue"
+                if comment.get('created'):
+                    try:
+                        date_obj = datetime.fromisoformat(comment['created'].replace('Z', '+00:00'))
+                        comment_date = date_obj.strftime('%d/%m/%Y %H:%M')
+                    except:
+                        comment_date = comment['created']
 
-                    # Author and date header
-                    self.set_font('helvetica', 'B', 8)
-                    self.cell(50, 4, author_name, 0, 0, 'L')
-                    self.set_font('helvetica', 'I', 7)
-                    self.cell(page_width - 65, 4, comment_date, 0, 1, 'R')
+                # Author and date header
+                self.set_font('helvetica', 'B', 8)
+                self.cell(50, 4, author_name, 0, 0, 'L')
+                self.set_font('helvetica', 'I', 7)
+                self.cell(page_width - 65, 4, comment_date, 0, 1, 'R')
 
-                    # Comment content based on type
-                    comment_type = comment.get('type', 'unknown')
+                # Comment content based on type
+                comment_type = comment.get('type', 'unknown')
 
-                    if comment_type == 'text':
-                        # Text comment
-                        self.set_font('helvetica', '', 8)
-                        self.set_xy(self.l_margin + 10, self.get_y())
-                        # Sanitize the text before adding to PDF
-                        safe_text = sanitize_text_for_pdf(comment.get('text', ''))
-                        self.multi_cell(page_width - 20, 4, safe_text, 0, 'L')
+                if comment_type == 'text':
+                    # Text comment
+                    self.set_font('helvetica', '', 8)
+                    self.set_xy(self.l_margin + 10, self.get_y())
+                    # Sanitize the text before adding to PDF
+                    safe_text = sanitize_text_for_pdf(comment.get('text', ''))
+                    self.multi_cell(page_width - 20, 4, safe_text, 0, 'L')
 
-                    elif comment_type == 'file':
-                        # Handle file comment (status changes, etc.)
-                        self.set_font('helvetica', 'I', 8)
-                        self.set_xy(self.l_margin + 10, self.get_y())
+                elif comment_type == 'file':
+                    # Handle file comment (status changes, etc.)
+                    self.set_font('helvetica', 'I', 8)
+                    self.set_xy(self.l_margin + 10, self.get_y())
 
-                        filename = sanitize_text_for_pdf(comment.get('filename', 'Sans nom'))
-                        file_text = f"Fichier joint: {filename}"
-                        self.cell(page_width - 20, 4, file_text, 0, 1, 'L')
+                    filename = sanitize_text_for_pdf(comment.get('filename', 'Sans nom'))
+                    file_text = f"Fichier joint: {filename}"
+                    self.cell(page_width - 20, 4, file_text, 0, 1, 'L')
 
-                        # Si le fichier est une image, afficher l'image
-                        if comment.get('mimetype', '').startswith('image/') and comment.get('preview'):
-                            preview = comment.get('preview')
-                            image_url = preview.get('original') or preview.get('middle')
+                    # Si le fichier est une image, afficher l'image
+                    if comment.get('mimetype', '').startswith('image/') and comment.get('preview'):
+                        preview = comment.get('preview')
+                        image_url = preview.get('original') or preview.get('middle')
 
-                            if image_url:
-                                try:
-                                    import uuid
-                                    temp_file = os.path.join(tempfile.gettempdir(), f"comment_img_{uuid.uuid4()}.png")
+                        if image_url:
+                            try:
+                                import uuid
+                                temp_file = os.path.join(tempfile.gettempdir(), f"comment_img_{uuid.uuid4()}.png")
 
-                                    if image_url.startswith('data:image'):
-                                        img_data = re.sub('^data:image/.+;base64,', '', image_url)
-                                        with open(temp_file, 'wb') as f:
-                                            f.write(base64.b64decode(img_data))
-                                    else:
-                                        import urllib.request
-                                        urllib.request.urlretrieve(image_url, temp_file)
+                                if image_url.startswith('data:image'):
+                                    img_data = re.sub('^data:image/.+;base64,', '', image_url)
+                                    with open(temp_file, 'wb') as f:
+                                        f.write(base64.b64decode(img_data))
+                                else:
+                                    import urllib.request
+                                    urllib.request.urlretrieve(image_url, temp_file)
 
-                                    # Définir les dimensions max de l'image
-                                    max_width = 40  # marges
-                                    max_height = 40
+                                # Définir les dimensions max de l'image
+                                max_width = 40  # marges
+                                max_height = 20
 
-                                    from PIL import Image
-                                    img = Image.open(temp_file)
-                                    img_width, img_height = img.size
-                                    aspect_ratio = img_width / img_height
-                                    img.close()
+                                from PIL import Image
+                                img = Image.open(temp_file)
+                                img_width, img_height = img.size
+                                aspect_ratio = img_width / img_height
+                                img.close()
 
-                                    if aspect_ratio > 1:
-                                        image_width = min(max_width, img_width)
-                                        image_height = image_width / aspect_ratio
-                                    else:
-                                        image_height = min(max_height, img_height)
-                                        image_width = image_height * aspect_ratio
+                                if aspect_ratio > 1:
+                                    image_width = min(max_width, img_width)
+                                    image_height = image_width / aspect_ratio
+                                else:
+                                    image_height = min(max_height, img_height)
+                                    image_width = image_height * aspect_ratio
 
-                                    x = self.l_margin + 10
-                                    y = self.get_y()
+                                x = self.l_margin + 10
+                                y = self.get_y()
 
-                                    self.image(temp_file, x=x, y=y, w=image_width)
-                                    self.ln(image_height + 2)
+                                self.image(temp_file, x=x, y=y, w=image_width)
+                                self.ln(image_height + 2)
 
-                                    os.remove(temp_file)
-                                except Exception as e:
-                                    logger.warning(f"Erreur lors de l'affichage de l'image dans les commentaires: {e}")
+                                os.remove(temp_file)
+                            except Exception as e:
+                                logger.warning(f"Erreur lors de l'affichage de l'image dans les commentaires: {e}")
 
-                    elif comment_type == 'markup':
-                        # Just show a simple indication for markups
-                        self.set_font('helvetica', 'I', 8)
-                        self.set_xy(self.l_margin + 10, self.get_y())
-                        self.cell(page_width - 20, 4, "Markup ajoute", 0, 1, 'L')  # Avoid "é" for PDF compatibility
+                elif comment_type == 'markup':
+                    # Just show a simple indication for markups
+                    self.set_font('helvetica', 'I', 8)
+                    self.set_xy(self.l_margin + 10, self.get_y())
+                    self.cell(page_width - 20, 4, "Markup ajoute", 0, 1, 'L')  # Avoid "é" for PDF compatibility
 
-                    else:
-                        # Default for unknown types
-                        self.set_font('helvetica', 'I', 8)
-                        self.set_xy(self.l_margin + 10, self.get_y())
-                        self.cell(page_width - 20, 4, f"Activite: {comment_type}", 0, 1,
-                                  'L')  # Avoid "é" for PDF compatibility
+                else:
+                    # Default for unknown types
+                    self.set_font('helvetica', 'I', 8)
+                    self.set_xy(self.l_margin + 10, self.get_y())
+                    self.cell(page_width - 20, 4, f"Activite: {comment_type}", 0, 1,
+                              'L')  # Avoid "é" for PDF compatibility
 
-                    # Add space after each comment
-                    self.ln(2)
+                # Add space after each comment
+                self.ln(2)
 
-                # If there are more comments than shown
-                if len(sorted_comments) > 5:
-                    self.set_font('helvetica', 'I', 7)
-                    self.set_xy(self.l_margin + 5, self.get_y())
-                    self.cell(page_width - 10, 4,
-                              f"+ {len(sorted_comments) - 5} commentaires supplementaires dans Revizto", 0, 1,
-                              'R')  # Avoid "é" for PDF compatibility
+            # If there are more comments than shown
+            if len(valid_comments) > 5:
+                self.set_font('helvetica', 'I', 7)
+                self.set_xy(self.l_margin + 5, self.get_y())
+                self.cell(page_width - 10, 4,
+                          f"+ {len(valid_comments) - 5} commentaires supplementaires dans Revizto", 0, 1,
+                          'R')  # Avoid "é" for PDF compatibility
 
-            else:
-                # Default message if no valid comments
-                self.set_xy(self.l_margin + 5, self.get_y() + 2)
-                self.set_font('helvetica', 'I', 8)
-                self.multi_cell(page_width - 10, 4, "Aucun historique disponible pour cet element.", 0,
-                                'L')  # Avoid "é" for PDF compatibility
+            # Calculate history section height and draw border
+            history_end_y = self.get_y() + 5  # Add some padding
+            history_section_height = history_end_y - history_content_start_y + 8  # +8 for title area
+
+            # Draw border around the entire history section
+            self.rect(self.l_margin, history_y, page_width, history_section_height)
+
+            # Move position to after history content
+            self.set_y(history_end_y)
 
         else:
-            # Default message if no comments
-            self.set_xy(self.l_margin + 5, self.get_y() + 2)
-            self.set_font('helvetica', 'I', 8)
-            self.multi_cell(page_width - 10, 4, "Aucun historique disponible pour cet element.", 0,
-                            'L')  # Avoid "é" for PDF compatibility
+            # No valid comments - don't draw history section at all
+            # Just move position to after the main card content
+            history_end_y = top_section_y + top_section_height
+            self.set_y(history_end_y)
 
-        # CRITICAL FIX: Measure actual content height AFTER rendering all content
-        history_section_height = max(20, self.get_y() - history_y + 5)  # Add small padding
-
-        # Draw full history section background + border (including title and comments)
-        self.set_fill_color(255, 255, 255)
-        self.rect(self.l_margin, history_y, page_width, history_section_height, 'D')
-
-        # ----- STEP 4: DRAW FINAL BORDER AFTER ALL CONTENT -----
-
-        # Calculate total card height based on actual content
-        total_card_height = header_height + top_section_height + history_section_height + 5
-
-        # Draw outer border LAST - this ensures it encompasses all content
-        self.rect(self.l_margin, card_start_y, page_width, total_card_height)
-
-        # Move position to after the card with spacing
-        self.set_y(card_start_y + total_card_height + 5)  # 10mm gap between cards
+        # Draw the main card border that encompasses header and top sections only
+        main_card_height = header_height + top_section_height
+        self.rect(self.l_margin, card_start_y, page_width, main_card_height)
 
     def get_status_display(self, status_id):
         """
