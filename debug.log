@@ -11191,3 +11191,376 @@ Checking 6 comments for images
 Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/12/comments/d7f8599a-c638-4d35-bed9-cbb487660254/06f66270
 Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_766738ab-29d2-4ecd-85d6-79ba158b77b5.png
 "GET /api/projects/712307/generate-pdf/ HTTP/1.1" 200 24057661
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+Token refresh failed with status code: 403
+"GET / HTTP/1.1" 200 13139
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/status-fix.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24445
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/status-fix.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+Search request with query: gym
+"GET /api/search/?query=gym HTTP/1.1" 200 90
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 28975
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
+Loaded project data for project 712307
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682675
+"GET /api/projects/712307/issues/13/comments/ HTTP/1.1" 200 8013
+"GET /api/projects/712307/issues/16/comments/ HTTP/1.1" 200 3222
+"GET /api/projects/712307/issues/7/comments/ HTTP/1.1" 200 9424
+"GET /api/projects/712307/issues/14/comments/ HTTP/1.1" 200 2948
+"GET /api/projects/712307/issues/11/comments/ HTTP/1.1" 200 5862
+"GET /api/projects/712307/issues/15/comments/ HTTP/1.1" 200 2330
+"GET /api/projects/712307/issues/12/comments/ HTTP/1.1" 200 4487
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 179
+Finding best image for issue 16
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/16/comments/125cdb84-c046-4a6b-9b20-8fc8eca70abc/ce3de4d0
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_48aa4581-87fb-4ea4-86a3-9180d25ec379.png
+Finding best image for issue 7
+Checking 14 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/7/comments/a7287a22-c1d4-418d-a7cb-c77819acea83/c1939f18
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_3d2ae706-c585-4b77-b9d1-debc9446e6bf.png
+Finding best image for issue 13
+Checking 10 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/13/comments/801c6009-c868-4a86-b936-b6b4aa48b675/fea1e458
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_f3f2efbc-aea7-491c-8da9-b87a5b577e27.png
+Finding best image for issue 14
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/14/comments/a367bcf5-c685-4abb-9dea-39c694a9ed10/d53ab900
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_42cc348c-ce94-4039-a04c-3f4497ef1b0e.png
+Finding best image for issue 15
+Checking 3 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/15/comments/f8f1fb7b-2209-4470-9eb3-a09f37f65323/b9a8c126
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_ec81bb4a-1b95-44a3-bab4-426d2a52dc3d.png
+Finding best image for issue 11
+Checking 7 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/11/comments/2e8f49cb-d79a-47df-868e-244de5130143/5f1f8374
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_f940d5be-8c76-4734-93ba-0967c0f177ca.png
+Finding best image for issue 12
+Checking 6 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/12/comments/d7f8599a-c638-4d35-bed9-cbb487660254/06f66270
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_15f2924c-6548-4f85-8ed3-d70ec05c3908.png
+"GET /api/projects/712307/generate-pdf/ HTTP/1.1" 200 24057661
+Finding best image for issue 16
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/16/comments/125cdb84-c046-4a6b-9b20-8fc8eca70abc/ce3de4d0
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_e5f5d21b-e858-4396-bdb8-cd05d1985f95.png
+Finding best image for issue 7
+Checking 14 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/7/comments/a7287a22-c1d4-418d-a7cb-c77819acea83/c1939f18
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_52cfdad7-79be-495e-80a9-00943c27d1a0.png
+Finding best image for issue 13
+Checking 10 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/13/comments/801c6009-c868-4a86-b936-b6b4aa48b675/fea1e458
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_bd7dd86f-7ef6-4824-baa1-eefb2f44240d.png
+Finding best image for issue 14
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/14/comments/a367bcf5-c685-4abb-9dea-39c694a9ed10/d53ab900
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_26be7d6e-5248-4b9e-b88d-3d540d80aeff.png
+Finding best image for issue 15
+Checking 3 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/15/comments/f8f1fb7b-2209-4470-9eb3-a09f37f65323/b9a8c126
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_45e68887-41d0-4d8b-9d16-b3d3008be764.png
+Finding best image for issue 11
+Checking 7 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/11/comments/2e8f49cb-d79a-47df-868e-244de5130143/5f1f8374
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_d606f52c-6859-4d08-ae88-8d6baa513cb1.png
+Finding best image for issue 12
+Checking 6 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/12/comments/d7f8599a-c638-4d35-bed9-cbb487660254/06f66270
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_daabd965-7dde-4803-ab6b-aeed5a2e2440.png
+"GET /api/projects/712307/generate-pdf/ HTTP/1.1" 200 24057661
+Finding best image for issue 16
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/16/comments/125cdb84-c046-4a6b-9b20-8fc8eca70abc/ce3de4d0
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_fc0a81ee-7983-4565-a0f2-7308c240889f.png
+Finding best image for issue 7
+Checking 14 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/7/comments/a7287a22-c1d4-418d-a7cb-c77819acea83/c1939f18
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_03acdd7c-380f-4a7a-8180-df13d2edd3ed.png
+Finding best image for issue 13
+Checking 10 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/13/comments/801c6009-c868-4a86-b936-b6b4aa48b675/fea1e458
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_cd9f699d-3920-41e5-86e1-033830399990.png
+Finding best image for issue 14
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/14/comments/a367bcf5-c685-4abb-9dea-39c694a9ed10/d53ab900
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_28db1bec-ef7b-4d09-b951-217afad0575a.png
+Finding best image for issue 15
+Checking 3 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/15/comments/f8f1fb7b-2209-4470-9eb3-a09f37f65323/b9a8c126
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_df7418c6-c747-48c7-b5bd-8c88a4261538.png
+Finding best image for issue 11
+Checking 7 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/11/comments/2e8f49cb-d79a-47df-868e-244de5130143/5f1f8374
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_424f33c9-15e9-4b69-a21d-9864a1e7604a.png
+Finding best image for issue 12
+Checking 6 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/12/comments/d7f8599a-c638-4d35-bed9-cbb487660254/06f66270
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_1af829b4-1fe1-48d2-8f4b-ea1aaab19d27.png
+"GET /api/projects/712307/generate-pdf/ HTTP/1.1" 200 24057661
+C:\Users\sgagnon\PycharmProject\DjangoProject\core\views.py changed, reloading.
+API client initialized with tokens
+Watching for file changes with StatReloader
+C:\Users\sgagnon\PycharmProject\DjangoProject\core\views.py changed, reloading.
+API client initialized with tokens
+Watching for file changes with StatReloader
+C:\Users\sgagnon\PycharmProject\DjangoProject\core\views.py changed, reloading.
+API client initialized with tokens
+Watching for file changes with StatReloader
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24445
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/status-fix.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+Search request with query: gym
+"GET /api/search/?query=gym HTTP/1.1" 200 90
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 28975
+Loaded project data for project 712307
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682675
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+"GET /api/projects/712307/issues/14/comments/ HTTP/1.1" 200 2948
+"GET /api/projects/712307/issues/7/comments/ HTTP/1.1" 200 9424
+"GET /api/projects/712307/issues/13/comments/ HTTP/1.1" 200 8013
+"GET /api/projects/712307/issues/11/comments/ HTTP/1.1" 200 5862
+"GET /api/projects/712307/issues/16/comments/ HTTP/1.1" 200 3222
+"GET /api/projects/712307/issues/15/comments/ HTTP/1.1" 200 2330
+"GET /api/projects/712307/issues/12/comments/ HTTP/1.1" 200 4487
+Finding best image for issue 16
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/16/comments/125cdb84-c046-4a6b-9b20-8fc8eca70abc/ce3de4d0
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_0c041337-2e8f-4784-b25c-9fff0a80cb5c.png
+Finding best image for issue 7
+Checking 14 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/7/comments/a7287a22-c1d4-418d-a7cb-c77819acea83/c1939f18
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_bbf4eb17-f59c-4378-99cd-4571df3d2ec0.png
+Finding best image for issue 13
+Checking 10 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/13/comments/801c6009-c868-4a86-b936-b6b4aa48b675/fea1e458
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_1111d9e4-4cae-4cfb-a432-cfff883463a3.png
+Finding best image for issue 14
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/14/comments/a367bcf5-c685-4abb-9dea-39c694a9ed10/d53ab900
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_107fb7bb-3bbc-45f6-a083-1d53f5cdabb9.png
+Finding best image for issue 15
+Checking 3 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/15/comments/f8f1fb7b-2209-4470-9eb3-a09f37f65323/b9a8c126
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_3fe5da5f-3885-4a61-bcb8-1a0b561df29e.png
+Finding best image for issue 11
+Checking 7 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/11/comments/2e8f49cb-d79a-47df-868e-244de5130143/5f1f8374
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_e3918736-1bfe-4cf5-9f41-8311c0328c49.png
+Finding best image for issue 12
+Checking 6 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/12/comments/d7f8599a-c638-4d35-bed9-cbb487660254/06f66270
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_ffc2a236-9373-4de5-ad8b-e3f8341b9734.png
+"GET /api/projects/712307/generate-pdf/ HTTP/1.1" 200 24057676
+Finding best image for issue 16
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/16/comments/125cdb84-c046-4a6b-9b20-8fc8eca70abc/ce3de4d0
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_3f57e775-a6e4-4a30-abb6-be445ac4465d.png
+Finding best image for issue 7
+Checking 14 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/7/comments/a7287a22-c1d4-418d-a7cb-c77819acea83/c1939f18
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_33a39c10-950d-42c4-a0c1-a9d40b8a227c.png
+Finding best image for issue 13
+Checking 10 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/13/comments/801c6009-c868-4a86-b936-b6b4aa48b675/fea1e458
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_3a7c85dc-b004-4091-b658-a0ffecc48402.png
+Finding best image for issue 14
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/14/comments/a367bcf5-c685-4abb-9dea-39c694a9ed10/d53ab900
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_56d30fce-10b7-44c9-880c-a096ab891ea5.png
+Finding best image for issue 15
+Checking 3 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/15/comments/f8f1fb7b-2209-4470-9eb3-a09f37f65323/b9a8c126
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_203c45eb-0d78-4176-a655-aa9d50df359d.png
+Finding best image for issue 11
+Checking 7 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/11/comments/2e8f49cb-d79a-47df-868e-244de5130143/5f1f8374
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_d559eecd-4bbb-4fce-b1f6-4e58530c51d7.png
+Finding best image for issue 12
+Checking 6 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/12/comments/d7f8599a-c638-4d35-bed9-cbb487660254/06f66270
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_e18bb59f-ebd5-4e47-90de-2ce66bc66bfd.png
+"GET /api/projects/712307/generate-pdf/ HTTP/1.1" 200 24057676
+Finding best image for issue 16
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/16/comments/125cdb84-c046-4a6b-9b20-8fc8eca70abc/ce3de4d0
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_f5c59e8e-1080-4699-9c27-3f4ee822c743.png
+Finding best image for issue 7
+Checking 14 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/7/comments/a7287a22-c1d4-418d-a7cb-c77819acea83/c1939f18
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_e00ac3bd-366a-4e86-8e65-cb9ad4de26fa.png
+Finding best image for issue 13
+Checking 10 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/13/comments/801c6009-c868-4a86-b936-b6b4aa48b675/fea1e458
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_d3638731-0b84-469b-9b56-bd36750fa376.png
+Finding best image for issue 14
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/14/comments/a367bcf5-c685-4abb-9dea-39c694a9ed10/d53ab900
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_831184fc-e7dd-48d7-baa7-cab5eaab6ef5.png
+Finding best image for issue 15
+Checking 3 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/15/comments/f8f1fb7b-2209-4470-9eb3-a09f37f65323/b9a8c126
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_df4aaf4e-e379-437a-a75c-5cf2dc36f42f.png
+Finding best image for issue 11
+Checking 7 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/11/comments/2e8f49cb-d79a-47df-868e-244de5130143/5f1f8374
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_fa2d032e-49e4-4819-a956-98463991ae7a.png
+Finding best image for issue 12
+Checking 6 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/12/comments/d7f8599a-c638-4d35-bed9-cbb487660254/06f66270
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_62dfbb66-25ce-40d2-af1b-41422e6c3544.png
+"GET /api/projects/712307/generate-pdf/ HTTP/1.1" 200 24057676
+C:\Users\sgagnon\PycharmProject\DjangoProject\core\pdf_generator.py changed, reloading.
+API client initialized with tokens
+Watching for file changes with StatReloader
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24445
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/status-fix.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+Search request with query: gym
+"GET /api/search/?query=gym HTTP/1.1" 200 90
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 28975
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
+Loaded project data for project 712307
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682675
+"GET /api/projects/712307/issues/16/comments/ HTTP/1.1" 200 3222
+"GET /api/projects/712307/issues/15/comments/ HTTP/1.1" 200 2330
+"GET /api/projects/712307/issues/13/comments/ HTTP/1.1" 200 8013
+"GET /api/projects/712307/issues/7/comments/ HTTP/1.1" 200 9424
+"GET /api/projects/712307/issues/14/comments/ HTTP/1.1" 200 2948
+"GET /api/projects/712307/issues/11/comments/ HTTP/1.1" 200 5862
+"GET /api/projects/712307/issues/12/comments/ HTTP/1.1" 200 4487
+Finding best image for issue 16
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/16/comments/125cdb84-c046-4a6b-9b20-8fc8eca70abc/ce3de4d0
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_04d56560-9823-4929-9924-60480eb31710.png
+Finding best image for issue 7
+Checking 14 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/7/comments/a7287a22-c1d4-418d-a7cb-c77819acea83/c1939f18
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_2457a53d-977f-4ee9-911e-5e30c6e18271.png
+Finding best image for issue 13
+Checking 10 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/13/comments/801c6009-c868-4a86-b936-b6b4aa48b675/fea1e458
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_7cd828a0-087a-4cb8-a5a8-1910050678be.png
+Finding best image for issue 14
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/14/comments/a367bcf5-c685-4abb-9dea-39c694a9ed10/d53ab900
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_6201525d-7f89-4310-bf63-3c3f38eb4b6a.png
+Finding best image for issue 15
+Checking 3 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/15/comments/f8f1fb7b-2209-4470-9eb3-a09f37f65323/b9a8c126
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_425d56c8-6871-4486-8bc4-bc6dc311e4cd.png
+Finding best image for issue 11
+Checking 7 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/11/comments/2e8f49cb-d79a-47df-868e-244de5130143/5f1f8374
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_5d6f635d-1f5b-4432-bb77-1d11f4b6b13d.png
+Finding best image for issue 12
+Checking 6 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/12/comments/d7f8599a-c638-4d35-bed9-cbb487660254/06f66270
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_bf19460c-7009-45d7-8ac6-e9913ae86356.png
+"GET /api/projects/712307/generate-pdf/ HTTP/1.1" 200 24057661
+Finding best image for issue 16
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/16/comments/125cdb84-c046-4a6b-9b20-8fc8eca70abc/ce3de4d0
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_b71de8e7-c9ac-43c2-89c0-65de06f91a0d.png
+Finding best image for issue 7
+Checking 14 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/7/comments/a7287a22-c1d4-418d-a7cb-c77819acea83/c1939f18
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_e3042d65-9b29-490b-980f-bfe6f57e529f.png
+Finding best image for issue 13
+Checking 10 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/13/comments/801c6009-c868-4a86-b936-b6b4aa48b675/fea1e458
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_b14c426e-3d91-4645-bea5-31274646c8f3.png
+Finding best image for issue 14
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/14/comments/a367bcf5-c685-4abb-9dea-39c694a9ed10/d53ab900
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_f15b5ded-f2ca-4d2c-8fca-b5ccb8fbbbc1.png
+Finding best image for issue 15
+Checking 3 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/15/comments/f8f1fb7b-2209-4470-9eb3-a09f37f65323/b9a8c126
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_8c7697d9-0613-42b9-a2b8-9e34e7ba2b4c.png
+Finding best image for issue 11
+Checking 7 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/11/comments/2e8f49cb-d79a-47df-868e-244de5130143/5f1f8374
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_3dfd3696-4ab3-481c-9398-fc59042efccb.png
+Finding best image for issue 12
+Checking 6 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/12/comments/d7f8599a-c638-4d35-bed9-cbb487660254/06f66270
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_b8e38e2d-693e-447a-9188-b47cb56206c1.png
+"GET /api/projects/712307/generate-pdf/ HTTP/1.1" 200 24057661
+Finding best image for issue 16
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/16/comments/125cdb84-c046-4a6b-9b20-8fc8eca70abc/ce3de4d0
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_6fad45ab-4996-434f-934c-677b0c6e46fc.png
+Finding best image for issue 7
+Checking 14 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/7/comments/a7287a22-c1d4-418d-a7cb-c77819acea83/c1939f18
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_3f64ca59-795d-429b-b0e6-ef4ed5894129.png
+Finding best image for issue 13
+Checking 10 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/13/comments/801c6009-c868-4a86-b936-b6b4aa48b675/fea1e458
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_408c9277-3564-4d60-8a75-b793441b5504.png
+Finding best image for issue 14
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/14/comments/a367bcf5-c685-4abb-9dea-39c694a9ed10/d53ab900
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_07e0433f-5cea-437b-ae7d-60fa8c2aa097.png
+Finding best image for issue 15
+Checking 3 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/15/comments/f8f1fb7b-2209-4470-9eb3-a09f37f65323/b9a8c126
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_d4765aed-6b22-45ab-85cc-46ff8a889e01.png
+Finding best image for issue 11
+Checking 7 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/11/comments/2e8f49cb-d79a-47df-868e-244de5130143/5f1f8374
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_8d09a27d-68c9-42ef-9627-fdc1958240dd.png
+Finding best image for issue 12
+Checking 6 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/12/comments/d7f8599a-c638-4d35-bed9-cbb487660254/06f66270
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_f0c656fd-2072-4c47-be6b-31c1809c26be.png
+"GET /api/projects/712307/generate-pdf/ HTTP/1.1" 200 24057661
