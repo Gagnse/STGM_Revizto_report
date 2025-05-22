@@ -471,6 +471,7 @@ class ReviztoService:
             print(f"[DEBUG-SERVICE] Traceback: {traceback.format_exc()}")
             return {"result": 1, "message": str(e), "data": [], "issueId": issue_id}
 
+    @classmethod
     def get_project_workflow_settings(cls, project_id):
         """
         Get workflow settings for a specific project with enhanced debugging.
