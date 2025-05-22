@@ -187,6 +187,7 @@ class ReviztoPDF(FPDF):
             observation (dict): The observation data
             comments (list, optional): List of comments/history for this observation
             status_map (dict, optional): Map of status UUIDs to status display data
+            is_first_in_chapter (bool): Whether this is the first observation in a chapter
         """
         # Check required fields
         if not observation.get('id'):
@@ -293,8 +294,9 @@ class ReviztoPDF(FPDF):
             elif observation['preview'].get('original'):
                 imageUrl = observation['preview']['original']
 
-        # Start each issue on a new page for clean formatting
-        self.add_page()
+        # Only start a new page if this is NOT the first observation in a chapter
+        if not is_first_in_chapter:
+            self.add_page()
 
         # Calculate page dimensions
         page_width = self.w - 2 * self.l_margin
@@ -305,7 +307,15 @@ class ReviztoPDF(FPDF):
 
         # Start the card below the header area
         header_space = 45  # Space taken by header (logo, project info, line)
-        card_start_y = self.t_margin + header_space
+
+        # If this is the first observation in a chapter, we need to account for the chapter title
+        if is_first_in_chapter:
+            # Add space for the chapter title that was already added
+            chapter_title_space = 20  # Approximate space taken by chapter title
+            card_start_y = self.get_y() + 10  # Start below current position with some padding
+        else:
+            card_start_y = self.t_margin + header_space
+
         self.set_y(card_start_y)
 
         # ===== HEADER SECTION =====
@@ -879,27 +889,31 @@ class ReviztoPDF(FPDF):
         except ValueError:
             return (110, 110, 110)  # Default gray
 
-    def add_instruction(self, instruction, comments=None):
+    def add_instruction(self, instruction, comments=None, status_map=None, is_first_in_chapter=False):
         """
         Add an instruction to the report with a layout matching the HTML version
 
         Args:
             instruction (dict): The instruction data
             comments (list, optional): List of comments for this instruction
+            status_map (dict, optional): Map of status UUIDs to status display data
+            is_first_in_chapter (bool): Whether this is the first instruction in a chapter
         """
         # We can reuse the same implementation as add_observation
-        self.add_observation(instruction, comments)
+        self.add_observation(instruction, comments, status_map, is_first_in_chapter)
 
-    def add_deficiency(self, deficiency, comments=None):
+    def add_deficiency(self, deficiency, comments=None, status_map=None, is_first_in_chapter=False):
         """
         Add a deficiency to the report with a layout matching the HTML version
 
         Args:
             deficiency (dict): The deficiency data
             comments (list, optional): List of comments for this deficiency
+            status_map (dict, optional): Map of status UUIDs to status display data
+            is_first_in_chapter (bool): Whether this is the first deficiency in a chapter
         """
         # We can reuse the same implementation as add_observation
-        self.add_observation(deficiency, comments)
+        self.add_observation(deficiency, comments, status_map, is_first_in_chapter)
 
     def add_general_notes(self):
         """
@@ -1183,10 +1197,11 @@ def generate_report_pdf(project_id, project_data, observations, instructions, de
         open_observations = [obs for obs in observations if not is_closed_issue(obs)]
 
         if len(open_observations) > 0:
-            for observation in open_observations:
+            for i, observation in enumerate(open_observations):
                 # Get comments for this observation if available
                 obs_comments = issue_comments.get(str(observation.get('id')), [])
-                pdf.add_observation(observation, obs_comments)
+                # Pass is_first_in_chapter=True for the first observation only
+                pdf.add_observation(observation, obs_comments, status_map, is_first_in_chapter=(i == 0))
         else:
             pdf.set_font('helvetica', 'I', 10)
             pdf.cell(0, 6, "Aucune observation trouvée", 0, 1, 'L')
@@ -1200,10 +1215,11 @@ def generate_report_pdf(project_id, project_data, observations, instructions, de
         open_instructions = [ins for ins in instructions if not is_closed_issue(ins)]
 
         if len(open_instructions) > 0:
-            for instruction in open_instructions:
+            for i, instruction in enumerate(open_instructions):
                 # Get comments for this instruction if available
                 ins_comments = issue_comments.get(str(instruction.get('id')), [])
-                pdf.add_instruction(instruction, ins_comments)
+                # Pass is_first_in_chapter=True for the first instruction only
+                pdf.add_instruction(instruction, ins_comments, status_map, is_first_in_chapter=(i == 0))
         else:
             pdf.set_font('helvetica', 'I', 10)
             pdf.cell(0, 6, "Aucune instruction trouvée", 0, 1, 'L')
@@ -1217,10 +1233,11 @@ def generate_report_pdf(project_id, project_data, observations, instructions, de
         open_deficiencies = [df for df in deficiencies if not is_closed_issue(df)]
 
         if len(open_deficiencies) > 0:
-            for deficiency in open_deficiencies:
+            for i, deficiency in enumerate(open_deficiencies):
                 # Get comments for this deficiency if available
                 def_comments = issue_comments.get(str(deficiency.get('id')), [])
-                pdf.add_deficiency(deficiency, def_comments)
+                # Pass is_first_in_chapter=True for the first deficiency only
+                pdf.add_deficiency(deficiency, def_comments, status_map, is_first_in_chapter=(i == 0))
         else:
             pdf.set_font('helvetica', 'I', 10)
             pdf.cell(0, 6, "Aucune déficience trouvée", 0, 1, 'L')
