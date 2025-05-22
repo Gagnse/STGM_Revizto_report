@@ -468,7 +468,8 @@ Debug version of the generate_pdf function in views.py
 
 def generate_pdf(request, project_id):
     """
-    Generate a PDF report for the project with enhanced error handling
+    Generate a PDF report for the project with enhanced status mapping
+    This now matches the working HTML version's status handling
     """
     print(f"[DEBUG-VIEWS] =====================================================")
     print(f"[DEBUG-VIEWS] PDF generation requested for project: {project_id} (type: {type(project_id)})")
@@ -493,7 +494,7 @@ def generate_pdf(request, project_id):
             visit_date = project_data.datevisite.strftime('%Y-%m-%d')
 
         project_info = {
-            'id': project_id,  # IMPORTANT: Explicitly include the ID in project_info
+            'id': project_id,
             'architectFile': project_data.nodossier or '',
             'projectName': project_data.noprojet or '',
             'projectOwner': project_data.maitreouvragge or '',
@@ -510,11 +511,64 @@ def generate_pdf(request, project_id):
 
         print(f"[DEBUG-VIEWS] Project info prepared with keys: {list(project_info.keys())}")
 
+        # STEP 1: Fetch dynamic status mappings (same as HTML version)
+        print(f"[DEBUG-VIEWS] Fetching dynamic status mappings for project {project_id}")
+        enhanced_status_map = {}
+
+        try:
+            # Import here to avoid circular imports
+            from .api.service import ReviztoService
+
+            status_response = ReviztoService.get_project_workflow_settings(project_id)
+            print(
+                f"[DEBUG-VIEWS] Status response result: {status_response.get('result') if status_response else 'None'}")
+
+            if status_response and status_response.get('result') == 0 and status_response.get('data'):
+                statuses = status_response['data'].get('statuses', [])
+                print(f"[DEBUG-VIEWS] Found {len(statuses)} statuses in workflow settings")
+
+                # Build enhanced status map (matching HTML logic)
+                for status in statuses:
+                    uuid = status.get('uuid')
+                    name = status.get('name')
+                    if uuid and name:
+                        # Map status names to French (same logic as HTML)
+                        display_name = name
+                        if name == "Open":
+                            display_name = "Ouvert"
+                        elif name == "In progress":
+                            display_name = "En cours"
+                        elif name == "Solved":
+                            display_name = "Résolu"
+                        elif name == "Closed":
+                            display_name = "Fermé"
+                        # French statuses stay as-is (En attente, Corrigé, etc.)
+
+                        enhanced_status_map[uuid] = {
+                            'name': name,
+                            'displayName': display_name,
+                            'textColor': status.get('textColor', '#FFFFFF'),
+                            'backgroundColor': status.get('backgroundColor', '#6F7E93'),
+                            'category': status.get('category', '')
+                        }
+
+                        print(f"[DEBUG-VIEWS] Mapped status: {name} -> {display_name} (UUID: {uuid})")
+
+                        # Special debug for "En attente"
+                        if name == "En attente":
+                            print(f"[DEBUG-VIEWS] 'En attente' status details: {enhanced_status_map[uuid]}")
+
+            print(f"[DEBUG-VIEWS] Enhanced status map created with {len(enhanced_status_map)} entries")
+
+        except Exception as status_error:
+            print(f"[DEBUG-VIEWS] Error fetching status mappings: {status_error}")
+            # Continue with empty status map - PDF will use fallbacks
+
         # Get observations, instructions, and deficiencies from the API
         observations = []
         instructions = []
         deficiencies = []
-        issue_comments = {}  # Dictionary to store comments for each issue
+        issue_comments = {}
 
         # Get observations
         print(f"[DEBUG-VIEWS] Fetching observations for project ID: {project_id}")
@@ -527,12 +581,9 @@ def generate_pdf(request, project_id):
             # Fetch comments for each observation
             for obs in observations:
                 if obs.get('id'):
-                    # Use a fixed date in the past to ensure we get all comments
                     comments_response = ReviztoService.get_issue_comments(project_id, obs['id'], '2018-05-30')
                     if comments_response and comments_response.get('result') == 0:
-                        # Extract the comments data properly
                         comments_data = comments_response.get('data', [])
-                        # Handle both list and dict formats for comments
                         if isinstance(comments_data, list):
                             issue_comments[str(obs['id'])] = comments_data
                         elif isinstance(comments_data, dict):
@@ -597,17 +648,7 @@ def generate_pdf(request, project_id):
                     else:
                         issue_comments[str(def_item['id'])] = []
 
-        # Import the enhanced PDF generator with error handling
-        print(f"[DEBUG-VIEWS] Import PDF generator functions")
-        try:
-            from .pdf_generator import generate_report_pdf_with_status_fix
-            print(f"[DEBUG-VIEWS] Successfully imported generate_report_pdf_with_status_fix")
-        except ImportError as import_err:
-            print(f"[DEBUG-VIEWS] Error importing generate_report_pdf_with_status_fix: {import_err}")
-            from .pdf_generator import generate_report_pdf_with_error_handling
-            print(f"[DEBUG-VIEWS] Falling back to generate_report_pdf_with_error_handling")
-
-        # Generate PDF with enhanced error handling - check the arguments being passed
+        # STEP 2: Generate PDF with enhanced status mapping
         print(f"[DEBUG-VIEWS] Generating PDF with enhanced error handling...")
         print(f"[DEBUG-VIEWS] Arguments being passed to PDF generator:")
         print(f"[DEBUG-VIEWS] - project_id: {project_id} (type: {type(project_id)})")
@@ -616,24 +657,28 @@ def generate_pdf(request, project_id):
         print(f"[DEBUG-VIEWS] - instructions: {len(instructions)} items")
         print(f"[DEBUG-VIEWS] - deficiencies: {len(deficiencies)} items")
         print(f"[DEBUG-VIEWS] - issue_comments: {len(issue_comments)} items")
+        print(f"[DEBUG-VIEWS] - enhanced_status_map: {len(enhanced_status_map)} items")
 
-        # Try the actual PDF generation with proper error handling
+        # Import the enhanced PDF generator
         try:
-            # Make sure we're passing project_id correctly
+            from .pdf_generator import generate_report_pdf_with_status_fix
+            print(f"[DEBUG-VIEWS] Successfully imported generate_report_pdf_with_status_fix")
+
+            # Use the enhanced PDF generator with dynamic status mapping
             pdf_buffer = generate_report_pdf_with_status_fix(
-                project_id,  # Make sure this is actually passed
+                project_id,
                 project_info,
                 observations,
                 instructions,
                 deficiencies,
-                issue_comments
+                issue_comments,
+                enhanced_status_map  # Pass the dynamic status mapping
             )
-            print(f"[DEBUG-VIEWS] PDF generation function returned successfully")
-        except Exception as pdf_gen_error:
-            import traceback
-            print(f"[DEBUG-VIEWS] Error in PDF generation function: {pdf_gen_error}")
-            print(f"[DEBUG-VIEWS] Error traceback: {traceback.format_exc()}")
-            # Fallback to regular generation
+            print(f"[DEBUG-VIEWS] Enhanced PDF generation successful")
+
+        except ImportError as import_err:
+            print(f"[DEBUG-VIEWS] Could not import enhanced PDF generator: {import_err}")
+            # Fallback to regular PDF generation
             from .pdf_generator import generate_report_pdf
             pdf_buffer = generate_report_pdf(
                 project_id,
@@ -641,11 +686,35 @@ def generate_pdf(request, project_id):
                 observations,
                 instructions,
                 deficiencies,
-                issue_comments
+                issue_comments,
+                enhanced_status_map  # Still pass status map if function supports it
             )
             print(f"[DEBUG-VIEWS] Fallback PDF generation successful")
 
-        # Create a response with PDF content
+        except Exception as pdf_gen_error:
+            import traceback
+            print(f"[DEBUG-VIEWS] Error in PDF generation function: {pdf_gen_error}")
+            print(f"[DEBUG-VIEWS] Error traceback: {traceback.format_exc()}")
+
+            # Final fallback - try basic PDF generation
+            try:
+                from .pdf_generator import generate_report_pdf
+                pdf_buffer = generate_report_pdf(
+                    project_id,
+                    project_info,
+                    observations,
+                    instructions,
+                    deficiencies,
+                    issue_comments
+                )
+                print(f"[DEBUG-VIEWS] Basic fallback PDF generation successful")
+            except Exception as final_error:
+                print(f"[DEBUG-VIEWS] All PDF generation attempts failed: {final_error}")
+                # Return error PDF as last resort
+                from .pdf_generator import create_error_pdf
+                pdf_buffer = create_error_pdf(project_id, project_info, str(pdf_gen_error))
+
+        # Create HTTP response with PDF content
         from django.http import HttpResponse
         response = HttpResponse(pdf_buffer.getvalue(), content_type='application/pdf')
 

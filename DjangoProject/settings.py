@@ -6,8 +6,8 @@ from pathlib import Path
 import os
 import dj_database_url
 ## POUR TEST LOCAL
-from dotenv import load_dotenv
-load_dotenv()
+#from dotenv import load_dotenv
+#load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -154,7 +154,7 @@ print(f"=== SETTINGS LOADED ===\n")
 REVIZTO_LICENCE_UUID = os.environ.get("REVIZTO_LICENCE_UUID", "")
 REVIZTO_ACCESS_TOKEN = os.environ.get("REVIZTO_ACCESS_TOKEN", "")
 REVIZTO_REFRESH_TOKEN = os.environ.get("REVIZTO_REFRESH_TOKEN", "")
-REVIZTO_ENABLE_TOKEN_REFRESH = False
+REVIZTO_ENABLE_TOKEN_REFRESH = True
 
 # Session configuration
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'

@@ -17,11 +17,6 @@ logger = logging.getLogger(__name__)
 
 
 class ReviztoPDF(FPDF):
-    """
-    Custom PDF class for Revizto report generation.
-    Extends FPDF from fpdf2 library with custom headers and footers.
-    """
-
     def __init__(self, orientation='P', unit='mm', format='A4'):
         super().__init__(orientation, unit, format)
         # Set default margins
@@ -32,7 +27,12 @@ class ReviztoPDF(FPDF):
         self.project_name = ""
         self.report_date = ""
         self.visitNumber = ""
-        self.status_map = {}
+        self.enhanced_status_map = {}  # Store the enhanced status mapping
+
+    def set_enhanced_status_map(self, status_map):
+        """Set the enhanced status mapping from the API"""
+        self.enhanced_status_map = status_map
+        print(f"[DEBUG-PDF] Set enhanced status map with {len(status_map)} entries")
 
 
     def header(self):
@@ -193,7 +193,7 @@ class ReviztoPDF(FPDF):
         if not observation.get('id'):
             return
 
-        # Get title - either string or object with value
+        # Get title
         title = 'Sans titre'
         if observation.get('title'):
             if isinstance(observation['title'], str):
@@ -201,10 +201,11 @@ class ReviztoPDF(FPDF):
             elif isinstance(observation['title'], dict) and observation['title'].get('value'):
                 title = observation['title']['value']
 
-        # Get status info - updated to use the status_map
-        status_text = "Inconnu"
-        bg_color = (110, 110, 110)  # Default gray
-        text_color = (255, 255, 255)  # Default white
+        # Get status info using enhanced mapping
+        status_text, bg_color, text_color = get_status_display_for_pdf(observation, self.enhanced_status_map)
+
+        print(
+            f"[DEBUG-PDF] Issue {observation.get('id')} status: {status_text} with colors BG:{bg_color} Text:{text_color}")
 
         # Extract status ID using the same method as in the JS
         status_id = None
@@ -818,76 +819,7 @@ class ReviztoPDF(FPDF):
         main_card_height = header_height + top_section_height
         self.rect(self.l_margin, card_start_y, page_width, main_card_height)
 
-    def get_status_display(self, status_id):
-        """
-        Get display information for a status ID.
 
-        Args:
-            status_id: Status ID (string, dict, or object)
-
-        Returns:
-            tuple: (status_text, background_color, text_color)
-        """
-        # Default values
-        status_text = "Inconnu"
-        bg_color = (110, 110, 110)  # Default gray
-        text_color = (255, 255, 255)  # Default white
-
-        # Extract status value from different formats
-        status_value = None
-
-        if isinstance(status_id, dict):
-            # Extract from customStatus
-            if status_id.get('customStatus'):
-                if isinstance(status_id['customStatus'], str):
-                    status_value = status_id['customStatus']
-                elif isinstance(status_id['customStatus'], dict) and status_id['customStatus'].get('value'):
-                    status_value = status_id['customStatus']['value']
-            # Extract from status
-            elif status_id.get('status'):
-                if isinstance(status_id['status'], str):
-                    status_value = status_id['status']
-                elif isinstance(status_id['status'], dict) and status_id['status'].get('value'):
-                    status_value = status_id['status']['value']
-            # Extract from value
-            elif status_id.get('value'):
-                status_value = status_id['value']
-        elif isinstance(status_id, str):
-            status_value = status_id
-
-        # Look up in status map if we have a value
-        if status_value and self.status_map and status_value in self.status_map:
-            status_info = self.status_map[status_value]
-            status_text = status_info.get('displayName', status_info.get('name', "Inconnu"))
-
-            # Convert hex colors to RGB tuples
-            bg_hex = status_info.get('backgroundColor', '#6F7E93')
-            text_hex = status_info.get('textColor', '#FFFFFF')
-
-            bg_color = self._hex_to_rgb(bg_hex)
-            text_color = self._hex_to_rgb(text_hex)
-
-        return status_text, bg_color, text_color
-
-    def _hex_to_rgb(self, hex_color):
-        """Convert hex color string to RGB tuple."""
-        if not hex_color or not isinstance(hex_color, str):
-            return (110, 110, 110)  # Default gray
-
-        # Remove # if present
-        hex_color = hex_color.lstrip('#')
-
-        # Parse hex to RGB
-        try:
-            if len(hex_color) == 6:
-                r = int(hex_color[0:2], 16)
-                g = int(hex_color[2:4], 16)
-                b = int(hex_color[4:6], 16)
-                return (r, g, b)
-            else:
-                return (110, 110, 110)  # Default gray
-        except ValueError:
-            return (110, 110, 110)  # Default gray
 
     def add_instruction(self, instruction, comments=None, status_map=None, is_first_in_chapter=False):
         """
@@ -1141,28 +1073,20 @@ class ReviztoPDF(FPDF):
         self.set_line_width(0.2)
 
 
-def generate_report_pdf(project_id, project_data, observations, instructions, deficiencies, issue_comments=None, status_map=None):
+def generate_report_pdf(project_id, project_data, observations, instructions, deficiencies, issue_comments=None,
+                        enhanced_status_map=None):
     """
-    Generate a PDF report for the project
-
-    Args:
-        project_id (int): Project ID
-        project_data (dict): Project information
-        observations (list): List of observations
-        instructions (list): List of instructions
-        deficiencies (list): List of deficiencies
-        issue_comments (dict, optional): Dictionary mapping issue IDs to comments
-        status_map (dict, optional): Custom status mapping for enhanced status display
-
-    Returns:
-        BytesIO: PDF file as a BytesIO object
+    Generate a PDF report with enhanced status mapping support
     """
+    print(
+        f"[DEBUG-PDF] Generating PDF with enhanced status mapping: {len(enhanced_status_map) if enhanced_status_map else 0} statuses")
+
     # Create PDF
     pdf = ReviztoPDF()
 
-    # If custom status mapping is provided, add it to the PDF instance
-    if status_map:
-        pdf.status_map = status_map
+    # Set the enhanced status mapping if provided
+    if enhanced_status_map:
+        pdf.set_enhanced_status_map(enhanced_status_map)
 
     # Set metadata
     pdf.set_title(f"Rapport de visite - Projet {project_data.get('projectName', project_id)}")
@@ -1173,8 +1097,7 @@ def generate_report_pdf(project_id, project_data, observations, instructions, de
     pdf.project_name = project_data.get('projectName', f"Projet {project_id}")
     if project_data.get('reportDate'):
         try:
-            pdf.report_date = datetime.strptime(project_data['reportDate'], '%Y-%m-%d').strftime(
-                '%d/%m/%Y')
+            pdf.report_date = datetime.strptime(project_data['reportDate'], '%Y-%m-%d').strftime('%d/%m/%Y')
         except:
             pdf.report_date = project_data['reportDate']
 
@@ -1201,7 +1124,7 @@ def generate_report_pdf(project_id, project_data, observations, instructions, de
                 # Get comments for this observation if available
                 obs_comments = issue_comments.get(str(observation.get('id')), [])
                 # Pass is_first_in_chapter=True for the first observation only
-                pdf.add_observation(observation, obs_comments, status_map, is_first_in_chapter=(i == 0))
+                pdf.add_observation(observation, obs_comments, enhanced_status_map, is_first_in_chapter=(i == 0))
         else:
             pdf.set_font('helvetica', 'I', 10)
             pdf.cell(0, 6, "Aucune observation trouvée", 0, 1, 'L')
@@ -1218,8 +1141,8 @@ def generate_report_pdf(project_id, project_data, observations, instructions, de
             for i, instruction in enumerate(open_instructions):
                 # Get comments for this instruction if available
                 ins_comments = issue_comments.get(str(instruction.get('id')), [])
-                # Pass is_first_in_chapter=True for the first instruction only
-                pdf.add_instruction(instruction, ins_comments, status_map, is_first_in_chapter=(i == 0))
+                # Use the same method for instructions
+                pdf.add_instruction(instruction, ins_comments, enhanced_status_map, is_first_in_chapter=(i == 0))
         else:
             pdf.set_font('helvetica', 'I', 10)
             pdf.cell(0, 6, "Aucune instruction trouvée", 0, 1, 'L')
@@ -1236,8 +1159,8 @@ def generate_report_pdf(project_id, project_data, observations, instructions, de
             for i, deficiency in enumerate(open_deficiencies):
                 # Get comments for this deficiency if available
                 def_comments = issue_comments.get(str(deficiency.get('id')), [])
-                # Pass is_first_in_chapter=True for the first deficiency only
-                pdf.add_deficiency(deficiency, def_comments, status_map, is_first_in_chapter=(i == 0))
+                # Use the same method for deficiencies
+                pdf.add_deficiency(deficiency, def_comments, enhanced_status_map, is_first_in_chapter=(i == 0))
         else:
             pdf.set_font('helvetica', 'I', 10)
             pdf.cell(0, 6, "Aucune déficience trouvée", 0, 1, 'L')
@@ -1982,3 +1905,245 @@ def create_error_pdf(project_id, project_data, error_message):
     buffer.seek(0)
 
     return buffer
+
+
+def generate_report_pdf_with_status_fix(project_id, project_data, observations, instructions, deficiencies,
+                                        issue_comments=None):
+    """
+    Generate a PDF report with proper dynamic status mapping integration.
+    This matches the working HTML version's status handling.
+
+    Args:
+        project_id (int): Project ID
+        project_data (dict): Project information
+        observations (list): List of observations
+        instructions (list): List of instructions
+        deficiencies (list): List of deficiencies
+        issue_comments (dict, optional): Dictionary mapping issue IDs to comments
+
+    Returns:
+        BytesIO: PDF file as a BytesIO object
+    """
+    print(f"[DEBUG-PDF] Starting PDF generation with dynamic status mapping for project {project_id}")
+
+    try:
+        # Import required services
+        from .api.service import ReviztoService
+        from io import BytesIO
+
+        # Step 1: Fetch dynamic status mappings from the API (same as HTML version)
+        print(f"[DEBUG-PDF] Fetching workflow settings for project {project_id}")
+        status_response = None
+        enhanced_status_map = {}
+
+        try:
+            status_response = ReviztoService.get_project_workflow_settings(project_id)
+            print(
+                f"[DEBUG-PDF] Workflow settings response: {status_response.get('result') if status_response else 'None'}")
+        except Exception as e:
+            print(f"[DEBUG-PDF] Error fetching workflow settings: {e}")
+            status_response = None
+
+        # Step 2: Build enhanced status mapping (matching HTML logic)
+        if status_response and status_response.get('result') == 0 and status_response.get('data'):
+            statuses = status_response['data'].get('statuses', [])
+            print(f"[DEBUG-PDF] Found {len(statuses)} statuses in API response")
+
+            for status in statuses:
+                uuid = status.get('uuid')
+                name = status.get('name')
+                if uuid and name:
+                    # Create status mapping exactly like the HTML version
+                    enhanced_status_map[uuid] = {
+                        'name': name,
+                        'displayName': map_status_name_to_french(name),
+                        'textColor': status.get('textColor', '#FFFFFF'),
+                        'backgroundColor': status.get('backgroundColor', '#6F7E93'),
+                        'category': status.get('category', '')
+                    }
+
+                    print(
+                        f"[DEBUG-PDF] Mapped status: {name} -> {enhanced_status_map[uuid]['displayName']} (UUID: {uuid})")
+
+                    # Special debug for "En attente" status
+                    if name == "En attente":
+                        print(f"[DEBUG-PDF] 'En attente' status details: {enhanced_status_map[uuid]}")
+
+        print(f"[DEBUG-PDF] Enhanced status map created with {len(enhanced_status_map)} entries")
+
+        # Step 3: Generate PDF with enhanced status mapping
+        return generate_report_pdf(
+            project_id,
+            project_data,
+            observations,
+            instructions,
+            deficiencies,
+            issue_comments,
+            enhanced_status_map  # Pass the dynamic status map
+        )
+
+    except Exception as e:
+        print(f"[DEBUG-PDF] Error in enhanced PDF generation: {e}")
+        import traceback
+        print(f"[DEBUG-PDF] Traceback: {traceback.format_exc()}")
+
+        # Fallback to standard generation
+        try:
+            return generate_report_pdf(
+                project_id,
+                project_data,
+                observations,
+                instructions,
+                deficiencies,
+                issue_comments
+            )
+        except Exception as fallback_error:
+            print(f"[DEBUG-PDF] Fallback generation also failed: {fallback_error}")
+            return create_error_pdf(project_id, project_data, str(e))
+
+def map_status_name_to_french(status_name):
+    """
+    Map status names to French display names (matching HTML version)
+    """
+    if not status_name:
+        return 'Inconnu'
+
+    print(f"[DEBUG-PDF-STATUS] Mapping status name to French: '{status_name}'")
+    status_lower = status_name.lower()
+
+    # Direct mapping (same as HTML version)
+    status_map = {
+        'open': 'Ouvert',
+        'opened': 'Ouvert',
+        'closed': 'Fermé',
+        'solved': 'Résolu',
+        'in progress': 'En cours',
+        'in_progress': 'En cours',
+        'en attente': 'En attente',    # Already French
+        'corrigé': 'Corrigé',          # Already French
+        'non-problème': 'Non-problème' # Already French
+    }
+
+    # Check for direct mapping
+    if status_map.get(status_lower):
+        result = status_map[status_lower]
+        print(f"[DEBUG-PDF-STATUS] Found direct mapping: '{status_name}' -> '{result}'")
+        return result
+
+    # If no mapping exists, preserve the original name
+    print(f"[DEBUG-PDF-STATUS] No mapping found, using original: '{status_name}'")
+    return status_name
+
+def hex_to_rgb(hex_color):
+    """Convert hex color string to RGB tuple."""
+    if not hex_color or not isinstance(hex_color, str):
+        return (110, 110, 110)  # Default gray
+
+    # Remove # if present
+    hex_color = hex_color.lstrip('#')
+
+    # Parse hex to RGB
+    try:
+        if len(hex_color) == 6:
+            r = int(hex_color[0:2], 16)
+            g = int(hex_color[2:4], 16)
+            b = int(hex_color[4:6], 16)
+            return (r, g, b)
+        else:
+            return (110, 110, 110)  # Default gray
+    except ValueError:
+        return (110, 110, 110)  # Default gray
+
+def get_status_display_for_pdf(issue, enhanced_status_map):
+    """
+    Get status display information for an issue (matching HTML version logic)
+
+    Args:
+        issue (dict): Issue data
+        enhanced_status_map (dict): Dynamic status mapping from API
+
+    Returns:
+        tuple: (status_text, bg_color_rgb, text_color_rgb)
+    """
+    print(f"[DEBUG-PDF-STATUS] Getting status display for issue {issue.get('id')}")
+
+    # Default values
+    default_status = ("Inconnu", (110, 110, 110), (255, 255, 255))
+
+    # Extract status UUID (same logic as HTML getStatusDisplay)
+    status_uuid = None
+
+    # Check customStatus first (priority over regular status)
+    if issue.get('customStatus'):
+        print(f"[DEBUG-PDF-STATUS] Found customStatus in issue {issue.get('id')}")
+        custom_status = issue['customStatus']
+
+        if isinstance(custom_status, str):
+            status_uuid = custom_status
+            print(f"[DEBUG-PDF-STATUS] customStatus is string: {status_uuid}")
+        elif isinstance(custom_status, dict):
+            if custom_status.get('value'):
+                status_uuid = custom_status['value']
+                print(f"[DEBUG-PDF-STATUS] customStatus.value: {status_uuid}")
+            elif custom_status.get('uuid'):
+                status_uuid = custom_status['uuid']
+                print(f"[DEBUG-PDF-STATUS] customStatus.uuid: {status_uuid}")
+
+    # Then check regular status
+    elif issue.get('status'):
+        print(f"[DEBUG-PDF-STATUS] Found regular status in issue {issue.get('id')}")
+        status = issue['status']
+
+        if isinstance(status, str):
+            status_uuid = status
+            print(f"[DEBUG-PDF-STATUS] status is string: {status_uuid}")
+        elif isinstance(status, dict):
+            if status.get('value'):
+                status_uuid = status['value']
+                print(f"[DEBUG-PDF-STATUS] status.value: {status_uuid}")
+            elif status.get('uuid'):
+                status_uuid = status['uuid']
+                print(f"[DEBUG-PDF-STATUS] status.uuid: {status_uuid}")
+
+    print(f"[DEBUG-PDF-STATUS] Extracted status UUID: {status_uuid}")
+
+    # Look up status in enhanced mapping
+    if status_uuid and enhanced_status_map and status_uuid in enhanced_status_map:
+        status_info = enhanced_status_map[status_uuid]
+        print(f"[DEBUG-PDF-STATUS] Found status in enhanced map: {status_info['displayName']}")
+
+        # Get display name
+        status_text = status_info.get('displayName', status_info.get('name', 'Inconnu'))
+
+        # Convert hex colors to RGB tuples
+        bg_color = hex_to_rgb(status_info.get('backgroundColor', '#6F7E93'))
+        text_color = hex_to_rgb(status_info.get('textColor', '#FFFFFF'))
+
+        print(f"[DEBUG-PDF-STATUS] Status colors - BG: {bg_color}, Text: {text_color}")
+
+        return (status_text, bg_color, text_color)
+
+    # Fallback to hardcoded mappings if not found in enhanced map
+    print(f"[DEBUG-PDF-STATUS] Status not found in enhanced map, using fallback")
+
+    # Hardcoded fallback mappings (same UUIDs as seen in logs)
+    fallback_map = {
+        "2ed005c6-43cd-4907-a4d6-807dbd0197d5": ("Ouvert", (204, 41, 41), (255, 255, 255)),  # Open - Red
+        "cd52ac3e-f345-4f99-870f-5be95dc33245": ("En cours", (255, 170, 0), (255, 255, 255)),
+        # In progress - Orange
+        "b8504242-3489-43a2-9831-54f64053b226": ("Résolu", (66, 190, 101), (255, 255, 255)),  # Solved - Green
+        "135b58c6-1e14-4716-a134-bbba2bbc90a7": ("Fermé", (184, 184, 184), (255, 255, 255)),  # Closed - Gray
+        "c70f7d38-1d60-4df3-b85b-14e59174d7ba": ("En attente", (255, 211, 46), (255, 255, 255)),
+        # En attente - Yellow
+        "fc0cfae9-b820-47cc-9f43-eb06fb69dcfc": ("Non-problème", (43, 43, 43), (255, 255, 255)),
+        # Non-problème - Dark Gray
+        "877b09d5-ccc4-4ba5-8f8b-e5f0b8f80f6a": ("Corrigé", (137, 46, 251), (255, 255, 255)),  # Corrigé - Purple
+    }
+
+    if status_uuid and status_uuid in fallback_map:
+        result = fallback_map[status_uuid]
+        print(f"[DEBUG-PDF-STATUS] Found in fallback map: {result[0]}")
+        return result
+
+    print(f"[DEBUG-PDF-STATUS] No status match found, using default")
+    return default_status
