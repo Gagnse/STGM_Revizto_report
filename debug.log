@@ -10650,3 +10650,17 @@ Loaded project data for project 712301
 "GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
 "GET /api/projects/712301/instructions/ HTTP/1.1" 200 15120
 "GET /api/projects/712301/observations/ HTTP/1.1" 200 52713
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 2970349
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 1995
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 15120
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 52713
+Search request with query: gym
+"GET /api/search/?query=gym HTTP/1.1" 200 90
+Loaded project data for project 712307
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682629
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 28982
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
