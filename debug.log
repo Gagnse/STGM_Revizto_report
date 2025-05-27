@@ -10238,3 +10238,736 @@ Checking 3 comments for images
 Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/15/comments/6cf95558-7bb7-4ea7-b300-7848e43a747d/7fd37361
 Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_96d98cd3-a483-4660-adfd-cf7ed7c81df7.png
 "GET /api/projects/712301/generate-pdf/ HTTP/1.1" 200 24449910
+Skipping API initialization (not in runserver or gunicorn)
+Skipping API initialization (not in runserver or gunicorn)
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24476
+"GET /static/css/toast.css HTTP/1.1" 200 3575
+"GET /static/js/toast.js HTTP/1.1" 200 10893
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/css/styles.css HTTP/1.1" 200 6207
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 200 20578
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 200 11722
+"GET /static/js/search.js HTTP/1.1" 200 20007
+Search request with query: stgm
+"GET /api/search/?query=stgm HTTP/1.1" 200 152
+Search request with query: stg
+"GET /api/search/?query=stg HTTP/1.1" 200 152
+Search request with query: syn
+"GET /api/search/?query=syn HTTP/1.1" 200 77
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 2970349
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 1995
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 52713
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 15120
+Project 712301 data saved to database. Created: False
+"POST /api/projects/712301/data/save/ HTTP/1.1" 200 85
+Project 712301 data saved to database. Created: False
+"POST /api/projects/712301/data/save/ HTTP/1.1" 200 85
+Project 712301 data saved to database. Created: False
+"POST /api/projects/712301/data/save/ HTTP/1.1" 200 85
+Project 712301 data saved to database. Created: False
+"POST /api/projects/712301/data/save/ HTTP/1.1" 200 85
+"GET / HTTP/1.1" 200 24476
+"GET /static/css/toast.css HTTP/1.1" 304 0
+"GET /static/js/toast.js HTTP/1.1" 304 0
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+Search request with query: gymn
+"GET /api/search/?query=gymn HTTP/1.1" 200 90
+Loaded project data for project 712307
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682629
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 28982
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+Project 712307 data saved to database. Created: False
+"POST /api/projects/712307/data/save/ HTTP/1.1" 200 85
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/css/toast.css HTTP/1.1" 304 0
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 179
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24477
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/css/toast.css HTTP/1.1" 304 0
+"GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 179
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/toast.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+Finding best image for issue 23
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/23/comments/774aa9ac-0631-4e2e-ba7e-aabb18320010/505acaf8
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_3d4d1351-fbbb-4f78-a03e-4c9ea5756632.png
+Finding best image for issue 16
+Checking 4 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/16/comments/8f4b524a-20ce-42d4-a5b4-2bf1f773ac2f/5f368930
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_076aad76-cfbc-4494-8d31-14527ecbf447.png
+Finding best image for issue 17
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/17/comments/82f203e8-298f-4bf3-8328-602dc73ed8ca/87a86ce7
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_58d727a7-ac0c-4040-a2c5-f91b02ce4a25.png
+Finding best image for issue 21
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/21/comments/a696fb87-1adb-44fd-a7fa-5272e9b56b47/66680e9d
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_517a8595-53ed-449c-9ce6-e62e3d151012.png
+Finding best image for issue 22
+Checking 7 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/22/comments/5e38777e-6476-48e9-a28f-688d9f62c333/425f55f2
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_d228b2cc-a465-48ce-b7fb-9f90c2b0a894.png
+Finding best image for issue 20
+Checking 6 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/20/comments/dd9321e4-1180-4567-afb8-2bacb0e9de42/d5c25535
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_d2413ea8-b277-4f80-93a4-ae8d4c46c887.png
+Finding best image for issue 25
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/25/comments/081dbc1a-c862-4776-8897-d211d2315b95/ef5ea57d
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_6fa1a7d3-893b-4276-b2ce-3edcd5dcd6bb.png
+Finding best image for issue 18
+Checking 5 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/18/comments/468e652e-eec8-4865-97dc-fd5c03336e83/20477b02
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_6cfb5fcf-85b0-4797-9661-af32d9e38bae.png
+Finding best image for issue 26
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/26/comments/a5686f9e-bd39-42a8-baca-5059a6903ae4/564abb7b
+Search request with query: syn
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_7538de5e-db2f-43e0-91fa-903f0ea62a8a.png
+Finding best image for issue 24
+Checking 3 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/24/comments/2a60a688-eadb-48fd-894f-709d48c5ad0a/c624b511
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_bcffc9d7-a736-4f4a-ab3a-05c64ea0d23f.png
+Finding best image for issue 13
+Checking 4 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/13/comments/f0330322-5ff7-4c32-8eaf-1fda76c3cd94/f0939e39
+"GET /api/search/?query=syn HTTP/1.1" 200 77
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_9afbb0f9-f937-4147-84b0-e528a8a81fc6.png
+Finding best image for issue 15
+Checking 3 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/15/comments/6cf95558-7bb7-4ea7-b300-7848e43a747d/7fd37361
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_a9874560-715a-4539-b4ef-bda266a6fbce.png
+- Broken pipe from ('127.0.0.1', 56395)
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 2970349
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 1995
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 15120
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 52713
+Project 712301 data saved to database. Created: False
+"POST /api/projects/712301/data/save/ HTTP/1.1" 200 85
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24477
+"GET /static/css/toast.css HTTP/1.1" 304 0
+"GET /static/css/styles.css HTTP/1.1" 200 7050
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/toast.js HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+Search request with query: st
+"GET /api/search/?query=st HTTP/1.1" 200 463
+Search request with query: sy
+"GET /api/search/?query=sy HTTP/1.1" 200 77
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 2970349
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 1995
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 15120
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 52713
+Project 712301 data saved to database. Created: False
+"POST /api/projects/712301/data/save/ HTTP/1.1" 200 85
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24477
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/css/toast.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/toast.js HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 200 18940
+"GET /static/js/pdf-generator.js HTTP/1.1" 200 9678
+Search request with query: syn
+"GET /api/search/?query=syn HTTP/1.1" 200 77
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 2970349
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 1995
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 15120
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 52713
+Project 712301 data saved to database. Created: False
+"POST /api/projects/712301/data/save/ HTTP/1.1" 200 85
+Project 712301 data saved to database. Created: False
+"POST /api/projects/712301/data/save/ HTTP/1.1" 200 85
+"GET / HTTP/1.1" 200 24477
+"GET /static/css/styles.css HTTP/1.1" 200 7050
+"GET /static/css/toast.css HTTP/1.1" 200 3575
+"GET /static/js/toast.js HTTP/1.1" 200 10893
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 200 62967
+"GET /static/js/main.js HTTP/1.1" 200 3229
+"GET /static/js/project-form.js HTTP/1.1" 200 18940
+"GET /static/js/issue-data.js HTTP/1.1" 200 43545
+"GET /static/js/search.js HTTP/1.1" 200 20007
+"GET /static/js/datepicker.js HTTP/1.1" 200 2245
+"GET /static/js/pdf-generator.js HTTP/1.1" 200 9678
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 179
+Search request with query: syn
+"GET /api/search/?query=syn HTTP/1.1" 200 77
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 2970349
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 1995
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 15120
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 52713
+Project 712301 data saved to database. Created: False
+"POST /api/projects/712301/data/save/ HTTP/1.1" 200 85
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+Token refresh failed with status code: 403
+"GET / HTTP/1.1" 200 13629
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/css/toast.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/toast.js HTTP/1.1" 200 11689
+Not Found: /static/js/simple-pdf-generator.js
+Not Found: /static/js/simple-project-form.js
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24935
+Not Found: /static/js/simple-project-form.js
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+Not Found: /static/js/simple-pdf-generator.js
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+Search request with query: syn
+Search request with query: synas
+"GET /api/search/?query=syn HTTP/1.1" 200 77
+"GET /api/search/?query=synas HTTP/1.1" 200 77
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 2970349
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 1995
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 52713
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 15120
+"GET / HTTP/1.1" 200 24935
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/css/toast.css HTTP/1.1" 304 0
+"GET /static/js/toast.js HTTP/1.1" 304 0
+Not Found: /static/js/simple-project-form.js
+Not Found: /static/js/simple-pdf-generator.js
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+Search request with query: syn
+"GET /api/search/?query=syn HTTP/1.1" 200 77
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 2970349
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 1995
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 52713
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 15120
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
+"GET / HTTP/1.1" 200 24935
+Not Found: /static/js/simple-project-form.js
+Not Found: /static/js/simple-pdf-generator.js
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+Search request with query: synas
+"GET /api/search/?query=synas HTTP/1.1" 200 77
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 2970349
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 1995
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 15120
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 52713
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
+"GET / HTTP/1.1" 200 24935
+"GET /static/css/toast.css HTTP/1.1" 200 3575
+"GET /static/css/styles.css HTTP/1.1" 200 7050
+"GET /static/js/toast.js HTTP/1.1" 200 11689
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 200 62967
+Not Found: /static/js/simple-project-form.js
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+"GET /static/js/main.js HTTP/1.1" 200 3229
+Not Found: /static/js/simple-pdf-generator.js
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+"GET /static/js/search.js HTTP/1.1" 200 20007
+"GET /static/js/datepicker.js HTTP/1.1" 200 2245
+"GET /static/js/issue-data.js HTTP/1.1" 200 43545
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 179
+Search request with query: gym
+"GET /api/search/?query=gym HTTP/1.1" 200 90
+Loaded project data for project 712307
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682629
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 28982
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24935
+Not Found: /static/js/simple-project-form.js
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+Not Found: /static/js/simple-pdf-generator.js
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+Search request with query: syn
+"GET /api/search/?query=syn HTTP/1.1" 200 77
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 2970349
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 1995
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 15120
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 52713
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24935
+Not Found: /static/css/toast.css
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/css/toast.css HTTP/1.1" 404 179
+Not Found: /static/js/toast.js
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/toast.js HTTP/1.1" 404 179
+Not Found: /static/js/simple-project-form.js
+Not Found: /static/css/toast.css
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+Not Found: /static/js/simple-pdf-generator.js
+"GET /static/css/toast.css HTTP/1.1" 404 179
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET / HTTP/1.1" 200 24935
+Not Found: /static/css/toast.css
+"GET /static/css/toast.css HTTP/1.1" 404 179
+Not Found: /static/js/toast.js
+"GET /static/js/toast.js HTTP/1.1" 404 179
+Not Found: /static/js/simple-project-form.js
+Not Found: /static/css/toast.css
+Not Found: /static/js/simple-pdf-generator.js
+"GET /static/css/toast.css HTTP/1.1" 404 179
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24935
+Not Found: /static/css/toast.css
+Not Found: /static/js/toast.js
+"GET /static/css/toast.css HTTP/1.1" 404 179
+"GET /static/js/toast.js HTTP/1.1" 404 179
+Not Found: /static/js/simple-project-form.js
+Not Found: /static/js/simple-pdf-generator.js
+Not Found: /static/css/toast.css
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+"GET /static/css/toast.css HTTP/1.1" 404 179
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24935
+Not Found: /static/css/toast.css
+"GET /static/css/styles.css HTTP/1.1" 304 0
+Not Found: /static/js/toast.js
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/css/toast.css HTTP/1.1" 404 179
+"GET /static/js/toast.js HTTP/1.1" 404 179
+"GET /static/js/main.js HTTP/1.1" 304 0
+Not Found: /static/js/simple-project-form.js
+Not Found: /static/js/simple-pdf-generator.js
+Not Found: /static/css/toast.css
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/css/toast.css HTTP/1.1" 404 179
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+Skipping API initialization (not in runserver or gunicorn)
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24935
+"GET /static/css/toast.css HTTP/1.1" 200 3575
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/toast.js HTTP/1.1" 200 11689
+Not Found: /static/js/simple-pdf-generator.js
+Not Found: /static/js/simple-project-form.js
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+Search request with query: syn
+"GET /api/search/?query=syn HTTP/1.1" 200 77
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 2970349
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 1995
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 15120
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 52713
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 2970349
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 1995
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 15120
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 52713
+Search request with query: gym
+"GET /api/search/?query=gym HTTP/1.1" 200 90
+Loaded project data for project 712307
+"GET /api/projects/712307/data/load/ HTTP/1.1" 200 1682629
+"GET /api/projects/712307/workflow-settings/ HTTP/1.1" 200 4768
+"GET /api/projects/712307/instructions/ HTTP/1.1" 200 4936
+"GET /api/projects/712307/observations/ HTTP/1.1" 200 28982
+"GET /api/projects/712307/deficiencies/ HTTP/1.1" 200 127
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24935
+Not Found: /static/css/toast.css
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/css/toast.css HTTP/1.1" 404 179
+Not Found: /static/js/toast.js
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/toast.js HTTP/1.1" 404 179
+"GET /static/js/main.js HTTP/1.1" 304 0
+Not Found: /static/js/simple-project-form.js
+Not Found: /static/js/simple-pdf-generator.js
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+Not Found: /static/css/toast.css
+"GET /static/css/toast.css HTTP/1.1" 404 179
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+Skipping API initialization (not in runserver or gunicorn)
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24935
+Not Found: /static/css/toast.css
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/css/toast.css HTTP/1.1" 404 179
+Not Found: /static/js/toast.js
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/toast.js HTTP/1.1" 404 179
+"GET /static/js/main.js HTTP/1.1" 304 0
+Not Found: /static/js/simple-project-form.js
+Not Found: /static/js/simple-pdf-generator.js
+Not Found: /static/css/toast.css
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+"GET /static/css/toast.css HTTP/1.1" 404 179
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET / HTTP/1.1" 200 24935
+Not Found: /static/css/toast.css
+"GET /static/css/toast.css HTTP/1.1" 404 179
+Not Found: /static/js/toast.js
+"GET /static/js/toast.js HTTP/1.1" 404 179
+Not Found: /static/js/simple-project-form.js
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+Not Found: /static/css/toast.css
+Not Found: /static/js/simple-pdf-generator.js
+"GET /static/css/toast.css HTTP/1.1" 404 179
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24935
+"GET /static/css/styles.css HTTP/1.1" 304 0
+Not Found: /static/css/toast.css
+Not Found: /static/js/toast.js
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/css/toast.css HTTP/1.1" 404 179
+"GET /static/js/toast.js HTTP/1.1" 404 179
+"GET /static/js/main.js HTTP/1.1" 304 0
+Not Found: /static/js/simple-project-form.js
+Not Found: /static/js/simple-pdf-generator.js
+Not Found: /static/css/toast.css
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+"GET /static/css/toast.css HTTP/1.1" 404 179
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+Skipping API initialization (not in runserver or gunicorn)
+Skipping API initialization (not in runserver or gunicorn)
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24935
+Not Found: /static/css/toast.css
+Not Found: /static/js/toast.js
+"GET /static/css/toast.css HTTP/1.1" 404 179
+"GET /static/js/toast.js HTTP/1.1" 404 179
+Not Found: /static/css/toast.css
+"GET /static/css/toast.css HTTP/1.1" 404 179
+Not Found: /static/js/simple-project-form.js
+Not Found: /static/js/simple-pdf-generator.js
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24446
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/status-fix.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 200 14190
+"GET /static/js/pdf-generator.js HTTP/1.1" 200 8161
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24446
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/status-fix.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24446
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/status-fix.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 304 0
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24445
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/css/styles.css HTTP/1.1" 200 736
+"GET /static/js/project-form.js HTTP/1.1" 200 16771
+"GET /static/js/search.js HTTP/1.1" 200 14367
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/status-fix.js HTTP/1.1" 304 0
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 200 4990
+Search request with query: syn
+"GET /api/search/?query=syn HTTP/1.1" 200 77
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 1995
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 15120
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 52713
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 2970349
+"GET /api/projects/712301/issues/23/comments/ HTTP/1.1" 200 1964
+"GET /api/projects/712301/issues/22/comments/ HTTP/1.1" 200 7484
+"GET /api/projects/712301/issues/17/comments/ HTTP/1.1" 200 5216
+"GET /api/projects/712301/issues/16/comments/ HTTP/1.1" 200 3841
+"GET /api/projects/712301/issues/13/comments/ HTTP/1.1" 200 4012
+"GET /api/projects/712301/issues/15/comments/ HTTP/1.1" 200 3142
+"GET /api/projects/712301/issues/25/comments/ HTTP/1.1" 200 4766
+"GET /api/projects/712301/issues/20/comments/ HTTP/1.1" 200 6793
+"GET /api/projects/712301/issues/21/comments/ HTTP/1.1" 200 1973
+"GET /api/projects/712301/issues/18/comments/ HTTP/1.1" 200 4434
+"GET /api/projects/712301/issues/26/comments/ HTTP/1.1" 200 1979
+"GET /api/projects/712301/issues/24/comments/ HTTP/1.1" 200 2708
+Finding best image for issue 23
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/23/comments/774aa9ac-0631-4e2e-ba7e-aabb18320010/505acaf8
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_c6c87472-d6b7-413d-b76e-eaf9944d8c39.png
+Finding best image for issue 16
+Checking 4 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/16/comments/8f4b524a-20ce-42d4-a5b4-2bf1f773ac2f/5f368930
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_5584c92a-ec14-4d25-9854-ccaaabc44cc5.png
+Finding best image for issue 17
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/17/comments/82f203e8-298f-4bf3-8328-602dc73ed8ca/87a86ce7
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_c34bfeb4-c3c9-46be-8cd3-519749ecd208.png
+Finding best image for issue 21
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/21/comments/a696fb87-1adb-44fd-a7fa-5272e9b56b47/66680e9d
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_7dd2f775-c59d-4753-bd2c-0f2c11eb2c76.png
+Finding best image for issue 22
+Checking 7 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/22/comments/5e38777e-6476-48e9-a28f-688d9f62c333/425f55f2
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_12e67425-4fc9-4405-ab2d-65df0b7ee681.png
+Finding best image for issue 20
+Checking 6 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/20/comments/dd9321e4-1180-4567-afb8-2bacb0e9de42/d5c25535
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_61e9eaa4-aeea-494b-9c9d-acd48d9ea7ac.png
+Finding best image for issue 25
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/25/comments/081dbc1a-c862-4776-8897-d211d2315b95/ef5ea57d
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_852b5cf8-9b67-4c18-9566-49287f88bc38.png
+Finding best image for issue 18
+Checking 5 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/18/comments/468e652e-eec8-4865-97dc-fd5c03336e83/20477b02
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_19e996ca-0585-4299-aa1e-ad8b007411b7.png
+Finding best image for issue 26
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/26/comments/a5686f9e-bd39-42a8-baca-5059a6903ae4/564abb7b
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_05cda262-4597-42eb-bb91-7768ec672b52.png
+Finding best image for issue 24
+Checking 3 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/24/comments/2a60a688-eadb-48fd-894f-709d48c5ad0a/c624b511
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_fc1dd9f1-f061-44a8-8c24-32963273cf1c.png
+Finding best image for issue 13
+Checking 4 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/13/comments/f0330322-5ff7-4c32-8eaf-1fda76c3cd94/f0939e39
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_a3c8c8b1-9ecd-4356-aa63-1bef94c44c49.png
+Finding best image for issue 15
+Checking 3 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/15/comments/6cf95558-7bb7-4ea7-b300-7848e43a747d/7fd37361
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_6be11d66-ec5a-4213-bd10-831ac8402e72.png
+"GET /api/projects/712301/generate-pdf/ HTTP/1.1" 200 24449910
+Finding best image for issue 23
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/23/comments/774aa9ac-0631-4e2e-ba7e-aabb18320010/505acaf8
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_6005dab0-b8e2-405e-b6bd-316119eb1d32.png
+Finding best image for issue 16
+Checking 4 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/16/comments/8f4b524a-20ce-42d4-a5b4-2bf1f773ac2f/5f368930
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_99a94b1a-c243-4a13-87b2-141493515bb4.png
+Finding best image for issue 17
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/17/comments/82f203e8-298f-4bf3-8328-602dc73ed8ca/87a86ce7
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_cf1967b2-adf4-432f-90cb-b85e003ff507.png
+Finding best image for issue 21
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/21/comments/a696fb87-1adb-44fd-a7fa-5272e9b56b47/66680e9d
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_03513adc-65d6-435b-b1dc-59b0e1a6601c.png
+Finding best image for issue 22
+Checking 7 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/22/comments/5e38777e-6476-48e9-a28f-688d9f62c333/425f55f2
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_798146cc-876e-4197-b753-47b22e42e3da.png
+Finding best image for issue 20
+Checking 6 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/20/comments/dd9321e4-1180-4567-afb8-2bacb0e9de42/d5c25535
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_c42b5ea5-e5e6-4be0-9c10-b7ab3b0861c1.png
+Finding best image for issue 25
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/25/comments/081dbc1a-c862-4776-8897-d211d2315b95/ef5ea57d
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_3912f79d-1f97-4f94-bbf1-db31e5f8a8fc.png
+Finding best image for issue 18
+Checking 5 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/18/comments/468e652e-eec8-4865-97dc-fd5c03336e83/20477b02
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_705b774f-45de-40df-9334-d973c009ad65.png
+Finding best image for issue 26
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/26/comments/a5686f9e-bd39-42a8-baca-5059a6903ae4/564abb7b
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_32ea7171-a7b3-41c5-93b5-d398b7cd5ba6.png
+Finding best image for issue 24
+Checking 3 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/24/comments/2a60a688-eadb-48fd-894f-709d48c5ad0a/c624b511
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_192b2452-3959-4348-b311-a092f1279d94.png
+Finding best image for issue 13
+Checking 4 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/13/comments/f0330322-5ff7-4c32-8eaf-1fda76c3cd94/f0939e39
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_bedcf8ee-7d79-4d42-8915-67f8689124da.png
+Finding best image for issue 15
+Checking 3 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/15/comments/6cf95558-7bb7-4ea7-b300-7848e43a747d/7fd37361
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_2f18d9bf-bcf9-43dc-ae12-aab916e877c2.png
+"GET /api/projects/712301/generate-pdf/ HTTP/1.1" 200 24449910
+Finding best image for issue 23
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/23/comments/774aa9ac-0631-4e2e-ba7e-aabb18320010/505acaf8
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_e25d921f-e703-4457-9bd9-a83577cc950f.png
+Finding best image for issue 16
+Checking 4 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/16/comments/8f4b524a-20ce-42d4-a5b4-2bf1f773ac2f/5f368930
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_cf4cebdd-81d8-417e-bb3b-80d569e68153.png
+Finding best image for issue 17
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/17/comments/82f203e8-298f-4bf3-8328-602dc73ed8ca/87a86ce7
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_19219357-cd0f-4b95-b34c-8b84c83d1533.png
+Finding best image for issue 21
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/21/comments/a696fb87-1adb-44fd-a7fa-5272e9b56b47/66680e9d
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_b34e61fd-3195-4820-bc33-16102aebd8c9.png
+Finding best image for issue 22
+Checking 7 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/22/comments/5e38777e-6476-48e9-a28f-688d9f62c333/425f55f2
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_2510ff12-5854-4e2c-abcb-b7752d0dda3b.png
+Finding best image for issue 20
+Checking 6 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/20/comments/dd9321e4-1180-4567-afb8-2bacb0e9de42/d5c25535
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_fe32a272-49a0-4136-af0c-0df343f37e2a.png
+Finding best image for issue 25
+Checking 4 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/25/comments/081dbc1a-c862-4776-8897-d211d2315b95/ef5ea57d
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_f067a93c-0a97-4d0f-88e3-5e5f01975ed1.png
+Finding best image for issue 18
+Checking 5 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/18/comments/468e652e-eec8-4865-97dc-fd5c03336e83/20477b02
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_820d9337-cd3d-4a9e-a4ae-1dc5bafdd417.png
+Finding best image for issue 26
+Checking 2 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/26/comments/a5686f9e-bd39-42a8-baca-5059a6903ae4/564abb7b
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_e42ec0f7-ff5b-4aac-bd88-f21c60695db5.png
+Finding best image for issue 24
+Checking 3 comments for images
+Found image in markup comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/24/comments/2a60a688-eadb-48fd-894f-709d48c5ad0a/c624b511
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_0f87ccb0-7481-4518-84f7-242916ca6291.png
+Finding best image for issue 13
+Checking 4 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/13/comments/f0330322-5ff7-4c32-8eaf-1fda76c3cd94/f0939e39
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_7ae0d022-397f-4559-8487-77d1aafa4761.png
+Finding best image for issue 15
+Checking 3 comments for images
+Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/15/comments/6cf95558-7bb7-4ea7-b300-7848e43a747d/7fd37361
+Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_87cbf8b2-8c7c-47a7-a103-11102bda202c.png
+- Broken pipe from ('127.0.0.1', 56554)
