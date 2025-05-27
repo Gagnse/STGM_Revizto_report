@@ -15,9 +15,6 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 
-    <!-- Toast System CSS -->
-    <link rel="stylesheet" href="{% static 'css/toast.css' %}">
-
     <!-- Additional styles for fixed navbar -->
     <style>
         body {
@@ -29,9 +26,6 @@
     <!-- Add CSRF Token -->
     {% csrf_token %}
 
-    <!-- Toast Container (will be created dynamically by JavaScript) -->
-    <div id="toast-container" class="toast-container"></div>
-
     <!-- Navigation Bar -->
     {% include "navbar.html" %}
 
@@ -41,53 +35,103 @@
     <!-- Footer -->
     {% include "footer.html" %}
 
-    <!-- Toast System JavaScript (load first) -->
-    <script src="{% static 'js/toast.js' %}"></script>
-
-    <!-- JavaScript - Use SIMPLIFIED versions to avoid DOM manipulation errors -->
+    <!-- JavaScript - Note the order is important -->
     <script src="{% static 'js/main.js' %}"></script>
-
-    <!-- Use simplified project form and PDF generator -->
-    <script>
-        // Check if we should use simplified versions
-        const useSimplified = true; // Set to true to avoid DOM manipulation errors
-
-        if (useSimplified) {
-            console.log('[DEBUG] Loading simplified versions to avoid DOM errors');
-        }
-    </script>
-
-    <!-- Load simplified versions or original based on flag -->
-    <script src="{% static 'js/simple-project-form.js' %}"></script>
-    <script src="{% static 'js/simple-pdf-generator.js' %}"></script>
+    <script src="{% static 'js/project-form.js' %}"></script>
     <script src="{% static 'js/search.js' %}"></script>
-
-    <!-- Then load the main issue-data.js -->
     <script src="{% static 'js/issue-data.js' %}"></script>
+    <script>
+    // Fix status map not being properly assigned
+    document.addEventListener('DOMContentLoaded', function() {
+        // Wait a little bit for issue-data.js to finish initializing
+        setTimeout(function() {
+            console.log('[FIX] Status map fix script running');
 
-    <!-- Additional scripts -->
+            // Keep track of the original fetchProjectStatuses function
+            if (window.issueDataHandler && window.issueDataHandler.fetchProjectStatuses) {
+                const originalFetchProjectStatuses = window.issueDataHandler.fetchProjectStatuses;
+
+                // Replace with our fixed version
+                window.issueDataHandler.fetchProjectStatuses = function(projectId) {
+                    console.log('[FIX] Using enhanced fetchProjectStatuses');
+
+                    return fetch(`/api/projects/${projectId}/workflow-settings/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            // Process the data as normal first
+                            const result = originalFetchProjectStatuses(projectId);
+
+                            // But also build our own direct status map
+                            if (data && data.result === 0 && data.data && data.data.statuses) {
+                                console.log('[FIX] Building direct status map from API data');
+
+                                // Create a map directly from UUIDs to status objects
+                                const directMap = {};
+
+                                data.data.statuses.forEach(status => {
+                                    const uuid = status.uuid;
+                                    if (!uuid) return;
+
+                                    // Create a proper status object
+                                    directMap[uuid] = {
+                                        name: status.name,
+                                        displayName: status.name,
+                                        textColor: status.textColor,
+                                        backgroundColor: status.backgroundColor,
+                                        category: status.category
+                                    };
+
+                                    // Translate common statuses to French
+                                    if (status.name === "Open") {
+                                        directMap[uuid].displayName = "Ouvert";
+                                    } else if (status.name === "In progress") {
+                                        directMap[uuid].displayName = "En cours";
+                                    } else if (status.name === "Solved") {
+                                        directMap[uuid].displayName = "Résolu";
+                                    } else if (status.name === "Closed") {
+                                        directMap[uuid].displayName = "Fermé";
+                                    }
+                                    // Keep others as is (already in French)
+
+                                    // Log "En attente" status
+                                    if (status.name === "En attente") {
+                                        console.log(`[FIX] Added "En attente" status with UUID ${uuid} to directMap`);
+                                    }
+                                });
+
+                                // Now replace the window.statusMap entirely
+                                window.statusMap = directMap;
+                                console.log(`[FIX] Directly replaced window.statusMap with ${Object.keys(directMap).length} entries`);
+
+                                // Store in issueData for reference
+                                window.issueData.projectStatuses = directMap;
+                            }
+
+                            return result;
+                        });
+                };
+
+                console.log('[FIX] fetchProjectStatuses successfully enhanced');
+
+                // If there's already an active project, refresh the statuses
+                if (window.issueData && window.issueData.activeProjectId) {
+                    console.log('[FIX] Found active project, refreshing statuses');
+                    window.issueDataHandler.fetchProjectStatuses(window.issueData.activeProjectId);
+                }
+            } else {
+                console.error('[FIX] Could not find issueDataHandler.fetchProjectStatuses');
+            }
+        }, 500); // Give time for the original scripts to load
+    });
+</script>
+    <script src="{% static 'js/status-fix.js' %}"></script>
     <script src="{% static 'js/datepicker.js' %}"></script>
+    <script src="{% static 'js/pdf-generator.js' %}"></script>
 
-    <!-- Toast System Demo and Initialization -->
+    <!-- Debugging script to check if issue-data.js is loaded -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             console.log('[INDEX-DEBUG] DOM loaded in index.html');
-
-            // Initialize toast system
-            if (window.Toast) {
-                console.log('[INDEX-DEBUG] Toast system initialized');
-
-                // Show welcome toast
-                setTimeout(() => {
-                    Toast.info(
-                        'Système STGM',
-                        'Application de rapport Revizto chargée avec succès',
-                        { duration: 3000 }
-                    );
-                }, 500);
-            } else {
-                console.error('[INDEX-DEBUG] Toast system not available');
-            }
 
             // Check if issue data handler is available
             if (window.issueDataHandler) {
@@ -96,91 +140,10 @@
                 console.error('[INDEX-DEBUG] issueDataHandler is NOT available');
             }
 
-            // Check for active project and status map
+            // Check for activeProjectId
             setTimeout(function() {
                 console.log('[INDEX-DEBUG] Current activeProjectId:', window.activeProjectId);
-
-                // Log status map state
-                if (window.statusMap) {
-                    console.log('[INDEX-DEBUG] statusMap has', Object.keys(window.statusMap).length, 'entries');
-
-                    // Check for "En attente" status
-                    let foundEnAttente = false;
-                    for (const [key, status] of Object.entries(window.statusMap)) {
-                        if (status.name === "En attente" || status.displayName === "En attente") {
-                            console.log('[INDEX-DEBUG] "En attente" status found with key:', key);
-                            foundEnAttente = true;
-                            break;
-                        }
-                    }
-
-                    if (!foundEnAttente) {
-                        console.log('[INDEX-DEBUG] "En attente" status NOT found in statusMap');
-                    }
-                } else {
-                    console.log('[INDEX-DEBUG] statusMap is not defined');
-                }
-
-                // Check direct map
-                if (window.statusDirectMap) {
-                    console.log('[INDEX-DEBUG] statusDirectMap has', Object.keys(window.statusDirectMap).length, 'entries');
-                }
             }, 2000);
-
-            // Add keyboard shortcuts for development/testing
-            document.addEventListener('keydown', function(event) {
-                // Ctrl+Shift+T for test toasts (development only)
-                if (event.ctrlKey && event.shiftKey && event.key === 'T') {
-                    event.preventDefault();
-                    showTestToasts();
-                }
-            });
-        });
-
-        // Test function for toast notifications (development/demo purposes)
-        function showTestToasts() {
-            console.log('[TOAST-TEST] Showing test toasts...');
-
-            setTimeout(() => Toast.success('Test Succès', 'Ceci est un test de notification de succès'), 0);
-            setTimeout(() => Toast.error('Test Erreur', 'Ceci est un test de notification d\'erreur'), 1000);
-            setTimeout(() => Toast.warning('Test Attention', 'Ceci est un test de notification d\'attention'), 2000);
-            setTimeout(() => Toast.info('Test Info', 'Ceci est un test de notification d\'information'), 3000);
-
-            const loadingId = Toast.loading('Test Chargement', 'Ceci est un test de notification de chargement');
-            setTimeout(() => {
-                Toast.update(loadingId, {
-                    type: 'success',
-                    title: 'Chargement terminé',
-                    message: 'Le test de chargement a été converti en succès',
-                    duration: 3000
-                });
-            }, 4000);
-        }
-
-        // Global error handler to show toast notifications for uncaught errors
-        window.addEventListener('error', function(event) {
-            console.error('[GLOBAL-ERROR]', event.error);
-
-            if (window.Toast) {
-                Toast.error(
-                    'Erreur système',
-                    'Une erreur inattendue s\'est produite. Consultez la console pour plus de détails.',
-                    { duration: 8000 }
-                );
-            }
-        });
-
-        // Global promise rejection handler
-        window.addEventListener('unhandledrejection', function(event) {
-            console.error('[UNHANDLED-PROMISE-REJECTION]', event.reason);
-
-            if (window.Toast) {
-                Toast.error(
-                    'Erreur de promesse',
-                    'Une promesse JavaScript a été rejetée sans gestionnaire d\'erreur.',
-                    { duration: 6000 }
-                );
-            }
         });
     </script>
 </body>

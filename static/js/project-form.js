@@ -214,72 +214,35 @@ function loadProjectData(projectId) {
     });
 }
 
+// Function to create a new project entry
+function createNewProjectEntry(projectId) {
+    console.log('[DEBUG] Creating new project entry for ID:', projectId);
 
-// Function to load project data from database
-function loadProjectData(projectId) {
-    console.log('[DEBUG] Loading project data for project ID:', projectId);
+    // Prepare empty data
+    const emptyData = {
+        projectId: projectId,
+        lastSaved: new Date().toISOString()
+        // other fields will be empty
+    };
 
-    // STEP 1: Set the active project ID
-    window.activeProjectId = projectId;
-    console.log('[DEBUG] Active project ID set to:', window.activeProjectId);
-
-    // STEP 2: Always clear form first to prevent mixing data
-    console.log('[DEBUG] Clearing form before loading data');
-    clearForm();
-
-    // Show loading state
-    const dataStatus = document.getElementById('data-status');
-    if (dataStatus) {
-        dataStatus.classList.remove('hidden');
-        document.getElementById('last-saved-text').textContent = 'Loading project data...';
-        console.log('[DEBUG] Loading indicator shown');
-    }
-
-    // STEP 3: Load data from server
-    console.log('[DEBUG] Requesting project data from server...');
-    fetch(`/api/projects/${projectId}/data/load/`)
-    .then(response => {
-        console.log('[DEBUG] Load response status:', response.status);
-        return response.json();
+    // Save this empty data to create the entry
+    fetch(`/api/projects/${projectId}/data/save/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
+        },
+        body: JSON.stringify(emptyData)
     })
+    .then(response => response.json())
     .then(data => {
-        console.log('[DEBUG] Load response data:', data);
+        console.log('[DEBUG] New project entry created:', data);
 
-        if (data.success) {
-            if (data.has_data) {
-                console.log('[DEBUG] Data found for project');
-
-                // Populate form with data
-                populateForm(data.data);
-
-                // Show last saved time if available
-                if (data.data.lastSaved) {
-                    updateLastSavedStatus(new Date(data.data.lastSaved));
-                    console.log('[DEBUG] Last saved timestamp updated');
-                }
-            } else {
-                console.log('[DEBUG] No data found for project - creating new entry');
-
-                // Create a new entry for this project
-                createNewProjectEntry(projectId);
-            }
-        } else {
-            console.error('[DEBUG] Load failed:', data.error || 'Unknown error');
-
-            // Hide data status on error
-            if (dataStatus) {
-                dataStatus.classList.add('hidden');
-            }
-        }
+        // Update status
+        updateLastSavedStatus(new Date());
     })
     .catch(error => {
-        console.error('[DEBUG] Error loading project data:', error);
-        showMessage('Error loading project data: ' + error.message, 'error');
-
-        // Hide data status on error
-        if (dataStatus) {
-            dataStatus.classList.add('hidden');
-        }
+        console.error('[DEBUG] Error creating new project entry:', error);
     });
 }
 
@@ -440,14 +403,14 @@ function updateLastSavedStatus(saveDate) {
     }
 }
 
-// Helper function to show messages
+// Simplified message function - just use console logging and simple alerts for errors
 function showMessage(message, type = 'info') {
     console.log(`[DEBUG] [${type.toUpperCase()}] ${message}`);
 
+    // Only show alerts for errors
     if (type === 'error') {
-        alert(message);
+        alert(`Error: ${message}`);
     }
-    // You could implement a more sophisticated message display system here
 }
 
 // Helper function to get CSRF token
@@ -465,5 +428,6 @@ window.projectForm = {
     saveProjectData,
     clearForm,
     populateForm,
-    createNewProjectEntry
+    createNewProjectEntry,
+    showMessage
 };
