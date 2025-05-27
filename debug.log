@@ -10054,3 +10054,4 @@ Loaded project data for project 712301
 "GET /api/projects/712301/issues/26/comments/ HTTP/1.1" 200 1979
 "GET /api/projects/712301/generate-pdf/ HTTP/1.1" 200 1540
 "GET /api/projects/712301/generate-pdf/ HTTP/1.1" 200 1540
+- Broken pipe from ('127.0.0.1', 53431)
