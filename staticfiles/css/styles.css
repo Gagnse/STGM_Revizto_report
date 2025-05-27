@@ -32,3 +32,319 @@ input[datepicker] {
         width: 100%;
     }
 }
+
+/* ========================================
+   TOAST NOTIFICATION SYSTEM STYLES
+   ======================================== */
+
+/* Toast notification system styles */
+.toast-container {
+    position: fixed;
+    top: 4rem; /* Just below the navbar (64px) */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50; /* Lower than navbar (z-50) but higher than main content */
+    max-width: 500px;
+    width: calc(100% - 40px);
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 6px 12px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid;
+    pointer-events: auto;
+    transform: translateY(-100%);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 500px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.toast.hide {
+    transform: translateY(-100%);
+    opacity: 0;
+}
+
+/* Toast types */
+.toast.success {
+    border-left-color: #10b981;
+}
+
+.toast.error {
+    border-left-color: #ef4444;
+}
+
+.toast.warning {
+    border-left-color: #f59e0b;
+}
+
+.toast.info {
+    border-left-color: #3b82f6;
+}
+
+.toast.loading {
+    border-left-color: #8b5cf6;
+}
+
+/* Toast icon */
+.toast-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    margin-right: 12px;
+}
+
+.toast-icon.success {
+    color: #10b981;
+}
+
+.toast-icon.error {
+    color: #ef4444;
+}
+
+.toast-icon.warning {
+    color: #f59e0b;
+}
+
+.toast-icon.info {
+    color: #3b82f6;
+}
+
+.toast-icon.loading {
+    color: #8b5cf6;
+    animation: spin 1s linear infinite;
+}
+
+/* Toast content */
+.toast-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.toast-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1f2937;
+    margin-bottom: 2px;
+}
+
+.toast-message {
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+/* Close button */
+.toast-close {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    margin-left: 12px;
+    cursor: pointer;
+    color: #9ca3af;
+    transition: color 0.2s;
+}
+
+.toast-close:hover {
+    color: #6b7280;
+}
+
+/* Progress bar for auto-dismiss */
+.toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 0 0 8px 8px;
+    transition: width linear;
+}
+
+.toast.success .toast-progress {
+    background: rgba(16, 185, 129, 0.3);
+}
+
+.toast.error .toast-progress {
+    background: rgba(239, 68, 68, 0.3);
+}
+
+.toast.warning .toast-progress {
+    background: rgba(245, 158, 11, 0.3);
+}
+
+.toast.info .toast-progress {
+    background: rgba(59, 130, 246, 0.3);
+}
+
+.toast.loading .toast-progress {
+    background: rgba(139, 92, 246, 0.3);
+}
+
+/* Spinner animation */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Toast responsive design */
+@media (max-width: 640px) {
+    .toast-container {
+        top: 4rem; /* Keep same position below navbar on mobile */
+        width: calc(100% - 20px);
+        max-width: none;
+    }
+
+    .toast {
+        margin-bottom: 8px;
+        padding: 12px;
+    }
+
+    .toast-title {
+        font-size: 13px;
+    }
+
+    .toast-message {
+        font-size: 12px;
+    }
+}
+
+/* Ensure navbar and search dropdown stay above toasts */
+nav {
+    z-index: 60; /* Higher than toast container */
+}
+
+#autocomplete-dropdown {
+    z-index: 70; /* Highest priority for search dropdown */
+}
+
+/* Remove any overlay effects that would interfere with search */
+.toast-container:not(:empty)::before {
+    display: none; /* Remove the backdrop blur */
+}
+
+/* Dark mode support for toasts */
+@media (prefers-color-scheme: dark) {
+    .toast {
+        background: rgba(31, 41, 55, 0.95);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 6px 12px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .toast-title {
+        color: #f9fafb;
+    }
+
+    .toast-message {
+        color: #d1d5db;
+    }
+
+    .toast-close {
+        color: #9ca3af;
+    }
+
+    .toast-close:hover {
+        color: #d1d5db;
+    }
+}
+
+/* Custom button styles for toast confirmations */
+.toast .confirm-clear {
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.toast .confirm-clear:hover {
+    background-color: #b91c1c;
+}
+
+.toast .cancel-clear {
+    background-color: #d1d5db;
+    color: #374151;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.toast .cancel-clear:hover {
+    background-color: #9ca3af;
+    color: white;
+}
+
+/* Enhanced loading button styles */
+.toast .loading-spinner {
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+}
+
+/* Special toast animations for different priorities */
+.toast.priority-high {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Toast stacking improvements */
+.toast-container .toast:nth-child(n+4) {
+    opacity: 0.8;
+    transform: scale(0.95) translateX(0);
+}
+
+.toast-container .toast:nth-child(n+6) {
+    display: none;
+}
+
+/* Accessibility improvements */
+.toast[role="alert"] {
+    /* Screen reader will announce these immediately */
+}
+
+.toast[role="status"] {
+    /* Screen reader will announce these politely */
+}
+
+/* Focus styles for keyboard navigation */
+.toast:focus-within {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+.toast-close:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 1px;
+    border-radius: 2px;
+}

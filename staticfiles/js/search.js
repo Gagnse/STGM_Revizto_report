@@ -1,4 +1,4 @@
-// Search functionality with Django sessions for project data
+// Search functionality with Django sessions for project data and toast notifications
 document.addEventListener('DOMContentLoaded', function() {
     console.log('[DEBUG] Search handler initialized');
 
@@ -31,6 +31,7 @@ function initSearchWhenReady() {
 function initSearch(searchInput, dropdownElement) {
     let results = [];
     let debounceTimer = null;
+    let searchLoadingToast = null;
 
     console.log('[DEBUG] Initializing search with elements:',
                 searchInput ? 'Search input found' : 'Search input missing',
@@ -65,23 +66,88 @@ function initSearch(searchInput, dropdownElement) {
         if (query.length < 2) {
             console.log('[DEBUG] Query too short, hiding dropdown');
             hideDropdown();
+
+            // Hide search loading toast if it exists
+            if (searchLoadingToast) {
+                Toast.hide(searchLoadingToast);
+                searchLoadingToast = null;
+            }
             return;
+        }
+
+        // Show loading toast for longer searches
+        if (query.length >= 3) {
+            searchLoadingToast = Toast.loading(
+                'Recherche en cours',
+                `Recherche de projets contenant "${query}"...`,
+                { duration: 0 }
+            );
         }
 
         console.log('[DEBUG] Fetching search results for query:', query);
         fetch(`/api/search/?query=${encodeURIComponent(query)}`)
             .then(response => {
                 console.log('[DEBUG] Search response status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
                 return response.json();
             })
             .then(data => {
                 console.log('[DEBUG] Search results received:', data.results ? data.results.length : 0, 'results');
                 results = data.results || [];
+
+                // Hide loading toast
+                if (searchLoadingToast) {
+                    Toast.hide(searchLoadingToast);
+                    searchLoadingToast = null;
+                }
+
+                // Show result summary toast for significant searches
+                if (query.length >= 3) {
+                    const resultCount = results.length;
+                    if (resultCount === 0) {
+                        Toast.warning(
+                            'Aucun résultat',
+                            `Aucun projet trouvé pour "${query}"`,
+                            { duration: 3000 }
+                        );
+                    } else if (resultCount === 1) {
+                        Toast.success(
+                            'Résultat trouvé',
+                            `1 projet trouvé pour "${query}"`,
+                            { duration: 2000 }
+                        );
+                    } else {
+                        Toast.info(
+                            'Résultats trouvés',
+                            `${resultCount} projets trouvés pour "${query}"`,
+                            { duration: 2000 }
+                        );
+                    }
+                }
+
                 renderResults();
                 showDropdown();
             })
             .catch(error => {
                 console.error('[DEBUG] Search error:', error);
+
+                // Hide loading toast
+                if (searchLoadingToast) {
+                    Toast.hide(searchLoadingToast);
+                    searchLoadingToast = null;
+                }
+
+                // Show error toast
+                Toast.error(
+                    'Erreur de recherche',
+                    'Impossible d\'effectuer la recherche. Vérifiez votre connexion.',
+                    { duration: 5000 }
+                );
+
                 results = [];
                 renderResults();
             });
@@ -96,7 +162,7 @@ function initSearch(searchInput, dropdownElement) {
         if (results.length === 0) {
             const noResults = document.createElement('div');
             noResults.className = 'p-4 text-sm text-gray-500';
-            noResults.textContent = 'No projects found';
+            noResults.textContent = 'Aucun projet trouvé';
             dropdownElement.appendChild(noResults);
             return;
         }
@@ -109,25 +175,41 @@ function initSearch(searchInput, dropdownElement) {
             const li = document.createElement('li');
             const a = document.createElement('a');
             a.href = '#';
-            a.className = 'block px-4 py-2 hover:bg-gray-100 flex justify-between items-center';
+            a.className = 'block px-4 py-2 hover:bg-gray-100 flex justify-between items-center transition-colors duration-150';
 
             // Add project name
             const nameSpan = document.createElement('span');
             nameSpan.textContent = result.text;
+            nameSpan.className = 'flex-1 truncate';
             a.appendChild(nameSpan);
+
+            // Add indicators container
+            const indicatorsContainer = document.createElement('div');
+            indicatorsContainer.className = 'flex items-center space-x-2 ml-2';
 
             // Add saved indicator if applicable
             if (result.hasSavedData) {
                 const savedIcon = document.createElement('span');
-                savedIcon.className = 'ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800';
-                savedIcon.textContent = 'Saved';
-                a.appendChild(savedIcon);
+                savedIcon.className = 'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800';
+                savedIcon.textContent = 'Sauvé';
+                indicatorsContainer.appendChild(savedIcon);
             }
+
+            a.appendChild(indicatorsContainer);
 
             // Add click handler
             a.addEventListener('click', function(e) {
                 e.preventDefault();
                 selectProject(result);
+            });
+
+            // Add hover effects
+            a.addEventListener('mouseenter', function() {
+                this.classList.add('bg-blue-50');
+            });
+
+            a.addEventListener('mouseleave', function() {
+                this.classList.remove('bg-blue-50');
             });
 
             li.appendChild(a);
@@ -139,53 +221,80 @@ function initSearch(searchInput, dropdownElement) {
 
     // Select a project from search results
     function selectProject(project) {
-    console.log('[DEBUG] Project selected:', project);
-    console.log(`[DEBUG] Project details - ID: ${project.id}, Name: ${project.text}`);
+        console.log('[DEBUG] Project selected:', project);
+        console.log(`[DEBUG] Project details - ID: ${project.id}, Name: ${project.text}`);
 
-    // Update search input
-    searchInput.value = project.text;
-    console.log('[DEBUG] Updated search input value to:', project.text);
+        // Show selection toast
+        const selectionToast = Toast.loading(
+            'Chargement du projet',
+            `Chargement de "${project.text}"...`,
+            { duration: 0 }
+        );
 
-    // Hide dropdown
-    hideDropdown();
-    console.log('[DEBUG] Dropdown hidden');
+        // Update search input
+        searchInput.value = project.text;
+        console.log('[DEBUG] Updated search input value to:', project.text);
 
-    // Update project title
-    const projectTitle = document.getElementById('active-project-title');
-    if (projectTitle) {
-        projectTitle.textContent = project.text;
-        console.log('[DEBUG] Project title updated to:', project.text);
-    } else {
-        console.error('[DEBUG] Project title element not found');
-    }
+        // Hide dropdown
+        hideDropdown();
+        console.log('[DEBUG] Dropdown hidden');
 
-    // Set the active project ID globally
-    window.activeProjectId = project.id;
-    console.log('[DEBUG] Set window.activeProjectId to:', window.activeProjectId);
-
-    // STEP 1: Clear the form before loading or creating project data
-    console.log('[DEBUG] Clearing form before loading project data');
-    if (window.projectForm && typeof window.projectForm.clearForm === 'function') {
-        window.projectForm.clearForm();
-    } else {
-        console.error('[DEBUG] projectForm.clearForm function not available');
-        // Fallback to basic form clearing
-        clearFormFields();
-    }
-
-    // STEP 2: Load or create project data
-    loadOrCreateProjectData(project.id);
-
-    // STEP 3: Trigger event to notify issue data handler
-    console.log('[DEBUG] Dispatching projectSelected event');
-    const event = new CustomEvent('projectSelected', {
-        detail: {
-            projectId: project.id,
-            projectName: project.text
+        // Update project title
+        const projectTitle = document.getElementById('active-project-title');
+        if (projectTitle) {
+            projectTitle.textContent = project.text;
+            console.log('[DEBUG] Project title updated to:', project.text);
+        } else {
+            console.error('[DEBUG] Project title element not found');
         }
-    });
-    document.dispatchEvent(event);
-}
+
+        // Set the active project ID globally
+        window.activeProjectId = project.id;
+        console.log('[DEBUG] Set window.activeProjectId to:', window.activeProjectId);
+
+        // STEP 1: Clear the form before loading or creating project data
+        console.log('[DEBUG] Clearing form before loading project data');
+        if (window.projectForm && typeof window.projectForm.clearForm === 'function') {
+            window.projectForm.clearForm();
+        } else {
+            console.error('[DEBUG] projectForm.clearForm function not available');
+            // Fallback to basic form clearing
+            clearFormFields();
+        }
+
+        // STEP 2: Load or create project data
+        loadOrCreateProjectData(project.id)
+            .then(() => {
+                // Hide loading toast and show success
+                Toast.hide(selectionToast);
+
+                Toast.success(
+                    'Projet sélectionné',
+                    `"${project.text}" a été chargé avec succès`,
+                    { duration: 3000 }
+                );
+
+                // STEP 3: Trigger event to notify issue data handler
+                console.log('[DEBUG] Dispatching projectSelected event');
+                const event = new CustomEvent('projectSelected', {
+                    detail: {
+                        projectId: project.id,
+                        projectName: project.text
+                    }
+                });
+                document.dispatchEvent(event);
+            })
+            .catch(error => {
+                // Hide loading toast and show error
+                Toast.hide(selectionToast);
+
+                Toast.error(
+                    'Erreur de chargement',
+                    `Impossible de charger le projet "${project.text}": ${error.message}`,
+                    { duration: 6000 }
+                );
+            });
+    }
 
     // Basic form clearing function as fallback
     function clearFormFields() {
@@ -214,74 +323,99 @@ function initSearch(searchInput, dropdownElement) {
         }
     }
 
-    // Load or create project data
+    // Load or create project data with promise support
     function loadOrCreateProjectData(projectId) {
-        console.log('[DEBUG] Loading or creating project data for ID:', projectId);
+        return new Promise((resolve, reject) => {
+            console.log('[DEBUG] Loading or creating project data for ID:', projectId);
 
-        // Load existing data
-        fetch(`/api/projects/${projectId}/data/load/`)
-            .then(response => response.json())
+            // Load existing data
+            fetch(`/api/projects/${projectId}/data/load/`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('[DEBUG] Load response:', data);
+
+                    if (data.success) {
+                        if (data.has_data) {
+                            // Existing data found, populate form
+                            console.log('[DEBUG] Existing data found, populating form');
+
+                            // Use the project form handler if available
+                            if (window.projectForm && typeof window.projectForm.populateForm === 'function') {
+                                window.projectForm.populateForm(data.data);
+                            } else {
+                                // Fallback to our own implementation if projectForm not available
+                                populateFormFields(data.data);
+                            }
+
+                            // Show last saved time if available
+                            updateLastSavedStatus(data.data.lastSaved ? new Date(data.data.lastSaved) : new Date());
+
+                            resolve();
+                        } else {
+                            // No data found, create a new entry
+                            console.log('[DEBUG] No data found, creating new entry');
+                            createNewProjectEntry(projectId)
+                                .then(resolve)
+                                .catch(reject);
+                        }
+                    } else {
+                        reject(new Error(data.error || 'Unknown error loading project data'));
+                    }
+                })
+                .catch(error => {
+                    console.error('[DEBUG] Error in load/create process:', error);
+                    reject(error);
+                });
+        });
+    }
+
+    // Create a new project entry with promise support
+    function createNewProjectEntry(projectId) {
+        return new Promise((resolve, reject) => {
+            console.log('[DEBUG] Creating new project entry for ID:', projectId);
+
+            // Prepare empty data
+            const emptyData = {
+                projectId: projectId,
+                lastSaved: new Date().toISOString()
+                // other fields will be empty
+            };
+
+            // Save this empty data to create the entry
+            fetch(`/api/projects/${projectId}/data/save/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify(emptyData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
             .then(data => {
-                console.log('[DEBUG] Load response:', data);
+                console.log('[DEBUG] New project entry created:', data);
 
                 if (data.success) {
-                    if (data.has_data) {
-                        // Existing data found, populate form
-                        console.log('[DEBUG] Existing data found, populating form');
-
-                        // Use the project form handler if available
-                        if (window.projectForm && typeof window.projectForm.populateForm === 'function') {
-                            window.projectForm.populateForm(data.data);
-                        } else {
-                            // Fallback to our own implementation if projectForm not available
-                            populateFormFields(data.data);
-                        }
-
-                        // Show last saved time if available
-                        updateLastSavedStatus(data.data.lastSaved ? new Date(data.data.lastSaved) : new Date());
-                    } else {
-                        // No data found, create a new entry
-                        console.log('[DEBUG] No data found, creating new entry');
-                        createNewProjectEntry(projectId);
-                    }
+                    // Update status
+                    updateLastSavedStatus(new Date());
+                    resolve();
                 } else {
-                    console.error('[DEBUG] Error loading project data:', data.error);
+                    reject(new Error(data.error || 'Failed to create new project entry'));
                 }
             })
             .catch(error => {
-                console.error('[DEBUG] Error in load/create process:', error);
+                console.error('[DEBUG] Error creating new project entry:', error);
+                reject(error);
             });
-    }
-
-    // Create a new project entry
-    function createNewProjectEntry(projectId) {
-        console.log('[DEBUG] Creating new project entry for ID:', projectId);
-
-        // Prepare empty data
-        const emptyData = {
-            projectId: projectId,
-            lastSaved: new Date().toISOString()
-            // other fields will be empty
-        };
-
-        // Save this empty data to create the entry
-        fetch(`/api/projects/${projectId}/data/save/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCsrfToken()
-            },
-            body: JSON.stringify(emptyData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('[DEBUG] New project entry created:', data);
-
-            // Update status
-            updateLastSavedStatus(new Date());
-        })
-        .catch(error => {
-            console.error('[DEBUG] Error creating new project entry:', error);
         });
     }
 
@@ -313,6 +447,9 @@ function initSearch(searchInput, dropdownElement) {
                 const img = document.createElement('img');
                 img.src = data.imageUrl;
                 img.className = 'w-full h-full object-cover';
+                img.onerror = () => {
+                    Toast.warning('Image manquante', 'L\'image du projet n\'a pas pu être chargée');
+                };
                 imagePreview.appendChild(img);
             }
         }
@@ -335,7 +472,7 @@ function initSearch(searchInput, dropdownElement) {
 
         if (lastSavedText) {
             const formattedDate = saveDate.toLocaleString();
-            lastSavedText.textContent = `Last saved: ${formattedDate}`;
+            lastSavedText.textContent = `Dernière sauvegarde: ${formattedDate}`;
         }
 
         if (dataStatus) {

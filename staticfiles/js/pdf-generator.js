@@ -1,6 +1,6 @@
-// PDF generation functionality
+// PDF generation functionality - SIMPLIFIED VERSION
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('[DEBUG] PDF generation handler initialized');
+    console.log('[DEBUG] Simple PDF generation handler initialized');
 
     // Add event listener for the PDF generation button
     const generatePdfBtn = document.getElementById('generate-pdf');
@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (generatePdfBtn) {
         generatePdfBtn.addEventListener('click', function() {
             console.log('[DEBUG] Generate PDF button clicked');
-            generateProjectPDF();
+            generateProjectPDFSimple();
         });
     } else {
         console.error('[DEBUG] Generate PDF button not found in DOM');
@@ -16,119 +16,213 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Make function available globally
     window.pdfGenerator = {
-        generateProjectPDF
+        generateProjectPDF: generateProjectPDFSimple
     };
 });
 
 /**
- * Generate PDF for the current project
+ * Simple PDF generation without complex DOM manipulation
  */
-function generateProjectPDF() {
+function generateProjectPDFSimple() {
     // Check if a project is selected
     if (!window.activeProjectId) {
         console.error('[DEBUG] No active project selected');
-        showMessage('Veuillez sélectionner un projet d\'abord', 'error');
+        if (window.Toast) {
+            Toast.error('Projet manquant', 'Veuillez sélectionner un projet d\'abord');
+        } else {
+            alert('Veuillez sélectionner un projet d\'abord');
+        }
         return;
     }
 
     console.log('[DEBUG] Generating PDF for project ID:', window.activeProjectId);
 
-    // Show loading state
-    showPdfGenerationLoading(true);
+    // Show simple loading toast
+    let processingToastId = null;
+    if (window.Toast) {
+        processingToastId = Toast.loading('Génération PDF', 'Préparation en cours...');
+    }
 
-    // Save current project data before generating PDF to ensure all changes are included
-    saveProjectDataBeforePdfGeneration()
+    // Show loading state on button
+    showPdfGenerationLoadingSimple(true);
+
+    // Simple auto-save before PDF generation
+    saveProjectDataSimple()
         .then(() => {
-            // Generate PDF by redirecting to the PDF endpoint
+            console.log('[DEBUG] Data saved, generating PDF...');
+
+            if (processingToastId && window.Toast) {
+                // Simple update without complex DOM manipulation
+                Toast.hide(processingToastId);
+                processingToastId = Toast.loading('Génération PDF', 'Création du document...');
+            }
+
+            // Generate PDF URL and open in new tab
             const pdfUrl = `/api/projects/${window.activeProjectId}/generate-pdf/`;
-            console.log('[DEBUG] Redirecting to PDF URL:', pdfUrl);
+            console.log('[DEBUG] Opening PDF URL:', pdfUrl);
 
-            // Open PDF in a new tab/window
-            window.open(pdfUrl, '_blank');
+            // Simple window.open approach
+            const newWindow = window.open(pdfUrl, '_blank');
 
-            // Hide loading state
-            showPdfGenerationLoading(false);
+            // Hide loading after short delay
+            setTimeout(() => {
+                if (processingToastId && window.Toast) {
+                    Toast.hide(processingToastId);
+                }
+
+                showPdfGenerationLoadingSimple(false);
+
+                if (window.Toast) {
+                    if (newWindow) {
+                        Toast.success('PDF généré', 'Le PDF s\'ouvre dans un nouvel onglet');
+                    } else {
+                        Toast.warning('Popup bloqué', 'Veuillez autoriser les popups pour télécharger le PDF');
+                    }
+                } else {
+                    if (!newWindow) {
+                        alert('Le PDF a été généré mais les popups sont bloquées. Veuillez les autoriser.');
+                    }
+                }
+            }, 1500);
+
         })
         .catch(error => {
-            console.error('[DEBUG] Error generating PDF:', error);
-            showMessage('Erreur lors de la génération du PDF: ' + error.message, 'error');
-            showPdfGenerationLoading(false);
+            console.error('[DEBUG] Error in PDF generation:', error);
+
+            if (processingToastId && window.Toast) {
+                Toast.hide(processingToastId);
+                Toast.error('Erreur PDF', 'Impossible de générer le PDF: ' + error.message);
+            } else {
+                alert('Erreur lors de la génération du PDF: ' + error.message);
+            }
+
+            showPdfGenerationLoadingSimple(false);
         });
 }
 
 /**
- * Save project data before generating PDF
- * @returns {Promise} Promise that resolves when data is saved
+ * Simple data saving before PDF generation
  */
-function saveProjectDataBeforePdfGeneration() {
+function saveProjectDataSimple() {
     return new Promise((resolve, reject) => {
-        console.log('[DEBUG] Saving project data before PDF generation');
+        try {
+            console.log('[DEBUG] Simple auto-save before PDF');
 
-        // Check if save function exists
-        if (window.projectForm && typeof window.projectForm.saveProjectData === 'function') {
-            try {
-                // Save project data
-                const projectId = window.activeProjectId;
+            const projectId = window.activeProjectId;
+            const formData = getFormDataSimple();
+            const csrfToken = getCsrfTokenSimple();
 
-                // Call the saveProjectData function and handle its response
-                window.projectForm.saveProjectData(projectId);
-
-                // Since saveProjectData might not return a Promise, we'll just wait a bit
-                setTimeout(() => {
-                    console.log('[DEBUG] Project data saved (or timeout) before PDF generation');
-                    resolve();
-                }, 1000);
-            } catch (error) {
-                console.error('[DEBUG] Exception saving project data before PDF generation:', error);
-                // Continue with PDF generation even if save fails
+            if (!projectId || !formData || !csrfToken) {
+                console.warn('[DEBUG] Missing data for auto-save, proceeding anyway');
                 resolve();
+                return;
             }
-        } else {
-            console.warn('[DEBUG] projectForm.saveProjectData function not available, skipping save before PDF generation');
-            // Continue with PDF generation without saving
-            resolve();
+
+            fetch(`/api/projects/${projectId}/data/save/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('[DEBUG] Auto-save completed:', data.success);
+                resolve();
+            })
+            .catch(error => {
+                console.warn('[DEBUG] Auto-save failed, continuing with PDF:', error);
+                resolve(); // Don't block PDF generation
+            });
+
+        } catch (error) {
+            console.warn('[DEBUG] Auto-save exception, continuing:', error);
+            resolve(); // Don't block PDF generation
         }
     });
 }
 
 /**
- * Show or hide PDF generation loading state
- * @param {boolean} isLoading - True to show loading, false to hide
+ * Simple button loading state
  */
-function showPdfGenerationLoading(isLoading) {
+function showPdfGenerationLoadingSimple(isLoading) {
     const generatePdfBtn = document.getElementById('generate-pdf');
-
-    if (!generatePdfBtn) {
-        return;
-    }
+    if (!generatePdfBtn) return;
 
     if (isLoading) {
-        // Save original text and disable button
-        generatePdfBtn.setAttribute('data-original-text', generatePdfBtn.innerText);
-        generatePdfBtn.innerText = 'Génération en cours...';
+        generatePdfBtn.setAttribute('data-original-text', generatePdfBtn.textContent);
+        generatePdfBtn.textContent = 'Génération...';
         generatePdfBtn.disabled = true;
-        generatePdfBtn.classList.add('opacity-75', 'cursor-not-allowed');
+        generatePdfBtn.style.opacity = '0.6';
     } else {
-        // Restore original text and enable button
         const originalText = generatePdfBtn.getAttribute('data-original-text') || 'Générer PDF';
-        generatePdfBtn.innerText = originalText;
+        generatePdfBtn.textContent = originalText;
         generatePdfBtn.disabled = false;
-        generatePdfBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+        generatePdfBtn.style.opacity = '1';
     }
 }
 
 /**
- * Show message to user
- * @param {string} message - Message to display
- * @param {string} type - Message type (info, success, warning, error)
+ * Simple form data collection
  */
-function showMessage(message, type = 'info') {
-    console.log(`[DEBUG] [${type.toUpperCase()}] ${message}`);
+function getFormDataSimple() {
+    try {
+        const formData = {
+            reportDate: getElementValueSimple('report-date'),
+            projectName: getElementValueSimple('project-name'),
+            projectOwner: getElementValueSimple('project-owner'),
+            contractor: getElementValueSimple('contractor'),
+            visitBy: getElementValueSimple('visit-by'),
+            inPresenceOf: getElementValueSimple('in-presence-of'),
+            visitDate: getElementValueSimple('visit-date'),
+            visitNumber: getElementValueSimple('visit-number'),
+            architectFile: getElementValueSimple('architect-file'),
+            distribution: getElementValueSimple('distribution'),
+            description: getElementValueSimple('project-description'),
+            lastSaved: new Date().toISOString()
+        };
 
-    if (type === 'error') {
-        alert(message);
-    } else if (window.projectForm && typeof window.projectForm.showMessage === 'function') {
-        // Use projectForm's showMessage function if available
-        window.projectForm.showMessage(message, type);
+        // Get image if exists
+        const imagePreview = document.getElementById('project-image-preview');
+        if (imagePreview) {
+            const img = imagePreview.querySelector('img');
+            if (img && img.src) {
+                formData.imageUrl = img.src;
+            }
+        }
+
+        return formData;
+    } catch (error) {
+        console.error('[DEBUG] Error collecting form data:', error);
+        return {};
+    }
+}
+
+function getElementValueSimple(elementId) {
+    try {
+        const element = document.getElementById(elementId);
+        return element ? element.value || '' : '';
+    } catch (error) {
+        console.error(`[DEBUG] Error getting value for ${elementId}:`, error);
+        return '';
+    }
+}
+
+function getCsrfTokenSimple() {
+    try {
+        return document.querySelector('input[name="csrfmiddlewaretoken"]')?.value ||
+            document.cookie
+                .split('; ')
+                .find(row => row.startsWith('csrftoken='))
+                ?.split('=')[1] || '';
+    } catch (error) {
+        console.error('[DEBUG] Error getting CSRF token:', error);
+        return '';
     }
 }
