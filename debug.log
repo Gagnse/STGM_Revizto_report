@@ -10017,3 +10017,40 @@ Checking 6 comments for images
 Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712307/.static/issues/12/comments/d7f8599a-c638-4d35-bed9-cbb487660254/06f66270
 Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_6617098c-f216-4cf2-98be-f5af371f8c1b.png
 "GET /api/projects/712307/generate-pdf/ HTTP/1.1" 200 24057655
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24445
+"GET /static/css/styles.css HTTP/1.1" 200 736
+"GET /static/js/main.js HTTP/1.1" 200 3229
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 200 62967
+"GET /static/js/project-form.js HTTP/1.1" 200 16771
+"GET /static/js/search.js HTTP/1.1" 200 14367
+"GET /static/js/issue-data.js HTTP/1.1" 200 43545
+"GET /static/js/status-fix.js HTTP/1.1" 200 11509
+"GET /static/js/datepicker.js HTTP/1.1" 200 2245
+"GET /static/js/pdf-generator.js HTTP/1.1" 200 4990
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 179
+Search request with query: synase
+"GET /api/search/?query=synase HTTP/1.1" 200 77
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 2970349
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 1995
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 15120
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 52713
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
+"GET /api/projects/712301/issues/15/comments/ HTTP/1.1" 200 3142
+"GET /api/projects/712301/issues/13/comments/ HTTP/1.1" 200 4012
+"GET /api/projects/712301/issues/23/comments/ HTTP/1.1" 200 1964
+"GET /api/projects/712301/issues/17/comments/ HTTP/1.1" 200 5216
+"GET /api/projects/712301/issues/21/comments/ HTTP/1.1" 200 1973
+"GET /api/projects/712301/issues/22/comments/ HTTP/1.1" 200 7484
+"GET /api/projects/712301/issues/16/comments/ HTTP/1.1" 200 3841
+"GET /api/projects/712301/issues/20/comments/ HTTP/1.1" 200 6793
+"GET /api/projects/712301/issues/18/comments/ HTTP/1.1" 200 4434
+"GET /api/projects/712301/issues/24/comments/ HTTP/1.1" 200 2708
+"GET /api/projects/712301/issues/25/comments/ HTTP/1.1" 200 4766
+"GET /api/projects/712301/issues/26/comments/ HTTP/1.1" 200 1979
+"GET /api/projects/712301/generate-pdf/ HTTP/1.1" 200 1540
+"GET /api/projects/712301/generate-pdf/ HTTP/1.1" 200 1540

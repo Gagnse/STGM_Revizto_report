@@ -11,6 +11,7 @@ import logging
 from datetime import datetime
 import tempfile
 from io import BytesIO
+from static import fonts
 
 # Set up logger
 logger = logging.getLogger(__name__)
@@ -19,15 +20,41 @@ logger = logging.getLogger(__name__)
 class ReviztoPDF(FPDF):
     def __init__(self, orientation='P', unit='mm', format='A4'):
         super().__init__(orientation, unit, format)
-        # Set default margins
+
+        # Load Unicode font
+        try:
+            from django.conf import settings
+            import os
+
+            fonts_dir = os.path.join(settings.BASE_DIR, 'static', 'fonts')
+
+            # Add Noto Sans fonts
+            self.add_font('NotoSans', '', os.path.join(fonts_dir, 'NotoSans-Regular.ttf'))
+            self.add_font('NotoSans', 'B', os.path.join(fonts_dir, 'NotoSans-Bold.ttf'))
+            self.add_font('NotoSans', 'I', os.path.join(fonts_dir, 'NotoSans-Italic.ttf'))
+
+            self.default_font = 'NotoSans'
+            print("[DEBUG] Loaded Noto Sans font successfully")
+
+        except Exception as e:
+            print(f"[DEBUG] Could not load Noto Sans, using helvetica: {e}")
+            self.default_font = 'helvetica'
+
+        # Set default margins (existing code)
         self.set_margins(15, 15, 15)
         self.set_auto_page_break(True, margin=15)
-        # Initialize variables
+        # Initialize variables (existing code)
         self.title = ""
         self.project_name = ""
         self.report_date = ""
         self.visitNumber = ""
-        self.enhanced_status_map = {}  # Store the enhanced status mapping
+
+    def set_unicode_font(self, style='', size=10):
+        """Set font with Unicode support"""
+        try:
+            self.set_font(self.default_font, style, size)
+        except:
+            self.set_unicode_font( 'Helvetica',style, size)
 
     def set_enhanced_status_map(self, status_map):
         """Set the enhanced status mapping from the API"""
@@ -60,16 +87,16 @@ class ReviztoPDF(FPDF):
             else:
                 # Default behavior if no logo found
                 logger.warning(f"Logo file not found at {logo_path}")
-                self.set_font('helvetica', 'B', 15)
+                self.set_unicode_font( 'B', 15)
                 self.cell(0, 10, 'STGM Architecture', 0, 1, 'C')
         except Exception as e:
             logger.error(f"Error loading logo: {e}")
             # Default behavior if logo loading fails
-            self.set_font('helvetica', 'B', 15)
+            self.set_unicode_font( 'B', 15)
             self.cell(0, 10, 'STGM Architecture', 0, 1, 'C')
 
         # Project info
-        self.set_font('helvetica', 'B', 12)
+        self.set_unicode_font( 'B', 12)
         if self.project_name:
             self.cell(0, 10, f'{self.project_name}', 0, 1, 'R')
         if self.report_date:
@@ -89,7 +116,7 @@ class ReviztoPDF(FPDF):
         self.set_line_width(current_line_width)
 
         self.set_y(padding_top + 1)
-        self.set_font('helvetica', 'B', 10)
+        self.set_unicode_font( 'B', 10)
         self.cell(0, 10, "NOTE DE VISITE DE CHANTIER", 0, 0, 'R')
         self.ln(5)
 
@@ -100,7 +127,7 @@ class ReviztoPDF(FPDF):
         # Position at 1.5 cm from bottom
         self.set_y(-15)
         # Set font
-        self.set_font('helvetica', 'I', 8)
+        self.set_unicode_font( 'I', 8)
         # Page number
         self.cell(0, 10, f'Page {self.page_no()}/{{nb}}', 0, 0, 'C')
         # Copyright
@@ -111,7 +138,7 @@ class ReviztoPDF(FPDF):
         Add a chapter title
         """
         self.ln(2)
-        self.set_font('helvetica', 'B', 12)
+        self.set_unicode_font( 'B', 12)
         self.set_fill_color(255, 225, 255)
         self.cell(30, 6, title, 0, 1, 'L', 0)
         self.ln(2)
@@ -120,7 +147,7 @@ class ReviztoPDF(FPDF):
         """
         Add chapter body content
         """
-        self.set_font('helvetica', '', 10)
+        self.set_unicode_font( '', 10)
         self.multi_cell(0, 5, body)
         self.ln()
 
@@ -128,7 +155,7 @@ class ReviztoPDF(FPDF):
         """
         Add a section title
         """
-        self.set_font('helvetica', 'B', 11)
+        self.set_unicode_font( 'B', 11)
         self.cell(0, 6, title, 0, 1, 'L')
         self.ln(2)
 
@@ -155,7 +182,7 @@ class ReviztoPDF(FPDF):
         self.set_text_color(text_color[0], text_color[1], text_color[2])
 
         # Draw badge
-        self.set_font('helvetica', 'B', 9)
+        self.set_unicode_font( 'B', 9)
         width = self.get_string_width(status_name) + 6
         self.rect(x, y, width, 5, 'F')
         self.cell(width, 5, status_name, 0, 0, 'C')
@@ -329,7 +356,7 @@ class ReviztoPDF(FPDF):
         self.rect(self.l_margin, card_start_y, page_width, header_height)
 
         # ID in header
-        self.set_font('helvetica', 'B', 11)
+        self.set_unicode_font( 'B', 11)
         self.set_text_color(50, 50, 50)
         self.set_xy(self.l_margin + 4, card_start_y + 2)
         self.cell(25, 6, f"#{observation['id']}", 0, 0, 'L')
@@ -341,7 +368,7 @@ class ReviztoPDF(FPDF):
         self.set_xy(badge_x, card_start_y + 2)
         self.set_fill_color(bg_color[0], bg_color[1], bg_color[2])
         self.set_text_color(text_color[0], text_color[1], text_color[2])
-        self.set_font('helvetica', 'B', 9)
+        self.set_unicode_font( 'B', 9)
         self.rect(badge_x, card_start_y + 2, badge_width, 6, 'F')
         self.cell(badge_width, 6, status_text, 0, 0, 'C')
 
@@ -471,7 +498,7 @@ class ReviztoPDF(FPDF):
         else:
             # Display placeholder if no image
             self.set_xy(image_col_x + 5, top_section_y + 10)  # Fixed top position
-            self.set_font('helvetica', 'I', 8)
+            self.set_unicode_font( 'I', 8)
             self.cell(image_col_width - 10, 10, "Pas d'image", 0, 0, 'C')
 
         # ===== INFORMATION COLUMN =====
@@ -511,7 +538,7 @@ class ReviztoPDF(FPDF):
 
         # Title at the top of info column
         self.set_xy(info_col_x + 5, top_section_y + 5)
-        self.set_font('helvetica', 'B', 10)
+        self.set_unicode_font( 'B', 10)
         self.multi_cell(info_col_width - 10, 5, title, 0, 'L')
 
         # Start position for metadata
@@ -528,9 +555,9 @@ class ReviztoPDF(FPDF):
         # First row
         # Left column: Assignee
         self.set_xy(info_col_x + col_padding, info_y)
-        self.set_font('helvetica', 'B', 8)
+        self.set_unicode_font( 'B', 8)
         self.cell(label_width, 5, "Assignée à:", 0, 0, 'L')
-        self.set_font('helvetica', '', 8)
+        self.set_unicode_font( '', 8)
         # Use multi_cell for value to handle text wrapping for long values
         current_x = self.get_x()
         current_y = self.get_y()
@@ -539,9 +566,9 @@ class ReviztoPDF(FPDF):
 
         # Right column: Date created
         self.set_xy(info_col_x + col_padding + col_width, info_y)
-        self.set_font('helvetica', 'B', 8)
+        self.set_unicode_font( 'B', 8)
         self.cell(label_width, 5, "Posée le:", 0, 0, 'L')
-        self.set_font('helvetica', '', 8)
+        self.set_unicode_font( '', 8)
         current_x = self.get_x()
         current_y = self.get_y()
         self.multi_cell(value_width, 5, created_date, 0, 'L')
@@ -553,9 +580,9 @@ class ReviztoPDF(FPDF):
         # Second row
         # Left column: Sheet Name
         self.set_xy(info_col_x + col_padding, info_y)
-        self.set_font('helvetica', 'B', 8)
+        self.set_unicode_font( 'B', 8)
         self.cell(label_width, 5, "Nom feuille:", 0, 0, 'L')
-        self.set_font('helvetica', '', 8)
+        self.set_unicode_font( '', 8)
         current_x = self.get_x()
         current_y = self.get_y()
         self.multi_cell(value_width, 5, str(sheet_name), 0, 'L')
@@ -563,9 +590,9 @@ class ReviztoPDF(FPDF):
 
         # Right column: Sheet Number
         self.set_xy(info_col_x + col_padding + col_width, info_y)
-        self.set_font('helvetica', 'B', 8)
+        self.set_unicode_font( 'B', 8)
         self.cell(label_width, 5, "No feuille:", 0, 0, 'L')
-        self.set_font('helvetica', '', 8)
+        self.set_unicode_font( '', 8)
         current_x = self.get_x()
         current_y = self.get_y()
         self.multi_cell(value_width, 5, str(sheet_number), 0, 'L')
@@ -591,7 +618,7 @@ class ReviztoPDF(FPDF):
 
         if links:
             self.set_xy(info_col_x + col_padding, info_y)
-            self.set_font('helvetica', 'B', 8)
+            self.set_unicode_font( 'B', 8)
             self.cell(label_width, 5, "Ouvrir dans :", 0, 0, 'L')
 
             # Position for links
@@ -599,7 +626,7 @@ class ReviztoPDF(FPDF):
             link_y = self.get_y()
 
             # Display and create clickable links
-            self.set_font('helvetica', '', 8)
+            self.set_unicode_font( '', 8)
             self.set_text_color(0, 0, 255)  # Blue for links
 
             # Keep track of current x position
@@ -667,7 +694,7 @@ class ReviztoPDF(FPDF):
         if has_valid_comments:
             # History title
             self.set_xy(self.l_margin + 5, history_y + 3)
-            self.set_font('helvetica', 'B', 9)
+            self.set_unicode_font( 'B', 9)
             self.cell(page_width - 10, 5, "Historique", 0, 1, 'L')
 
             # History content starts here
@@ -705,9 +732,9 @@ class ReviztoPDF(FPDF):
                         comment_date = comment['created']
 
                 # Author and date header
-                self.set_font('helvetica', 'B', 8)
+                self.set_unicode_font( 'B', 8)
                 self.cell(50, 4, author_name, 0, 0, 'L')
-                self.set_font('helvetica', 'I', 7)
+                self.set_unicode_font( 'I', 7)
                 self.cell(page_width - 65, 4, comment_date, 0, 1, 'R')
 
                 # Comment content based on type
@@ -715,7 +742,7 @@ class ReviztoPDF(FPDF):
 
                 if comment_type == 'text':
                     # Text comment
-                    self.set_font('helvetica', '', 8)
+                    self.set_unicode_font( '', 8)
                     self.set_xy(self.l_margin + 10, self.get_y())
                     # Sanitize the text before adding to PDF
                     safe_text = sanitize_text_for_pdf(comment.get('text', ''))
@@ -723,7 +750,7 @@ class ReviztoPDF(FPDF):
 
                 elif comment_type == 'file':
                     # Handle file comment (status changes, etc.)
-                    self.set_font('helvetica', 'I', 8)
+                    self.set_unicode_font( 'I', 8)
                     self.set_xy(self.l_margin + 10, self.get_y())
 
                     filename = sanitize_text_for_pdf(comment.get('filename', 'Sans nom'))
@@ -777,13 +804,13 @@ class ReviztoPDF(FPDF):
 
                 elif comment_type == 'markup':
                     # Just show a simple indication for markups
-                    self.set_font('helvetica', 'I', 8)
+                    self.set_unicode_font( 'I', 8)
                     self.set_xy(self.l_margin + 10, self.get_y())
                     self.cell(page_width - 20, 4, "Markup ajoute", 0, 1, 'L')  # Avoid "é" for PDF compatibility
 
                 else:
                     # Default for unknown types
-                    self.set_font('helvetica', 'I', 8)
+                    self.set_unicode_font( 'I', 8)
                     self.set_xy(self.l_margin + 10, self.get_y())
                     self.cell(page_width - 20, 4, f"Activite: {comment_type}", 0, 1,
                               'L')  # Avoid "é" for PDF compatibility
@@ -793,7 +820,7 @@ class ReviztoPDF(FPDF):
 
             # If there are more comments than shown
             if len(valid_comments) > 5:
-                self.set_font('helvetica', 'I', 7)
+                self.set_unicode_font( 'I', 7)
                 self.set_xy(self.l_margin + 5, self.get_y())
                 self.cell(page_width - 10, 4,
                           f"+ {len(valid_comments) - 5} commentaires supplementaires dans Revizto", 0, 1,
@@ -856,48 +883,48 @@ class ReviztoPDF(FPDF):
 
         # Section A: Observations
         self.section_title("A. Observations")
-        self.set_font('helvetica', 'B', 10)
+        self.set_unicode_font( 'B', 10)
         self.cell(0, 5, "Généralités:", 0, 1)
-        self.set_font('helvetica', '', 10)
+        self.set_unicode_font( '', 10)
         self.multi_cell(0, 5,
                         "Les éléments listés ci-dessous documentent l'état général d'avancement du chantier et ils ne nécessitent donc aucun suivi de la part de l'Entrepreneur.")
         self.ln(5)
 
         # Section B: Instructions
         self.section_title("B. Instructions")
-        self.set_font('helvetica', 'B', 10)
+        self.set_unicode_font( 'B', 10)
         self.cell(0, 5, "Généralités:", 0, 1)
-        self.set_font('helvetica', '', 10)
+        self.set_unicode_font( '', 10)
         self.multi_cell(0, 5,
                         "Les éléments listés ci-dessous documentent les instructions données à l'Entrepreneur et ils nécessitent donc un suivi de sa part.")
         self.ln(5)
 
         # Section C: Déficiences
         self.section_title("C. Déficiences")
-        self.set_font('helvetica', 'B', 10)
+        self.set_unicode_font( 'B', 10)
         self.cell(0, 5, "Généralités:", 0, 1)
-        self.set_font('helvetica', '', 10)
+        self.set_unicode_font( '', 10)
         self.multi_cell(0, 5,
                         "La liste de Déficiences ci-dessous est non-limitative et ne relève pas l'Entrepreneur et ses Sous-traitants de leurs responsabilités de se conformer aux exigences des plans, devis et autres Documents contractuels et notamment en ce qui concerne la complétion de l'Ouvrage. En outre, elle doit être complétée par celles des autres Professionnels concernés.")
         self.ln(5)
 
-        self.set_font('helvetica', 'B', 10)
+        self.set_unicode_font( 'B', 10)
         self.cell(0, 5, "Procédure:", 0, 1)
-        self.set_font('helvetica', '', 10)
+        self.set_unicode_font( '', 10)
         self.multi_cell(0, 5,
                         "Les Déficiences doivent être corrigés dans les dix (10) jours ouvrables suivant la réception du présent document. Le surintendant de l'Entrepreneur doit traiter les Déficiences sur cette liste et la faire suivre à l'Architecte dès que les travaux correctifs ont été effectués. Aucune retenue monétaire ne sera libérée tant et aussi longtemps que les Déficiences n'auront été entièrement et parfaitement corrigées.")
         self.ln(5)
 
-        self.set_font('helvetica', 'B', 10)
+        self.set_unicode_font( 'B', 10)
         self.cell(0, 5, "Honoraires supplémentaires:", 0, 1)
-        self.set_font('helvetica', '', 10)
+        self.set_unicode_font( '', 10)
         self.multi_cell(0, 5,
                         "Après la Réception provisoire de l'ouvrage, l'Architecte prévoit une seule visite pour procéder à l'acceptation finale des travaux correctifs et il facturera, au Maître de l'ouvrage, des honoraires supplémentaires de 1 000 $/visite supplémentaire. Le montant total des honoraires supplémentaire sera prélevé par le Maître de l'ouvrage à même les sommes dues à l'Entrepreneur en vertu de son Contrat. L'Entrepreneur est responsable de s'assurer que toutes les Déficiences, incluant celles de ses Sous-traitants et de ses Fournisseurs, ont bel et bien été entièrement et parfaitement corrigées.")
         self.ln(5)
 
-        self.set_font('helvetica', 'B', 10)
+        self.set_unicode_font( 'B', 10)
         self.cell(0, 5, "Classement des couleurs des pastilles:", 0, 1)
-        self.set_font('helvetica', '', 10)
+        self.set_unicode_font( '', 10)
         self.multi_cell(0, 5,
                         "Rouge (Ouvert) : Nouvelle observation/instruction/déficience constatée par l'Architecte.\nOrange (En cours) : observation/instruction/déficience d'une visite précédente dont l'entrepreneur travaille à sa résolution.\nMauve (Corrigé) : déficience traitée par l'entrepreneur, prête à être validée par l'Architecte.\nJaune (En attente) : Status lorsque le problème dépend d'une décision externe à l'entrepreneur.\nVert (Résolu) : déficience dont la correction est approuvée par l'Architecte.")
 
@@ -917,7 +944,7 @@ class ReviztoPDF(FPDF):
         image_column_width = page_width * 0.45  # 45% of page width for image
 
         # Visit number at the top
-        self.set_font('helvetica', 'B', 25)
+        self.set_unicode_font( 'B', 25)
         self.cell(0, 10, project_data.get('visitNumber', ''), 0, 1, 'L')
         self.ln(10)
 
@@ -927,7 +954,7 @@ class ReviztoPDF(FPDF):
         # -- LEFT COLUMN (Project Information) --
 
         # Project information
-        self.set_font('helvetica', 'B', 12)
+        self.set_unicode_font( 'B', 12)
         self.cell(info_column_width, 10, "NOTES", 0, 1, 'L')
 
         # Format dates if provided
@@ -946,7 +973,7 @@ class ReviztoPDF(FPDF):
                 pass
 
         # Project details in a table (single column format)
-        self.set_font('helvetica', '', 10)
+        self.set_unicode_font( '', 10)
         self.set_fill_color(255, 255, 255)
         row_height = 7
 
@@ -1044,12 +1071,12 @@ class ReviztoPDF(FPDF):
         self.ln(1)  # Add space after the line
 
         # Description section
-        self.set_font('helvetica', 'B', 10)
+        self.set_unicode_font( 'B', 10)
         self.cell(0, 10, "DESCRIPTION DU PROJET", 0, 1, 'L')
 
         # Project description if available
         if project_data.get('description'):
-            self.set_font('helvetica', '', 10)
+            self.set_unicode_font( '', 10)
             self.multi_cell(page_width, 5, project_data.get('description', ''))
         else:
             self.ln(5)  # Add some space if no description
@@ -1061,12 +1088,12 @@ class ReviztoPDF(FPDF):
         self.ln(1)  # Add space after the line
 
         # Distribution section
-        self.set_font('helvetica', 'B', 10)
+        self.set_unicode_font( 'B', 10)
         self.cell(0, 10, "LISTE DE DISTRIBUTION", 0, 1, 'L')
 
         # Distribution content if available
         if project_data.get('distribution'):
-            self.set_font('helvetica', '', 10)
+            self.set_unicode_font( '', 10)
             self.multi_cell(page_width, 5, project_data.get('distribution', ''))
 
         # Reset line width to default
