@@ -10560,3 +10560,93 @@ Loaded project data for project 712301
 "GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
 "GET /api/projects/712301/instructions/ HTTP/1.1" 200 15120
 "GET /api/projects/712301/observations/ HTTP/1.1" 200 52713
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24935
+Not Found: /static/css/toast.css
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/css/toast.css HTTP/1.1" 404 179
+Not Found: /static/js/toast.js
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/toast.js HTTP/1.1" 404 179
+Not Found: /static/js/simple-project-form.js
+Not Found: /static/css/toast.css
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+Not Found: /static/js/simple-pdf-generator.js
+"GET /static/css/toast.css HTTP/1.1" 404 179
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET / HTTP/1.1" 200 24935
+Not Found: /static/css/toast.css
+"GET /static/css/toast.css HTTP/1.1" 404 179
+Not Found: /static/js/toast.js
+"GET /static/js/toast.js HTTP/1.1" 404 179
+Not Found: /static/js/simple-project-form.js
+Not Found: /static/css/toast.css
+Not Found: /static/js/simple-pdf-generator.js
+"GET /static/css/toast.css HTTP/1.1" 404 179
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24935
+Not Found: /static/css/toast.css
+Not Found: /static/js/toast.js
+"GET /static/css/toast.css HTTP/1.1" 404 179
+"GET /static/js/toast.js HTTP/1.1" 404 179
+Not Found: /static/js/simple-project-form.js
+Not Found: /static/js/simple-pdf-generator.js
+Not Found: /static/css/toast.css
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+"GET /static/css/toast.css HTTP/1.1" 404 179
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24935
+Not Found: /static/css/toast.css
+"GET /static/css/styles.css HTTP/1.1" 304 0
+Not Found: /static/js/toast.js
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/css/toast.css HTTP/1.1" 404 179
+"GET /static/js/toast.js HTTP/1.1" 404 179
+"GET /static/js/main.js HTTP/1.1" 304 0
+Not Found: /static/js/simple-project-form.js
+Not Found: /static/js/simple-pdf-generator.js
+Not Found: /static/css/toast.css
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/css/toast.css HTTP/1.1" 404 179
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+Skipping API initialization (not in runserver or gunicorn)
+Skipping API initialization (development reloader)
+API client initialized with tokens
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 24935
+"GET /static/css/toast.css HTTP/1.1" 200 3575
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/toast.js HTTP/1.1" 200 11689
+Not Found: /static/js/simple-pdf-generator.js
+Not Found: /static/js/simple-project-form.js
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/simple-pdf-generator.js HTTP/1.1" 404 179
+"GET /static/js/simple-project-form.js HTTP/1.1" 404 179
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+Search request with query: syn
+"GET /api/search/?query=syn HTTP/1.1" 200 77
+Loaded project data for project 712301
+"GET /api/projects/712301/data/load/ HTTP/1.1" 200 2970349
+"GET /api/projects/712301/workflow-settings/ HTTP/1.1" 200 1995
+"GET /api/projects/712301/deficiencies/ HTTP/1.1" 200 7210
+"GET /api/projects/712301/instructions/ HTTP/1.1" 200 15120
+"GET /api/projects/712301/observations/ HTTP/1.1" 200 52713
