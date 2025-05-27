@@ -672,7 +672,6 @@ def generate_pdf(request, project_id):
                 instructions,
                 deficiencies,
                 issue_comments,
-                enhanced_status_map  # Pass the dynamic status mapping
             )
             print(f"[DEBUG-VIEWS] Enhanced PDF generation successful")
 
