@@ -21,7 +21,7 @@ class ProjectData(models.Model):
     rapportdate = models.DateTimeField(null=True, blank=True, db_column='rapportdate')
     description = models.CharField(max_length=500, null=True, blank=True, db_column='description')
     distribution = models.CharField(max_length=500, null=True, blank=True, db_column='distribution')
-    image = models.CharField(max_length=255, null=True, blank=True, db_column='image')
+    image = models.TextField(null=True, blank=True, db_column='image')  # Changed to TextField for base64 images
 
     class Meta:
         managed = False  # Use existing table
@@ -31,11 +31,12 @@ class ProjectData(models.Model):
 class TokenStorage(models.Model):
     """
     Persistent storage for API tokens that survives dyno restarts
+    This will be stored in the PostgreSQL database, not SQLite
     """
     # Use a singleton pattern - only one row should exist
     id = models.AutoField(primary_key=True)
 
-    # Token fields
+    # Token fields - use TextField for long tokens
     access_token = models.TextField(blank=True, null=True)
     refresh_token = models.TextField(blank=True, null=True)
     licence_uuid = models.CharField(max_length=255, blank=True, null=True)
@@ -54,12 +55,47 @@ class TokenStorage(models.Model):
 
     class Meta:
         db_table = 'revizto_tokens'
+        # This model should use the PostgreSQL database
+        app_label = 'core'
 
     @classmethod
     def get_instance(cls):
         """Get or create the singleton token storage instance"""
-        instance, created = cls.objects.get_or_create(id=1)
-        return instance
+        try:
+            # Use the postgres database explicitly
+            instance, created = cls.objects.using('postgres').get_or_create(id=1)
+            if created:
+                print(f"[TOKEN-DB] Created new TokenStorage instance in PostgreSQL")
+            else:
+                print(f"[TOKEN-DB] Retrieved existing TokenStorage instance from PostgreSQL")
+            return instance
+        except Exception as e:
+            print(f"[TOKEN-DB] Error accessing TokenStorage: {e}")
+            # Try to create the table if it doesn't exist
+            try:
+                from django.db import connection
+                with connection.cursor() as cursor:
+                    cursor.execute("""
+                        CREATE TABLE IF NOT EXISTS revizto_tokens (
+                            id SERIAL PRIMARY KEY,
+                            access_token TEXT,
+                            refresh_token TEXT,
+                            licence_uuid VARCHAR(255),
+                            token_expiry TIMESTAMP WITH TIME ZONE,
+                            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                            updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                            last_refresh_attempt TIMESTAMP WITH TIME ZONE,
+                            last_successful_refresh TIMESTAMP WITH TIME ZONE,
+                            refresh_failure_count INTEGER DEFAULT 0
+                        );
+                    """)
+                print(f"[TOKEN-DB] Created revizto_tokens table")
+                # Try again after creating table
+                instance, created = cls.objects.using('postgres').get_or_create(id=1)
+                return instance
+            except Exception as create_error:
+                print(f"[TOKEN-DB] Error creating table: {create_error}")
+                return None
 
     def is_token_expired(self):
         """Check if the current token is expired or will expire soon"""
@@ -82,9 +118,11 @@ class TokenStorage(models.Model):
         self.token_expiry = timezone.now() + timedelta(seconds=expires_in)
         self.last_successful_refresh = timezone.now()
         self.refresh_failure_count = 0
+        self.updated_at = timezone.now()
 
-        self.save()
-        print(f"[TOKEN-DB] Tokens updated, expire at: {self.token_expiry}")
+        # Save to PostgreSQL database
+        self.save(using='postgres')
+        print(f"[TOKEN-DB] Tokens updated in PostgreSQL, expire at: {self.token_expiry}")
 
     def record_refresh_attempt(self, success=False):
         """Record a token refresh attempt"""
@@ -96,7 +134,19 @@ class TokenStorage(models.Model):
         else:
             self.refresh_failure_count += 1
 
-        self.save()
+        self.updated_at = timezone.now()
+        # Save to PostgreSQL database
+        self.save(using='postgres')
+
+    def save(self, *args, **kwargs):
+        """Override save to always use PostgreSQL database"""
+        kwargs['using'] = 'postgres'
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        """Override delete to always use PostgreSQL database"""
+        kwargs['using'] = 'postgres'
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         return f"TokenStorage(expires: {self.token_expiry}, failures: {self.refresh_failure_count})"

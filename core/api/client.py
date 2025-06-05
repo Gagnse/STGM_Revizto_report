@@ -1,9 +1,10 @@
-# core/api/client.py - Key improvements to add to your existing client
+# core/api/client.py - Fixed version with proper PostgreSQL token storage
 
 import json
 import logging
 import requests
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta
+import time
 from django.conf import settings
 from django.utils import timezone
 from . import token_store
@@ -14,17 +15,20 @@ logger = logging.getLogger(__name__)
 class ReviztoAPI:
     """
     Enhanced client for interacting with the Revizto API.
-    Handles token refresh and API requests with improved error handling.
+    Handles token refresh and API requests with PostgreSQL token storage.
     """
     REGION = "canada"
     BASE_URL = f"https://api.{REGION}.revizto.com/v5/"
 
     @classmethod
     def initialize(cls, access_token, refresh_token, licence_uuid, expires_in=3600):
-        """Initialize the API with tokens and store them persistently."""
-        logger.info("Initializing ReviztoAPI with persistent token storage")
+        """Initialize the API with tokens and store them in PostgreSQL database."""
+        print(f"[REVIZTO-API] Initializing API with PostgreSQL token storage")
+        print(f"[REVIZTO-API] Access token: {len(access_token)} chars")
+        print(f"[REVIZTO-API] Refresh token: {len(refresh_token)} chars")
+        print(f"[REVIZTO-API] License UUID: {licence_uuid}")
 
-        # Store tokens in database
+        # Store tokens in PostgreSQL database
         success = token_store.set_tokens(
             access_token,
             refresh_token,
@@ -33,18 +37,31 @@ class ReviztoAPI:
         )
 
         if success:
-            logger.info("API client initialized successfully with persistent storage")
-        else:
-            logger.error("Failed to initialize API client - token storage failed")
+            print(f"[REVIZTO-API] ✅ API client initialized successfully with PostgreSQL storage")
 
-        return success
+            # Verify storage by reading back
+            stored_access = token_store.get_access_token()
+            stored_refresh = token_store.get_refresh_token()
+            stored_uuid = token_store.get_licence_uuid()
+
+            if stored_access and stored_refresh and stored_uuid:
+                print(f"[REVIZTO-API] ✅ Token storage verification successful")
+                return True
+            else:
+                print(f"[REVIZTO-API] ❌ Token storage verification failed")
+                return False
+        else:
+            print(f"[REVIZTO-API] ❌ Failed to initialize API client - PostgreSQL storage failed")
+            return False
 
     @classmethod
     def refresh_token(cls):
-        """Refresh the access token using the refresh token."""
+        """Refresh the access token using the refresh token from PostgreSQL."""
+        print(f"[REVIZTO-API] Starting token refresh process...")
+
         refresh_token = token_store.get_refresh_token()
         if not refresh_token:
-            logger.error("No refresh token available for refresh")
+            print(f"[REVIZTO-API] ❌ No refresh token available in PostgreSQL")
             return False
 
         try:
@@ -64,17 +81,20 @@ class ReviztoAPI:
             if client_secret:
                 data['client_secret'] = client_secret
 
-            logger.info("Attempting token refresh...")
+            print(f"[REVIZTO-API] Sending refresh request to: {url}")
             response = requests.post(url, headers=headers, data=data, timeout=30)
 
             if response.status_code != 200:
-                logger.error(f"Token refresh failed with status {response.status_code}: {response.text[:500]}")
+                print(f"[REVIZTO-API] ❌ Token refresh failed with status {response.status_code}")
+                print(f"[REVIZTO-API] Response: {response.text[:500]}")
+                token_store.record_refresh_attempt(success=False)
                 return False
 
             try:
                 token_data = response.json()
             except json.JSONDecodeError:
-                logger.error("Failed to parse token response as JSON")
+                print(f"[REVIZTO-API] ❌ Failed to parse token response as JSON")
+                token_store.record_refresh_attempt(success=False)
                 return False
 
             # Extract new tokens
@@ -83,10 +103,16 @@ class ReviztoAPI:
             expires_in = token_data.get('expires_in', 3600)
 
             if not new_access_token:
-                logger.error("No access token in refresh response")
+                print(f"[REVIZTO-API] ❌ No access token in refresh response")
+                token_store.record_refresh_attempt(success=False)
                 return False
 
-            # Update stored tokens
+            print(f"[REVIZTO-API] ✅ Received new tokens from API")
+            print(f"[REVIZTO-API] New access token: {len(new_access_token)} chars")
+            print(f"[REVIZTO-API] New refresh token: {len(new_refresh_token) if new_refresh_token else 'None'} chars")
+            print(f"[REVIZTO-API] Expires in: {expires_in} seconds")
+
+            # Update stored tokens in PostgreSQL
             current_licence_uuid = token_store.get_licence_uuid()
             success = token_store.set_tokens(
                 new_access_token,
@@ -96,51 +122,62 @@ class ReviztoAPI:
             )
 
             if success:
-                logger.info("Successfully refreshed and stored access token")
+                print(f"[REVIZTO-API] ✅ Successfully refreshed and stored tokens in PostgreSQL")
+                token_store.record_refresh_attempt(success=True)
                 return True
             else:
-                logger.error("Failed to store refreshed tokens")
+                print(f"[REVIZTO-API] ❌ Failed to store refreshed tokens in PostgreSQL")
+                token_store.record_refresh_attempt(success=False)
                 return False
 
         except requests.exceptions.RequestException as e:
-            logger.error(f"Network error during token refresh: {e}")
+            print(f"[REVIZTO-API] ❌ Network error during token refresh: {e}")
+            token_store.record_refresh_attempt(success=False)
             return False
         except Exception as e:
-            logger.error(f"Unexpected error during token refresh: {e}")
+            print(f"[REVIZTO-API] ❌ Unexpected error during token refresh: {e}")
+            token_store.record_refresh_attempt(success=False)
             return False
 
     @classmethod
     def ensure_token_valid(cls):
         """Ensure the access token is valid, refresh if needed."""
-        # Check if we have tokens
+        print(f"[REVIZTO-API] Checking token validity...")
+
+        # Check if we have tokens in PostgreSQL
         if not token_store.has_tokens():
-            logger.warning("No tokens available, attempting re-initialization from settings")
+            print(f"[REVIZTO-API] ⚠️ No tokens available in PostgreSQL, attempting re-initialization from settings")
             return cls._attempt_reinitialize_from_settings()
 
         # Check if token is expired
         if token_store.is_token_expired():
-            logger.info("Token expired, attempting refresh")
+            print(f"[REVIZTO-API] 🔄 Token expired, attempting refresh")
             return cls.refresh_token()
 
-        logger.debug("Token is valid")
+        print(f"[REVIZTO-API] ✅ Token is valid")
         return True
 
     @classmethod
     def _attempt_reinitialize_from_settings(cls):
         """Attempt to reinitialize tokens from Django settings."""
         try:
+            print(f"[REVIZTO-API] Attempting to reinitialize from Django settings...")
+
             access_token = getattr(settings, 'REVIZTO_ACCESS_TOKEN', '')
             refresh_token = getattr(settings, 'REVIZTO_REFRESH_TOKEN', '')
             licence_uuid = getattr(settings, 'REVIZTO_LICENCE_UUID', '')
 
             if all([access_token, refresh_token, licence_uuid]):
-                logger.info("Reinitializing tokens from settings")
+                print(f"[REVIZTO-API] 🔄 Reinitializing tokens from settings")
                 return cls.initialize(access_token, refresh_token, licence_uuid)
             else:
-                logger.error("Cannot reinitialize - missing tokens in settings")
+                print(f"[REVIZTO-API] ❌ Cannot reinitialize - missing tokens in settings")
+                print(f"[REVIZTO-API] Access: {'✅' if access_token else '❌'}")
+                print(f"[REVIZTO-API] Refresh: {'✅' if refresh_token else '❌'}")
+                print(f"[REVIZTO-API] License: {'✅' if licence_uuid else '❌'}")
                 return False
         except Exception as e:
-            logger.error(f"Error reinitializing from settings: {e}")
+            print(f"[REVIZTO-API] ❌ Error reinitializing from settings: {e}")
             return False
 
     @classmethod
@@ -148,7 +185,7 @@ class ReviztoAPI:
         """Get headers for API requests, including authorization."""
         access_token = token_store.get_access_token()
         if not access_token:
-            raise Exception("No access token available")
+            raise Exception("No access token available in PostgreSQL storage")
 
         return {
             "Authorization": f"Bearer {access_token}",
@@ -158,13 +195,16 @@ class ReviztoAPI:
 
     @classmethod
     def get_licence_uuid(cls):
-        """Get the license UUID from token store or settings."""
+        """Get the license UUID from PostgreSQL storage or settings."""
         licence_uuid = token_store.get_licence_uuid()
         if licence_uuid:
             return licence_uuid
 
         # Fallback to settings
-        return getattr(settings, 'REVIZTO_LICENCE_UUID', '')
+        fallback_uuid = getattr(settings, 'REVIZTO_LICENCE_UUID', '')
+        if fallback_uuid:
+            print(f"[REVIZTO-API] Using fallback license UUID from settings")
+        return fallback_uuid
 
     @classmethod
     def get(cls, endpoint, params=None, max_retries=3):
@@ -173,12 +213,14 @@ class ReviztoAPI:
 
         for attempt in range(max_retries):
             try:
+                print(f"[REVIZTO-API] Making API request (attempt {attempt + 1}/{max_retries})")
+
                 # Ensure we have a valid token
                 if not cls.ensure_token_valid():
-                    raise Exception("Failed to obtain valid token")
+                    raise Exception("Failed to obtain valid token from PostgreSQL storage")
 
                 url = f"{cls.BASE_URL}{endpoint}"
-                logger.debug(f"Making API request to: {url} (attempt {attempt + 1})")
+                print(f"[REVIZTO-API] Request URL: {url}")
 
                 response = requests.get(
                     url,
@@ -189,8 +231,9 @@ class ReviztoAPI:
 
                 # Handle token expiry responses
                 if response.status_code in (401, 403):
-                    logger.warning(f"Received {response.status_code}, token may be expired")
+                    print(f"[REVIZTO-API] ⚠️ Received {response.status_code}, token may be expired")
                     if cls.refresh_token():
+                        print(f"[REVIZTO-API] 🔄 Token refreshed, retrying request")
                         # Retry with new token
                         response = requests.get(
                             url,
@@ -202,50 +245,64 @@ class ReviztoAPI:
                         raise Exception("Token refresh failed after 401/403")
 
                 response.raise_for_status()
+                print(f"[REVIZTO-API] ✅ API request successful (status: {response.status_code})")
                 return response.json()
 
             except requests.exceptions.Timeout as e:
                 last_exception = e
-                logger.warning(f"Request timeout on attempt {attempt + 1}: {e}")
+                print(f"[REVIZTO-API] ⚠️ Request timeout on attempt {attempt + 1}: {e}")
                 if attempt < max_retries - 1:
-                    time.sleep(2 ** attempt)  # Exponential backoff
+                    wait_time = 2 ** attempt
+                    print(f"[REVIZTO-API] Waiting {wait_time} seconds before retry...")
+                    time.sleep(wait_time)
                     continue
 
             except requests.exceptions.ConnectionError as e:
                 last_exception = e
-                logger.warning(f"Connection error on attempt {attempt + 1}: {e}")
+                print(f"[REVIZTO-API] ⚠️ Connection error on attempt {attempt + 1}: {e}")
                 if attempt < max_retries - 1:
-                    time.sleep(2 ** attempt)  # Exponential backoff
+                    wait_time = 2 ** attempt
+                    print(f"[REVIZTO-API] Waiting {wait_time} seconds before retry...")
+                    time.sleep(wait_time)
                     continue
 
             except requests.exceptions.RequestException as e:
                 last_exception = e
-                logger.error(f"Request error on attempt {attempt + 1}: {e}")
+                print(f"[REVIZTO-API] ❌ Request error on attempt {attempt + 1}: {e}")
                 if attempt < max_retries - 1:
-                    time.sleep(2 ** attempt)
+                    wait_time = 2 ** attempt
+                    print(f"[REVIZTO-API] Waiting {wait_time} seconds before retry...")
+                    time.sleep(wait_time)
                     continue
 
             except Exception as e:
                 last_exception = e
-                logger.error(f"Unexpected error on attempt {attempt + 1}: {e}")
+                print(f"[REVIZTO-API] ❌ Unexpected error on attempt {attempt + 1}: {e}")
                 if attempt < max_retries - 1:
-                    time.sleep(2 ** attempt)
+                    wait_time = 2 ** attempt
+                    print(f"[REVIZTO-API] Waiting {wait_time} seconds before retry...")
+                    time.sleep(wait_time)
                     continue
 
         # If we get here, all retries failed
-        raise Exception(f"API request failed after {max_retries} attempts. Last error: {last_exception}")
+        error_msg = f"API request failed after {max_retries} attempts. Last error: {last_exception}"
+        print(f"[REVIZTO-API] ❌ {error_msg}")
+        raise Exception(error_msg)
 
     @classmethod
     def test_connection(cls):
-        """Test the API connection."""
+        """Test the API connection using tokens from PostgreSQL."""
         try:
+            print(f"[REVIZTO-API] Testing API connection...")
+
             if not cls.ensure_token_valid():
-                logger.error("Cannot test connection - no valid token")
+                print(f"[REVIZTO-API] ❌ Cannot test connection - no valid token in PostgreSQL")
                 return False
 
             # Try a simple API call
             licence_uuid = cls.get_licence_uuid()
             if licence_uuid:
+                print(f"[REVIZTO-API] Testing with license UUID: {licence_uuid}")
                 response = requests.get(
                     f"{cls.BASE_URL}licences",
                     headers=cls.get_headers(),
@@ -253,12 +310,35 @@ class ReviztoAPI:
                 )
 
                 success = response.status_code in (200, 404)  # 404 is also OK for testing
-                logger.info(f"Connection test result: {success} (status: {response.status_code})")
+                print(
+                    f"[REVIZTO-API] Connection test result: {'✅ Success' if success else '❌ Failed'} (status: {response.status_code})")
                 return success
             else:
-                logger.error("No license UUID available for connection test")
+                print(f"[REVIZTO-API] ❌ No license UUID available for connection test")
                 return False
 
         except Exception as e:
-            logger.error(f"Connection test failed: {e}")
+            print(f"[REVIZTO-API] ❌ Connection test failed: {e}")
             return False
+
+    @classmethod
+    def get_token_debug_info(cls):
+        """Get debug information about current token state"""
+        try:
+            status = token_store.get_token_status()
+            print(f"[REVIZTO-API] 📊 TOKEN DEBUG INFO:")
+            print(f"[REVIZTO-API] PostgreSQL connection: {'✅' if 'error' not in status else '❌'}")
+            if 'error' not in status:
+                print(
+                    f"[REVIZTO-API] Access token: {'✅' if status['has_access_token'] else '❌'} ({status.get('access_token_length', 0)} chars)")
+                print(
+                    f"[REVIZTO-API] Refresh token: {'✅' if status['has_refresh_token'] else '❌'} ({status.get('refresh_token_length', 0)} chars)")
+                print(f"[REVIZTO-API] License UUID: {'✅' if status['has_licence_uuid'] else '❌'}")
+                print(f"[REVIZTO-API] Token expired: {'🔴 Yes' if status['is_expired'] else '🟢 No'}")
+                print(f"[REVIZTO-API] Last refresh: {status['last_successful_refresh'] or 'Never'}")
+            else:
+                print(f"[REVIZTO-API] Error: {status['error']}")
+            return status
+        except Exception as e:
+            print(f"[REVIZTO-API] ❌ Error getting debug info: {e}")
+            return {"error": str(e)}
