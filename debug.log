@@ -10971,3 +10971,44 @@ Checking 3 comments for images
 Found image in file comment: https://projects-ca-central-1-prod-revizto.s3.ca-central-1.amazonaws.com/712301/.static/issues/15/comments/6cf95558-7bb7-4ea7-b300-7848e43a747d/7fd37361
 Successfully removed temp file: C:\Users\sgagnon\AppData\Local\Temp\revizto_img_87cbf8b2-8c7c-47a7-a103-11102bda202c.png
 - Broken pipe from ('127.0.0.1', 56554)
+Skipping API initialization (development reloader)
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 13139
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 200 16771
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/status-fix.js HTTP/1.1" 200 11509
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 200 4990
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 179
+Skipping API initialization during Django management command
+Skipping API initialization during Django management command
+Skipping API initialization during Django management command
+Skipping API initialization (Django auto-reloader)
+Watching for file changes with StatReloader
+Initializing ReviztoAPI with persistent token storage
+Tokens successfully stored in database
+API client initialized successfully with persistent storage
+Token is valid
+TokenRefresher initialized on local environment
+Starting token refresh thread on local
+Token refresh thread started on dyno local
+Token is valid
+Next token refresh in 1800 seconds
+Connection test result: True (status: 404)
+Token is valid
+Making API request to: https://api.canada.revizto.com/v5/license/2e38d742-c9ad-4d11-b5a8-c9b53e9bf517/projects (attempt 1)
+"GET / HTTP/1.1" 200 24445
+"GET /static/css/styles.css HTTP/1.1" 304 0
+"GET /static/images/STGM_Logotype_RVB_Architecture_Noir.png HTTP/1.1" 304 0
+"GET /static/js/main.js HTTP/1.1" 304 0
+"GET /static/js/project-form.js HTTP/1.1" 200 16771
+"GET /static/js/search.js HTTP/1.1" 304 0
+"GET /static/js/issue-data.js HTTP/1.1" 304 0
+"GET /static/js/status-fix.js HTTP/1.1" 200 11509
+"GET /static/js/datepicker.js HTTP/1.1" 304 0
+"GET /static/js/pdf-generator.js HTTP/1.1" 200 4990
