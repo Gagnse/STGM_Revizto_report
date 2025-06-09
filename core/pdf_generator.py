@@ -1457,64 +1457,7 @@ def sanitize_text_for_pdf(text):
         text = str(text)
 
     # Replace French accented characters and other special characters
-    replacements = {
-        # Smart quotes and apostrophes
-        '\u2019': "'",  # Right single quotation mark
-        '\u2018': "'",  # Left single quotation mark
-        '\u201C': '"',  # Left double quotation mark
-        '\u201D': '"',  # Right double quotation mark
-        '\u201E': '"',  # Double low-9 quotation mark
-        '\u201F': '"',  # Double high-reversed-9 quotation mark
-        '\u2039': '<',  # Single left-pointing angle quotation mark
-        '\u203A': '>',  # Single right-pointing angle quotation mark
-        '\u00AB': '<<',  # Left-pointing double angle quotation mark
-        '\u00BB': '>>',  # Right-pointing double angle quotation mark
-
-        # Dashes and hyphens
-        '\u2013': '-',  # En dash
-        '\u2014': '--',  # Em dash
-        '\u2015': '--',  # Horizontal bar
-        '\u2212': '-',  # Minus sign
-
-        # French characters
-        'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e',
-        'à': 'a', 'â': 'a', 'ä': 'a',
-        'î': 'i', 'ï': 'i',
-        'ô': 'o', 'ö': 'o',
-        'ù': 'u', 'û': 'u', 'ü': 'u',
-        'ç': 'c',
-        'É': 'E', 'È': 'E', 'Ê': 'E', 'Ë': 'E',
-        'À': 'A', 'Â': 'A', 'Ä': 'A',
-        'Î': 'I', 'Ï': 'I',
-        'Ô': 'O', 'Ö': 'O',
-        'Ù': 'U', 'Û': 'U', 'Ü': 'U',
-        'Ç': 'C',
-
-        # Other European characters
-        'ñ': 'n', 'Ñ': 'N',
-        'ß': 'ss',
-        'æ': 'ae', 'Æ': 'AE',
-        'œ': 'oe', 'Œ': 'OE',
-        'ø': 'o', 'Ø': 'O',
-        'å': 'a', 'Å': 'A',
-
-        # Other problematic characters
-        '→': '-->', '⟶': '-->', '➜': '-->',
-        '⇒': '=>', '⇨': '=>',
-        '–': '-', '—': '--',
-        '…': '...', '•': '*', '·': '*',
-        '×': 'x', '÷': '/',
-        '≤': '<=', '≥': '>=', '≠': '!=', '≈': '~=',
-        '√': 'sqrt', '∑': 'sum', '∏': 'prod', '∂': 'd',
-        '¼': '1/4', '½': '1/2', '¾': '3/4',
-        '−': '-', '±': '+/-',
-
-        # Other special characters
-        '®': '(R)', '©': '(C)', '™': '(TM)',
-        '£': 'GBP', '€': 'EUR', '¥': 'JPY',
-        '°': ' degrees ',
-        '\u00A0': ' ',  # Non-breaking space
-    }
+    replacements = {    }
 
     for char, replacement in replacements.items():
         text = text.replace(char, replacement)

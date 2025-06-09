@@ -105,7 +105,6 @@ class ReviztoService:
     def get_issues(cls, project_id, status=None):
         """Get issues for a project with optional status filter."""
         try:
-            # Verify tokens are available before making request
             if not token_store.has_tokens():
                 logger.error("Token store is missing tokens, aborting issues request")
                 return []

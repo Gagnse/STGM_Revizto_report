@@ -30,13 +30,13 @@ class ProjectData(models.Model):
 
 class TokenStorage(models.Model):
     """
-    Persistent storage for API tokens that survives dyno restarts
-    This will be stored in the PostgreSQL database, not SQLite
+    Persistent storage for API tokens
+    stored in the PostgreSQL database
     """
-    # Use a singleton pattern - only one row should exist
+    # Use a singleton pattern
     id = models.AutoField(primary_key=True)
 
-    # Token fields - use TextField for long tokens
+    # Token fields
     access_token = models.TextField(blank=True, null=True)
     refresh_token = models.TextField(blank=True, null=True)
     licence_uuid = models.CharField(max_length=255, blank=True, null=True)
@@ -62,7 +62,6 @@ class TokenStorage(models.Model):
     def get_instance(cls):
         """Get or create the singleton token storage instance"""
         try:
-            # Use the postgres database explicitly
             instance, created = cls.objects.using('postgres').get_or_create(id=1)
             if created:
                 print(f"[TOKEN-DB] Created new TokenStorage instance in PostgreSQL")
@@ -71,7 +70,6 @@ class TokenStorage(models.Model):
             return instance
         except Exception as e:
             print(f"[TOKEN-DB] Error accessing TokenStorage: {e}")
-            # Try to create the table if it doesn't exist
             try:
                 from django.db import connection
                 with connection.cursor() as cursor:
@@ -90,7 +88,6 @@ class TokenStorage(models.Model):
                         );
                     """)
                 print(f"[TOKEN-DB] Created revizto_tokens table")
-                # Try again after creating table
                 instance, created = cls.objects.using('postgres').get_or_create(id=1)
                 return instance
             except Exception as create_error:
