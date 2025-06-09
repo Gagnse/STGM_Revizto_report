@@ -120,7 +120,7 @@ function initSearch(searchInput, dropdownElement) {
             if (result.hasSavedData) {
                 const savedIcon = document.createElement('span');
                 savedIcon.className = 'ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800';
-                savedIcon.textContent = 'Saved';
+                savedIcon.textContent = 'Enregistré';
                 a.appendChild(savedIcon);
             }
 
@@ -335,7 +335,7 @@ function initSearch(searchInput, dropdownElement) {
 
         if (lastSavedText) {
             const formattedDate = saveDate.toLocaleString();
-            lastSavedText.textContent = `Last saved: ${formattedDate}`;
+            lastSavedText.textContent = `Dernière sauvegarde: ${formattedDate}`;
         }
 
         if (dataStatus) {
