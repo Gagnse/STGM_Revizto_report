@@ -319,8 +319,8 @@ class ReviztoPDF(FPDF):
         if observation.get('preview'):
             if isinstance(observation['preview'], str):
                 imageUrl = observation['preview']
-            elif observation['preview'].get('original'):
-                imageUrl = observation['preview']['original']
+            elif observation['preview'].get('small'):
+                imageUrl = observation['preview']['small']
 
         # Only start a new page if this is NOT the first observation in a chapter
         if not is_first_in_chapter:
@@ -653,7 +653,7 @@ class ReviztoPDF(FPDF):
 
             # Reset to black text color and move to next line
             self.set_text_color(0, 0, 0)
-            self.ln(5)
+            self.ln(2)
 
         # ===== HISTORY SECTION (FULL WIDTH) =====
 
@@ -760,7 +760,7 @@ class ReviztoPDF(FPDF):
                     # Si le fichier est une image, afficher l'image
                     if comment.get('mimetype', '').startswith('image/') and comment.get('preview'):
                         preview = comment.get('preview')
-                        image_url = preview.get('original') or preview.get('middle')
+                        image_url = preview.get('small') or preview.get('middle')
 
                         if image_url:
                             try:
@@ -776,7 +776,7 @@ class ReviztoPDF(FPDF):
                                     urllib.request.urlretrieve(image_url, temp_file)
 
                                 # Définir les dimensions max de l'image
-                                max_width = 40  # marges
+                                max_width = 30  # marges
                                 max_height = 20
 
                                 from PIL import Image
@@ -1515,9 +1515,9 @@ def get_best_image_for_issue(issue, comments):
 
                 preview = comment.get('preview')
                 if isinstance(preview, dict):
-                    if preview.get('original'):
-                        logger.info(f"Found image in file comment: {preview.get('original')}")
-                        return preview.get('original')
+                    if preview.get('small'):
+                        logger.info(f"Found image in file comment: {preview.get('small')}")
+                        return preview.get('small')
                     elif preview.get('middle'):
                         logger.info(f"Found image in file comment: {preview.get('middle')}")
                         return preview.get('middle')
@@ -1529,9 +1529,9 @@ def get_best_image_for_issue(issue, comments):
 
                 preview = comment.get('preview')
                 if isinstance(preview, dict):
-                    if preview.get('original'):
-                        logger.info(f"Found image in markup comment: {preview.get('original')}")
-                        return preview.get('original')
+                    if preview.get('small'):
+                        logger.info(f"Found image in markup comment: {preview.get('small')}")
+                        return preview.get('small')
                     elif preview.get('middle'):
                         logger.info(f"Found image in markup comment: {preview.get('middle')}")
                         return preview.get('middle')
@@ -1542,9 +1542,9 @@ def get_best_image_for_issue(issue, comments):
             logger.info(f"Using issue's string preview: {issue['preview']}")
             return issue['preview']
         elif isinstance(issue['preview'], dict):
-            if issue['preview'].get('original'):
-                logger.info(f"Using issue's preview.original: {issue['preview'].get('original')}")
-                return issue['preview'].get('original')
+            if issue['preview'].get('small'):
+                logger.info(f"Using issue's preview.small: {issue['preview'].get('small')}")
+                return issue['preview'].get('small')
             elif issue['preview'].get('middle'):
                 logger.info(f"Using issue's preview.middle: {issue['preview'].get('middle')}")
                 return issue['preview'].get('middle')
@@ -1764,8 +1764,8 @@ def map_status_name_to_french(status_name):
         print(f"[DEBUG-PDF-STATUS] Found direct mapping: '{status_name}' -> '{result}'")
         return result
 
-    # If no mapping exists, preserve the original name
-    print(f"[DEBUG-PDF-STATUS] No mapping found, using original: '{status_name}'")
+    # If no mapping exists, preserve the small name
+    print(f"[DEBUG-PDF-STATUS] No mapping found, using small: '{status_name}'")
     return status_name
 
 def hex_to_rgb(hex_color):
