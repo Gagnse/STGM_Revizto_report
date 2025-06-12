@@ -132,3 +132,4 @@ function showMessage(message, type = 'info') {
         window.projectForm.showMessage(message, type);
     }
 }
+

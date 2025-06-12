@@ -655,53 +655,26 @@ class ReviztoPDF(FPDF):
             self.set_text_color(0, 0, 0)
             self.ln(2)
 
-        # ===== HISTORY SECTION (FULL WIDTH) =====
+            # ===== MODIFIED HISTORY SECTION (TEXT COMMENTS ONLY) =====
 
-        # History section starts below top section
+            # History section starts below top section
         history_y = top_section_y + top_section_height
 
-        # Check if we actually have valid comments to display
-        has_valid_comments = False
-        valid_comments = []
+        # Filter comments to only get text comments
+        text_comments = filter_text_comments_only(comments) if comments else []
 
-        if comments and len(comments) > 0:
-            # Process the comments list - filter out diff comments
-            for comment in comments:
-                # Handle both string and dict formats
-                if isinstance(comment, dict):
-                    # Skip diff comments
-                    if comment.get('type') != 'diff':
-                        valid_comments.append(comment)
-                elif isinstance(comment, str):
-                    try:
-                        # If it's a JSON string, try to parse it
-                        import json
-                        comment_dict = json.loads(comment)
-                        if isinstance(comment_dict, dict) and comment_dict.get('type') != 'diff':
-                            valid_comments.append(comment_dict)
-                    except:
-                        # If parsing fails, skip this comment
-                        continue
-
-            # Sort comments by date (newest first)
-            if valid_comments:
-                valid_comments = sorted(valid_comments,
-                                        key=lambda x: x.get('created', ''),
-                                        reverse=True)
-                has_valid_comments = True
-
-        # Only add history section if we have valid comments
-        if has_valid_comments:
+        # Only add history section if we have text comments
+        if text_comments:
             # History title
             self.set_xy(self.l_margin + 5, history_y + 3)
-            self.set_unicode_font( 'B', 9)
-            self.cell(page_width - 10, 5, "Historique", 0, 1, 'L')
+            self.set_unicode_font('B', 9)
+            self.cell(page_width - 10, 5, "Commentaires", 0, 1, 'L')
 
             # History content starts here
             history_content_start_y = self.get_y() + 2
 
-            # Display comments (limit to first 5 to save space)
-            for i, comment in enumerate(valid_comments[:5]):
+            # Display text comments only (limit to first 5 to save space)
+            for i, comment in enumerate(text_comments[:5]):
                 if i > 0:
                     # Add a light separator line between comments
                     self.set_draw_color(200, 200, 200)  # Light gray
@@ -732,99 +705,28 @@ class ReviztoPDF(FPDF):
                         comment_date = comment['created']
 
                 # Author and date header
-                self.set_unicode_font( 'B', 8)
+                self.set_unicode_font('B', 8)
                 self.cell(50, 4, author_name, 0, 0, 'L')
-                self.set_unicode_font( 'I', 7)
+                self.set_unicode_font('I', 7)
                 self.cell(page_width - 65, 4, comment_date, 0, 1, 'R')
 
-                # Comment content based on type
-                comment_type = comment.get('type', 'unknown')
-
-                if comment_type == 'text':
-                    # Text comment
-                    self.set_unicode_font( '', 8)
-                    self.set_xy(self.l_margin + 10, self.get_y())
-                    # Sanitize the text before adding to PDF
-                    safe_text = sanitize_text_for_pdf(comment.get('text', ''))
-                    self.multi_cell(page_width - 20, 4, safe_text, 0, 'L')
-
-                elif comment_type == 'file':
-                    # Handle file comment (status changes, etc.)
-                    self.set_unicode_font( 'I', 8)
-                    self.set_xy(self.l_margin + 10, self.get_y())
-
-                    filename = sanitize_text_for_pdf(comment.get('filename', 'Sans nom'))
-                    file_text = f"Fichier joint: {filename}"
-                    self.cell(page_width - 20, 4, file_text, 0, 1, 'L')
-
-                    # Si le fichier est une image, afficher l'image
-                    if comment.get('mimetype', '').startswith('image/') and comment.get('preview'):
-                        preview = comment.get('preview')
-                        image_url = preview.get('small') or preview.get('middle')
-
-                        if image_url:
-                            try:
-                                import uuid
-                                temp_file = os.path.join(tempfile.gettempdir(), f"comment_img_{uuid.uuid4()}.png")
-
-                                if image_url.startswith('data:image'):
-                                    img_data = re.sub('^data:image/.+;base64,', '', image_url)
-                                    with open(temp_file, 'wb') as f:
-                                        f.write(base64.b64decode(img_data))
-                                else:
-                                    import urllib.request
-                                    urllib.request.urlretrieve(image_url, temp_file)
-
-                                # Définir les dimensions max de l'image
-                                max_width = 30  # marges
-                                max_height = 20
-
-                                from PIL import Image
-                                img = Image.open(temp_file)
-                                img_width, img_height = img.size
-                                aspect_ratio = img_width / img_height
-                                img.close()
-
-                                if aspect_ratio > 1:
-                                    image_width = min(max_width, img_width)
-                                    image_height = image_width / aspect_ratio
-                                else:
-                                    image_height = min(max_height, img_height)
-                                    image_width = image_height * aspect_ratio
-
-                                x = self.l_margin + 10
-                                y = self.get_y()
-
-                                self.image(temp_file, x=x, y=y, w=image_width)
-                                self.ln(image_height + 2)
-
-                                os.remove(temp_file)
-                            except Exception as e:
-                                logger.warning(f"Erreur lors de l'affichage de l'image dans les commentaires: {e}")
-
-                elif comment_type == 'markup':
-                    # Just show a simple indication for markups
-                    self.set_unicode_font( 'I', 8)
-                    self.set_xy(self.l_margin + 10, self.get_y())
-                    self.cell(page_width - 20, 4, "Markup ajoute", 0, 1, 'L')  # Avoid "é" for PDF compatibility
-
-                else:
-                    # Default for unknown types
-                    self.set_unicode_font( 'I', 8)
-                    self.set_xy(self.l_margin + 10, self.get_y())
-                    self.cell(page_width - 20, 4, f"Activite: {comment_type}", 0, 1,
-                              'L')  # Avoid "é" for PDF compatibility
+                # Text comment content
+                self.set_unicode_font('', 8)
+                self.set_xy(self.l_margin + 10, self.get_y())
+                # Sanitize the text before adding to PDF
+                safe_text = sanitize_text_for_pdf(comment.get('text', ''))
+                self.multi_cell(page_width - 20, 4, safe_text, 0, 'L')
 
                 # Add space after each comment
                 self.ln(2)
 
-            # If there are more comments than shown
-            if len(valid_comments) > 5:
-                self.set_unicode_font( 'I', 7)
+            # If there are more text comments than shown
+            if len(text_comments) > 5:
+                self.set_unicode_font('I', 7)
                 self.set_xy(self.l_margin + 5, self.get_y())
                 self.cell(page_width - 10, 4,
-                          f"+ {len(valid_comments) - 5} commentaires supplementaires dans Revizto", 0, 1,
-                          'R')  # Avoid "é" for PDF compatibility
+                          f"+ {len(text_comments) - 5} commentaires texte supplementaires dans Revizto", 0, 1,
+                          'R')
 
             # Calculate history section height and draw border
             history_end_y = self.get_y() + 5  # Add some padding
@@ -835,12 +737,20 @@ class ReviztoPDF(FPDF):
 
             # Move position to after history content
             self.set_y(history_end_y)
-
         else:
-            # No valid comments - don't draw history section at all
-            # Just move position to after the main card content
+            # No text comments - don't draw history section at all
             history_end_y = top_section_y + top_section_height
             self.set_y(history_end_y)
+            self.ln(2)
+
+        # ===== NEW IMAGE GALLERY SECTION =====
+
+        # Get last uploaded images from all comments (not just text)
+        gallery_images = get_last_uploaded_images(comments, limit=6)
+
+        # Add image gallery if we have images
+        if gallery_images:
+            add_image_gallery(self, gallery_images, page_width)
 
         # Draw the main card border that encompasses header and top sections only
         main_card_height = header_height + top_section_height
@@ -1881,3 +1791,182 @@ def get_status_display_for_pdf(issue, enhanced_status_map):
 
     print(f"[DEBUG-PDF-STATUS] No status match found, using default")
     return default_status
+
+
+def get_last_uploaded_images(comments, limit=6):
+    """
+    Extract the last uploaded images from comments
+
+    Args:
+        comments (list): List of comments
+        limit (int): Maximum number of images to return
+
+    Returns:
+        list: List of image URLs from the last uploaded images
+    """
+    if not comments or not isinstance(comments, list):
+        return []
+
+    # Sort comments by date (newest first)
+    sorted_comments = sorted(
+        comments,
+        key=lambda c: c.get('created', ''),
+        reverse=True
+    )
+
+    image_urls = []
+
+    for comment in sorted_comments:
+        if len(image_urls) >= limit:
+            break
+
+        # Check for file comments with images
+        if (comment.get('type') == 'file' and
+                comment.get('mimetype') and
+                isinstance(comment.get('mimetype'), str) and
+                comment.get('mimetype').startswith('image/') and
+                comment.get('preview')):
+
+            preview = comment.get('preview')
+            if isinstance(preview, dict):
+                # Prefer higher quality images for gallery
+                image_url = preview.get('middle') or preview.get('small')
+                if image_url and image_url not in image_urls:
+                    image_urls.append(image_url)
+
+        # Check for markup comments with images
+        elif (comment.get('type') == 'markup' and
+              comment.get('preview')):
+
+            preview = comment.get('preview')
+            if isinstance(preview, dict):
+                image_url = preview.get('middle') or preview.get('small')
+                if image_url and image_url not in image_urls:
+                    image_urls.append(image_url)
+
+    return image_urls
+
+
+def filter_text_comments_only(comments):
+    """
+    Filter comments to only return text comments
+
+    Args:
+        comments (list): List of comments from the API
+
+    Returns:
+        list: Filtered list containing only text comments
+    """
+    if not comments or not isinstance(comments, list):
+        return []
+
+    # Process the comments list
+    valid_comments = []
+
+    # First, ensure we have valid comments data
+    for comment in comments:
+        if isinstance(comment, dict):
+            valid_comments.append(comment)
+        elif isinstance(comment, str):
+            try:
+                import json
+                comment_dict = json.loads(comment)
+                if isinstance(comment_dict, dict):
+                    valid_comments.append(comment_dict)
+            except:
+                continue
+
+    # Filter to only include text comments
+    text_comments = [comment for comment in valid_comments if comment.get('type') == 'text']
+
+    # Sort comments by date (newest first)
+    sorted_comments = sorted(text_comments,
+                             key=lambda x: x.get('created', ''),
+                             reverse=True)
+
+    return sorted_comments
+
+
+def add_image_gallery(self, images, page_width):
+    """
+    Add an image gallery section after the Historique section
+
+    Args:
+        images (list): List of image URLs
+        page_width (float): Available page width
+    """
+    if not images:
+        return
+
+    # Gallery title
+    self.set_unicode_font('B', 9)
+    self.set_xy(self.l_margin + 5, self.get_y())
+    self.cell(page_width - 10, 5, "Photos", 0, 1, 'L')
+    self.ln(1)
+
+    # Calculate image layout
+    images_per_row = 3
+    image_width = (page_width - 10) / images_per_row  # Leave margins
+    image_height = 35  # Fixed height for consistency
+
+    gallery_start_y = self.get_y()
+    current_x = self.l_margin + 5
+    current_y = gallery_start_y
+
+    for i, image_url in enumerate(images):
+        if i > 0 and i % images_per_row == 0:
+            # Move to next row
+            current_y += image_height + 5
+            current_x = self.l_margin + 5
+
+        try:
+            import tempfile
+            import os
+            import uuid
+            import base64
+            import re
+
+            # Download/prepare image
+            temp_file = os.path.join(tempfile.gettempdir(), f"gallery_img_{uuid.uuid4()}.png")
+
+            if image_url.startswith('data:image'):
+                # Base64 encoded image
+                img_data = re.sub('^data:image/.+;base64,', '', image_url)
+                with open(temp_file, 'wb') as f:
+                    f.write(base64.b64decode(img_data))
+            else:
+                # External URL
+                import urllib.request
+                urllib.request.urlretrieve(image_url, temp_file)
+
+            # Add clickable image to PDF
+            # Create a clickable area over the image that opens the original URL
+            self.image(temp_file, x=current_x, y=current_y, w=image_width - 2, h=image_height)
+
+            # ADDED: Make the image clickable by adding a link annotation
+            # Create an invisible clickable rectangle over the image
+            self.link(current_x, current_y, image_width - 2, image_height, image_url)
+
+            # Clean up temp file
+            os.remove(temp_file)
+
+        except Exception as e:
+            logger.warning(f"Failed to add gallery image {image_url}: {e}")
+            # Draw placeholder rectangle
+            self.rect(current_x, current_y, image_width - 2, image_height)
+            self.set_xy(current_x + 2, current_y + image_height / 2)
+            self.set_unicode_font('', 8)
+            self.cell(image_width - 4, 4, "Image indisponible", 0, 0, 'C')
+
+        # Move to next position
+        current_x += image_width
+
+    # Calculate gallery height and draw border
+    rows_needed = (len(images) + images_per_row - 1) // images_per_row
+    gallery_height = rows_needed * (image_height + 5) + 10  # Extra padding
+
+    # Draw border around gallery
+    self.rect(self.l_margin, gallery_start_y - 7, page_width, gallery_height)
+
+    # Move cursor to after gallery
+    self.set_y(gallery_start_y + gallery_height - 7)
